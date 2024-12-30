@@ -1,0 +1,29 @@
+{
+  "name": "toy-erp-node-apis",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "type": "module",
+  "imports": {
+    "#utils/*": "./src/utils/*.util.js",
+    "#routes/*": "./src/routes/*.route.js",
+    "#controllers/*": "./src/controllers/*.controller.js",
+    "#services/*": "./src/services/*.service.js",
+    "#configs/*": "./src/configs/*.config.js",
+    "#models/*": "./src/models/*.model.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.7",
+    "envalid": "^8.0.0",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.2"
+  }
+}
