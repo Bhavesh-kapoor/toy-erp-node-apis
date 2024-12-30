@@ -1,26 +1,25 @@
-import User from "#models/user"
+import User from "#models/user";
 
-export async function getUser(id,filter={}){
-    if(!id){
-        const userData = await User.find(filter);
-        return userData;
-    }
-    const userData = await User.findById(id);
-    return userData
-}
+export const getUsers = async (id, filter = {}) => {
+  if (!id) {
+    const userData = await User.find(filter);
+    return userData;
+  }
+  const userData = await User.findById(id);
+  return userData;
+};
 
-export async function  createUser(userData){
-    const user = await User.create(userData);
-    return user;
-}
+export const createUser = async (userData) => {
+  const user = await User.create(userData);
+  return user;
+};
 
-export async function updateUser(id,updates){
-    const user = await User.findById(id);
-}
+export const updateUser = async (id, updates) => {
+  const user = await User.findById(id);
+  return user;
+};
 
-export const deleteUser=(async(id)=>{
-    const findUserBYid =  await User.findByIdAndDelete(id);
-    return findUserBYid;
-
-})
-
+export const deleteUser = async (id) => {
+  const findUserBYid = await User.findByIdAndDelete(id);
+  return findUserBYid;
+};

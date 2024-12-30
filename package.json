@@ -1,35 +1,29 @@
 {
-  "name": "toy",
+  "name": "toy-erp-node-apis",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev":"nodemon src/index.js"
+    "dev": "nodemon src/index.js"
   },
   "type": "module",
-  "imports":{
-    "#configs/*":"./src/configs/*.config.js",
-    "#models/*":"./src/models/*.model.js",
-    "#routes/*":"./src/routes/*.route.js",
-    "#services/*":"./src/services/*.service.js"
+  "imports": {
+    "#utils/*": "./src/utils/*.util.js",
+    "#routes/*": "./src/routes/*.route.js",
+    "#controllers/*": "./src/controllers/*.controller.js",
+    "#services/*": "./src/services/*.service.js",
+    "#configs/*": "./src/configs/*.config.js",
+    "#models/*": "./src/models/*.model.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Bhavesh-kapoor/toy-erp-node-apis.git"
-  },
-  "author": "Bhavesh Kapoor , Deepak Singh",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Bhavesh-kapoor/toy-erp-node-apis/issues"
-  },
-  "homepage": "https://github.com/Bhavesh-kapoor/toy-erp-node-apis#readme",
   "description": "",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.7",
     "envalid": "^8.0.0",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.2"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.9"
   }
 }
