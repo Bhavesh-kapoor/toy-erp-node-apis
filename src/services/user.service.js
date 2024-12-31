@@ -1,4 +1,8 @@
 import User from "#models/user";
+import { generateQRCode, verifyOTP } from "#utils/twoFactorAuth";
+import httpStatus from "#utils/httpStatus";
+import env from "#configs/env";
+import { createToken, verifyToken } from "#utils/jwt";
 
 export const getUsers = async (id, filter = {}) => {
   if (!id) {
@@ -9,6 +13,60 @@ export const getUsers = async (id, filter = {}) => {
   return userData;
 };
 
+export const loginUser = async (userData) => {
+  const { email, password, otp } = userData;
+  const existingUser = await User.findOne({ email });
+  if (!existingUser) {
+    throw {
+      status: false,
+      httpStatus: httpStatus.UNAUTHORIZED,
+      message: "User doesn't exist",
+    };
+  }
+  if (!existingUser.isPasswordCorrect(password)) {
+    throw {
+      status: false,
+      message: "Incorrect Password",
+      httpStatus: httpStatus.UNAUTHORIZED,
+    };
+  }
+  if (existingUser.isTwoFactorEnabled && !otp) {
+    throw {
+      status: false,
+      message: "Please enter the otp",
+      otpRequired: true,
+      httpStatus: httpStatus.UNAUTHORIZED,
+    };
+  }
+  if (existingUser.isTwoFactorEnabled && !verifyOTP(existingUser.secret, otp)) {
+    throw {
+      status: false,
+      message: "Invalid Otp",
+      httpStatus: httpStatus.UNAUTHORIZED,
+    };
+  }
+  const payload = {
+    id: existingUser.id,
+    email,
+  };
+
+  const token = createToken(payload, env.JWT_SECRET, { expiresIn: "24h" });
+  return { token };
+};
+
+export const enable2FA = async (id) => {
+  const existingUser = await User.findUserById(id);
+
+  const { secret, qrCode } = await generateQRCode({
+    label: existingUser.email,
+    issuer: "Toy Project",
+  });
+  existingUser.secret = secret;
+  existingUser.isTwoFactorEnabled = true;
+  await existingUser.save();
+  return { secret, qrCode };
+};
+
 export const createUser = async (userData) => {
   const user = await User.create(userData);
   return user;
@@ -16,10 +74,14 @@ export const createUser = async (userData) => {
 
 export const updateUser = async (id, updates) => {
   const user = await User.findById(id);
+  for (const key in updates) {
+    user[key] = updates[key];
+  }
+  await user.save();
   return user;
 };
 
 export const deleteUser = async (id) => {
-  const findUserBYid = await User.findByIdAndDelete(id);
-  return findUserBYid;
+  const existingUser = await User.findByIdAndDelete(id);
+  return true;
 };

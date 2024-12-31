@@ -1,8 +1,10 @@
 import express from "express";
 import env from "#configs/env";
 import routeMapper from "#routes/index";
-const app  =  express();
+import globalErrorHandler from "#utils/error";
+const app = express();
 
-app.use("/",routeMapper)
-
+app.use(express.json());
+app.use("/", routeMapper);
+app.use(globalErrorHandler);
 export default app;
