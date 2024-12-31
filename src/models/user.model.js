@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import httpStatus from "#utils/httpStatus";
 
-const UserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -41,7 +41,7 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-UserSchema.pre("save", async function (next) {
+userSchema.pre("save", async function (next) {
   try {
     if (!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password, 10);
@@ -51,7 +51,7 @@ UserSchema.pre("save", async function (next) {
   }
 });
 
-UserSchema.statics.findUserById = async function (id) {
+userSchema.statics.findUserById = async function (id) {
   const user = await this.findById(id);
   if (!user) {
     throw {
@@ -63,8 +63,8 @@ UserSchema.statics.findUserById = async function (id) {
   return user;
 };
 
-UserSchema.methods.isPasswordCorrect = async function (password) {
+userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-export default mongoose.model("User", UserSchema);
+export default mongoose.model("User", userSchema);
