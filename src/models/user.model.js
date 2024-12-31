@@ -28,6 +28,12 @@ const UserSchema = new mongoose.Schema({
   address: {
     type: String,
   },
+  secret: {
+    type: String,
+  },
+  isTwoFactorEnabled: {
+    type: Boolean,
+  },
   isDeleted: {
     type: Boolean,
     default: false,

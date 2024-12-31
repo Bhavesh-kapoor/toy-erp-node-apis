@@ -12,7 +12,8 @@ const loadRoutes = async () => {
   for (const file of files) {
     if (file.endsWith(".route.js") && file !== "index.route.js") {
       const routePath = join(routesDir, file);
-      const route = (await import(routePath)).default;
+      const normalizedPath = routePath.replace(/\\/g, "/"); // Normalize to forward slashes
+      const route = (await import(normalizedPath)).default;
       routeMapper.use(`/${file.replace(".route.js", "")}`, route);
     }
   }
