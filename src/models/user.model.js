@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
+import httpStatus from "#utils/httpStatus";
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -49,6 +50,18 @@ UserSchema.pre("save", async function (next) {
     next(err);
   }
 });
+
+UserSchema.statics.findUserById = async function (id) {
+  const user = await this.findById(id);
+  if (!user) {
+    throw {
+      status: false,
+      message: "User not found",
+      httpStatus: httpStatus.NOT_FOUND,
+    };
+  }
+  return user;
+};
 
 UserSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);

@@ -6,7 +6,5 @@ const app = express();
 
 app.use(express.json());
 app.use("/", routeMapper);
-
 app.use(globalErrorHandler);
-
 export default app;
