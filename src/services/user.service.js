@@ -67,6 +67,14 @@ export const enable2FA = async (id) => {
   return { secret, qrCode };
 };
 
+export const disable2FA = async (id) => {
+  const existingUser = await User.findUserById(id);
+  existingUser.secret = null;
+  existingUser.isTwoFactorEnabled = false;
+  await existingUser.save();
+  return true;
+};
+
 export const createUser = async (userData) => {
   const user = await User.create(userData);
   return user;

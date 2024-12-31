@@ -36,6 +36,12 @@ export const enabletwoFactorAuth = asyncHandler(async (req, res, next) => {
     `);
 });
 
+export const disableTwoFactorAuth = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  await disable2FA(id);
+  sendResponse(httpStatus.OK, res, null, "2FA disabled successfully");
+});
+
 export const create = asyncHandler(async (req, res, next) => {
   const data = req.body;
   const createdData = await createUser(data);
