@@ -9,7 +9,7 @@ export const getUsers = async (id, filter = {}) => {
     const userData = await User.find(filter);
     return userData;
   }
-  const userData = await User.findById(id);
+  const userData = await User.findById(id).populate("role");
   return userData;
 };
 

@@ -1,12 +1,12 @@
-import httpStatus from "#utils/httpStatus";
 import Party from "#models/party";
+import _ from "lodash";
 
 export const getParty = async (id, filter = {}) => {
   if (!id) {
     const partyData = await Party.find(filter);
     return partyData;
   }
-  const partyData = await Party.findById(id).populate("parentCategory");
+  const partyData = await Party.findById(id);
   return partyData;
 };
 
@@ -17,10 +17,8 @@ export const createParty = async (partyData) => {
 
 export const updateParty = async (id, updates) => {
   const party = await Party.findById(id);
-  for (const key in updates) {
-    party[key] = updates[key];
-  }
 
+  Object.assign(party, updates);
   await party.save();
   return party;
 };

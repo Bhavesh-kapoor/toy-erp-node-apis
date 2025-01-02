@@ -6,8 +6,7 @@ export const getInstruction = async (id, filter = {}) => {
     const instructionData = await Instruction.find(filter);
     return instructionData;
   }
-  const instructionData =
-    await Instruction.findById(id).populate("parentCategory");
+  const instructionData = await Instruction.findById(id);
   return instructionData;
 };
 

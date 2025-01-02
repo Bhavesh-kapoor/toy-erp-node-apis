@@ -7,7 +7,7 @@ const roleSchema = new mongoose.Schema({
     trim: true,
   },
   permission: {
-    type: mongoose.Schema.Types.Mixed,
+    type: Array,
   },
 });
 export default mongoose.model("Role", roleSchema);

@@ -16,6 +16,19 @@ const productCategorySchema = new Schema(
       type: String,
       required: true,
     },
+    igst: {
+      type: Number,
+      min: 0,
+      deafult: 0,
+    },
+    cgst: {
+      type: Number,
+      min: 0,
+    },
+    sgst: {
+      type: Number,
+      min: 0,
+    },
     parentCategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ProductCategory",

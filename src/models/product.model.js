@@ -1,12 +1,30 @@
+import Brand from "#models/brand";
 import httpStatus from "#utils/httpStatus";
-import mongoose from "mongoose";
+import ProductUom from "#models/productUom";
+import mongoose, { Schema } from "mongoose";
 import ProductCategory from "#models/productCategory";
 
-const { Schema } = mongoose;
+export const productTypeArr = ["Finished", "Raw Material"];
 
 const productSchema = new Schema(
   {
+    productCode: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: productTypeArr,
+      required: true,
+    },
     name: {
+      type: String,
+      required: true,
+    },
+    barCode: {
+      type: String,
+    },
+    productSeries: {
       type: String,
       required: true,
     },
@@ -15,19 +33,64 @@ const productSchema = new Schema(
       ref: ProductCategory,
       required: true,
     },
-    price: {
+    brand: {
+      type: Schema.Types.ObjectId,
+      ref: Brand,
+    },
+    uom: {
+      type: Schema.Types.ObjectId,
+      ref: ProductUom,
+    },
+    description: {
+      type: String,
+    },
+    baseQuantity: {
       type: Number,
-      required: true,
+    },
+    weight: {
+      type: Number,
+      default: 0,
+    },
+    grossWeight: {
+      type: Number,
+      default: 0,
+    },
+    purchaseRate: {
+      type: Number,
+    },
+    yob: {
+      type: Number,
+    },
+    cb: {
+      type: Number,
+    },
+    ourPrice: {
+      type: Number,
+    },
+    minLevel: {
+      type: Number,
+    },
+    maxLevel: {
+      type: Number,
+    },
+    mrp: {
+      type: Number,
+    },
+    reOrderLevel: {
+      type: Number,
+    },
+    buyerRefNo: {
+      type: String,
+    },
+    isTaxed: {
+      type: Boolean,
+      reuqired: true,
+      default: false,
     },
     sku: {
       type: String,
       required: true,
       unique: true,
-    },
-    quantity: {
-      type: Number,
-      required: true,
-      min: 0,
     },
     description: {
       type: String,
@@ -40,10 +103,6 @@ const productSchema = new Schema(
     dimensions: {
       type: String,
       default: "",
-    },
-    weight: {
-      type: Number,
-      default: 0,
     },
     tags: [String],
   },

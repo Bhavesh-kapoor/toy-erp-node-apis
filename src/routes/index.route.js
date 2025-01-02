@@ -14,7 +14,15 @@ const loadRoutes = async () => {
       const routePath = join(routesDir, file);
       const normalizedPath = routePath.replace(/\\/g, "/"); // Normalize to forward slashes
       const route = (await import(normalizedPath)).default;
-      routeMapper.use(`/${file.replace(".route.js", "")}`, route);
+      let fileName = file.replace(".route.js", "");
+      let endPoint = "";
+      for (let s of fileName) {
+        if (s.toLowerCase() !== s) {
+          endPoint += "-";
+        }
+        endPoint += s.toLowerCase();
+      }
+      routeMapper.use(`/${endPoint}`, route);
     }
   }
 };

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export default function globalErrorHandler(err, req, res, next) {
   let statusCode = err.httpStatus ?? 500;
   let message = err.message;
-
+  console.log(err);
   if (err instanceof mongoose.Error) {
     switch (true) {
       case err instanceof mongoose.Error.ValidationError:
@@ -16,12 +16,6 @@ export default function globalErrorHandler(err, req, res, next) {
       case err instanceof mongoose.Error.CastError:
         statusCode = 400;
         message = `Invalid ${err.path}: ${err.value}`;
-        break;
-
-      case err instanceof mongoose.Error.DuplicateKeyError ||
-        err.code === 11000:
-        statusCode = 409;
-        message = "Duplicate key error. Resource already exists.";
         break;
 
       case err instanceof mongoose.Error.MongooseServerSelectionError:
@@ -45,9 +39,23 @@ export default function globalErrorHandler(err, req, res, next) {
     }
   }
 
-  if (err.name === "SyntaxError" && err.status === 400) {
+  if (err instanceof SyntaxError && err.status === 400) {
     statusCode = 400;
     message = "Invalid JSON syntax.";
+  }
+
+  if (err.code === 11000) {
+    statusCode = 409;
+    message = "";
+    for (let i in err.keyPattern) {
+      message += `${i} with value '${err.keyValue[i]}' already exists`;
+    }
+  }
+
+  // Fallback for any other uncaught errors
+  if (!statusCode || !message) {
+    statusCode = 500;
+    message = "An unexpected error occurred.";
   }
 
   res.status(statusCode).json({

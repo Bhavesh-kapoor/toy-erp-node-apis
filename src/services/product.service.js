@@ -6,7 +6,7 @@ export const getProduct = async (id, filter = {}) => {
     const productData = await Product.find(filter);
     return productData;
   }
-  const productData = await Product.findById(id).populate("parentCategory");
+  const productData = await Product.findById(id);
   return productData;
 };
 

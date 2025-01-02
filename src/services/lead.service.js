@@ -7,7 +7,7 @@ export const getLeads = async (id, filter = {}) => {
     const leadData = await Lead.find(filter);
     return leadData;
   }
-  const leadData = await Lead.findById(id).populate("salesPerson");
+  const leadData = await Lead.findById(id);
   return leadData;
 };
 

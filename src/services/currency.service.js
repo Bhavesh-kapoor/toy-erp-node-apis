@@ -6,7 +6,7 @@ export const getCurrency = async (id, filter = {}) => {
     const currencyData = await Currency.find(filter);
     return currencyData;
   }
-  const currencyData = await Currency.findById(id).populate("parentCategory");
+  const currencyData = await Currency.findById(id);
   return currencyData;
 };
 
