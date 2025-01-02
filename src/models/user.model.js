@@ -2,44 +2,47 @@ import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import httpStatus from "#utils/httpStatus";
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+      trim: true,
+    },
+    password: {
+      trim: true,
+      required: true,
+      type: String,
+    },
+    phone: {
+      type: String,
+    },
+    role: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Role",
+    },
+    address: {
+      type: String,
+    },
+    secret: {
+      type: String,
+    },
+    isTwoFactorEnabled: {
+      type: Boolean,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-    trim: true,
-  },
-  password: {
-    trim: true,
-    required: true,
-    type: String,
-  },
-  phone: {
-    type: String,
-  },
-  role: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Role",
-  },
-  address: {
-    type: String,
-  },
-  secret: {
-    type: String,
-  },
-  isTwoFactorEnabled: {
-    type: Boolean,
-  },
-  isDeleted: {
-    type: Boolean,
-    default: false,
-  },
-});
+  { timestamps: true },
+);
 
 userSchema.pre("save", async function (next) {
   try {

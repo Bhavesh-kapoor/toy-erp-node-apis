@@ -12,6 +12,10 @@ const productCategorySchema = new Schema(
     description: {
       type: String,
     },
+    hsnCode: {
+      type: String,
+      required: true,
+    },
     parentCategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ProductCategory",
