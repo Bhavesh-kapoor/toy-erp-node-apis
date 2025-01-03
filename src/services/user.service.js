@@ -6,6 +6,7 @@ import { session } from "#middlewares/session";
 import { createToken } from "#utils/jwt";
 import { generateQRCode, verifyOTP } from "#utils/twoFactorAuth";
 
+// TODO: Implement with both creation and update
 const allowedFileUploads = [
   "profilePic",
   "aadhaarCard",
