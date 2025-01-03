@@ -1,5 +1,6 @@
 import User from "#models/user";
 import Lead from "#models/lead";
+import Address from "#models/address";
 import httpStatus from "#utils/httpStatus";
 
 export const getLeads = async (id, filter = {}) => {
@@ -24,6 +25,23 @@ export const createLead = async (leadData) => {
     }
     leadData.assignedDate = new Date();
   }
+  const { addresses } = leadData;
+  let selected = 0;
+  const addedAddresses = addresses.map((address) => {
+    address.selected ? (selected += 1) : null;
+    return Address.create(address);
+  });
+
+  if (selected !== 1) {
+    throw {
+      status: false,
+      message: "Only one primary address is allowed",
+      httpStatus: httpStatus.CONFLICT,
+    };
+  }
+
+  await Promise.all(addedAddresses);
+
   const lead = await Lead.create(leadData);
   return lead;
 };

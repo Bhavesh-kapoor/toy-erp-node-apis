@@ -1,37 +1,11 @@
 import User from "#models/user";
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
 let leadCount = 0;
 
-const addressSchema = new mongoose.Schema(
-  {
-    street: {
-      type: String,
-      required: false,
-    },
-    city: {
-      type: String,
-      required: false,
-    },
-    state: {
-      type: String,
-      required: false,
-    },
-    zipCode: {
-      type: String,
-      required: false,
-    },
-    country: {
-      type: String,
-      required: false,
-    },
-  },
-  { _id: false },
-);
-
 const leadSchema = new mongoose.Schema(
   {
-    address: addressSchema,
+    addresses: [mongoose.Schema.Types.ObjectId],
     personalDetails: {
       firstName: {
         type: String,
@@ -72,6 +46,9 @@ const leadSchema = new mongoose.Schema(
       },
       phone: {
         type: String,
+      },
+      companyAddress: {
+        type: mongoose.Schema.Types.ObjectId,
       },
     },
 

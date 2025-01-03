@@ -1,9 +1,10 @@
 import env from "#configs/env";
 import User from "#models/user";
-import uploadFiles from "#utils/uploadFile";
-import httpStatus from "#utils/httpStatus";
-import { session } from "#middlewares/session";
+import Address from "#models/address";
 import { createToken } from "#utils/jwt";
+import httpStatus from "#utils/httpStatus";
+import uploadFiles from "#utils/uploadFile";
+import { session } from "#middlewares/session";
 import { generateQRCode, verifyOTP } from "#utils/twoFactorAuth";
 
 // TODO: Implement with both creation and update
@@ -95,7 +96,8 @@ export const createUser = async (userData) => {
     ? (userData.isTwoFactorEnabled = true)
     : (userData.isTwoFactorEnabled = false);
 
-  const user = new User(userData);
+
+	const user = new User(userData);
   const filePaths = await uploadFiles(files, `users/${user.id}`);
   for (let i in filePaths) {
     user[i] = filePaths[i];
