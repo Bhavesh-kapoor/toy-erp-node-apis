@@ -3,6 +3,7 @@ import colors from "colors";
 import express from "express";
 import { logger } from "./logger.js";
 import routeMapper from "#routes/index";
+import rateLimit from "express-rate-limit";
 import globalErrorHandler from "#utils/error";
 import { authentication } from "#middlewares/auth";
 import queryHandler from "#middlewares/queryHandler";
@@ -32,6 +33,13 @@ app.use((req, res, next) => {
   });
   next();
 });
+
+const limiter = rateLimit({
+  windowMs: 30 * 1000,
+  max: 1000,
+  message: "Too many requests from this IP, please try again later.",
+});
+app.use(limiter);
 
 app.use(multer().any());
 app.use(express.json());
