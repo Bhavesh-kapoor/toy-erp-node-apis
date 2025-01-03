@@ -1,9 +1,10 @@
+import env from "#configs/env";
 import app from "#configs/server";
 import connectDB from "#configs/database";
-import env from "#configs/env";
+import { logger } from "./configs/logger.js";
 
 await connectDB(env.DB_URI);
 
 app.listen(env.PORT, () => {
-  console.log(`Server is running at ${env.PORT}`);
+  logger.info(`Server is running at http://localhost:${env.PORT}`.blue);
 });

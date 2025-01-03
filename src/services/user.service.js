@@ -1,8 +1,18 @@
 import env from "#configs/env";
 import User from "#models/user";
-import { generateQRCode, verifyOTP } from "#utils/twoFactorAuth";
+import uploadFiles from "#utils/uploadFile";
 import httpStatus from "#utils/httpStatus";
-import { createToken, verifyToken } from "#utils/jwt";
+import { session } from "#middlewares/session";
+import { createToken } from "#utils/jwt";
+import { generateQRCode, verifyOTP } from "#utils/twoFactorAuth";
+
+// TODO: Implement with both creation and update
+const allowedFileUploads = [
+  "profilePic",
+  "aadhaarCard",
+  "panCard",
+  "otherDocument",
+];
 
 export const getUsers = async (id, filter = {}) => {
   if (!id) {
@@ -50,8 +60,10 @@ export const loginUser = async (userData) => {
     email,
   };
 
-  const token = createToken(payload, env.JWT_SECRET, { expiresIn: "24h" });
-  return { token };
+  const token = createToken(payload, env.JWT_SECRET, {
+    expiresIn: env.JWT_TOKEN_AGE,
+  });
+  return { token, userData: existingUser };
 };
 
 export const enable2FA = async (id) => {
@@ -76,7 +88,19 @@ export const disable2FA = async (id) => {
 };
 
 export const createUser = async (userData) => {
-  const user = await User.create(userData);
+  const files = session.get("files");
+
+  const { isTwoFactorEnabled } = userData;
+  isTwoFactorEnabled === "true"
+    ? (userData.isTwoFactorEnabled = true)
+    : (userData.isTwoFactorEnabled = false);
+
+  const user = new User(userData);
+  const filePaths = await uploadFiles(files, `users/${user.id}`);
+  for (let i in filePaths) {
+    user[i] = filePaths[i];
+  }
+  await user.save();
   return user;
 };
 
