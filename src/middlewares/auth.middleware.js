@@ -5,7 +5,6 @@ import httpStatus from "#utils/httpStatus";
 export async function authentication(req, res, next) {
   try {
     const token = req.headers["authorization"]?.split(" ")[1];
-
     if (!token) {
       throw {
         status: false,
@@ -14,6 +13,7 @@ export async function authentication(req, res, next) {
       };
     }
 
+    console.log(token);
     const payload = verifyToken(token);
     const user = await User.findById(payload.id);
     if (!user) {

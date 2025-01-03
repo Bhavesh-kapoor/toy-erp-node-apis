@@ -59,8 +59,10 @@ export const loginUser = async (userData) => {
     email,
   };
 
-  const token = createToken(payload, env.JWT_SECRET, { expiresIn: "24h" });
-  return { token };
+  const token = createToken(payload, env.JWT_SECRET, {
+    expiresIn: env.JWT_TOKEN_AGE,
+  });
+  return { token, userData: existingUser };
 };
 
 export const enable2FA = async (id) => {
