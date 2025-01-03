@@ -17,6 +17,11 @@ export const get = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getCurrentUser = asyncHandler(async (req, res, next) => {
+  const { user } = req;
+  sendResponse(httpStatus.OK, res, user);
+});
+
 export const login = asyncHandler(async (req, res, next) => {
   const userData = req.body;
   const loginData = await loginUser(userData);
