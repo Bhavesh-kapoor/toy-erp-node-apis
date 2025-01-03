@@ -41,7 +41,6 @@ const companyJoiSchema = Joi.object({
     debit: Joi.string().allow(null, ""),
     websiteUrl: Joi.string().uri().allow(null, ""),
   }),
-
   bankDetails: Joi.object({
     accountNo: Joi.string().allow(null, ""),
     bankName: Joi.string().allow(null, ""),
@@ -52,5 +51,6 @@ const companyJoiSchema = Joi.object({
     swiftCode: Joi.string().allow(null, ""),
   }),
 });
+
 
 export default companyJoiSchema;

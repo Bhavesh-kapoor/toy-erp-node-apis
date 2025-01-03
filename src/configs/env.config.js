@@ -6,5 +6,11 @@ const env = cleanEnv(process.env, {
   PORT: num({ default: 8000 }),
   DB_URI: str(),
   JWT_SECRET: str(),
+  /*---------------------------------aws credentials----------------------------*/
+  AWS_REGION: str(),
+  AWS_ACCESS_KEY_ID: str(),
+  AWS_SECRET_ACCESS_KEY: str(),
+  AWS_BUCKET_NAME: str(),
+  
 });
 export default env;

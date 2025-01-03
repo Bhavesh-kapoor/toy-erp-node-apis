@@ -1,32 +1,37 @@
-import fs from "fs";
 import express from "express";
-import path, { join } from "path";
+import fs from "fs";
+import { dirname, join } from "path";
+import { fileURLToPath, pathToFileURL } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const router = express.Router();
+const routesDir = __dirname;
 
-const routesDir = path.resolve("src/routes");
-
-const routeMapper = express.Router();
+/**
+ * Read all route files in the routes directory, dynamically import and use them.
+ *
+ * @return {Promise<void>} No return value
+ */
 
 const loadRoutes = async () => {
   const files = fs.readdirSync(routesDir);
 
-  for (const file of files) {
-    if (file.endsWith(".route.js") && file !== "index.route.js") {
+  for (let file of files) {
+    if (file.endsWith(".route.js") && file != "index.route.js") {
       const routePath = join(routesDir, file);
-      const normalizedPath = routePath.replace(/\\/g, "/"); // Normalize to forward slashes
-      const route = (await import(normalizedPath)).default;
-      let fileName = file.replace(".route.js", "");
-      let endPoint = "";
-      for (let s of fileName) {
-        if (s.toLowerCase() !== s) {
-          endPoint += "-";
-        }
-        endPoint += s.toLowerCase();
+      const routeUrl = pathToFileURL(routePath).href;
+      const route = (await import(routeUrl)).default;
+      file = file.replace(".route.js", "");
+      let endpoint = "";
+      for (const ele of file) {
+        if (ele.toUpperCase() === ele && ele !== ".") endpoint += "-";
+        endpoint += ele;
       }
-      routeMapper.use(`/${endPoint}`, route);
+      router.use(`/${endpoint}`, route);
     }
   }
 };
 
 await loadRoutes();
 
-export default routeMapper;
+export default router;
