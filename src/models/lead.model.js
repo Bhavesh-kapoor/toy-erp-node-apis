@@ -1,44 +1,104 @@
-import mongoose, { Schema } from "mongoose";
 import User from "#models/user";
+import mongoose, { Schema } from "mongoose";
 
 let leadCount = 0;
 
-const leadSchema = new Schema(
+const addressSchema = new mongoose.Schema(
   {
-    leadId: {
+    street: {
       type: String,
-      unique: true,
+      required: false,
     },
-    name: {
+    city: {
       type: String,
-      required: true,
+      required: false,
     },
-    email: {
+    state: {
       type: String,
-      required: true,
-      match: [/\S+@\S+\.\S+/, "Please provide a valid email address"],
+      required: false,
     },
-    salesPerson: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: User,
+    zipCode: {
+      type: String,
+      required: false,
+    },
+    country: {
+      type: String,
+      required: false,
+    },
+  },
+  { _id: false },
+);
+
+const leadSchema = new mongoose.Schema(
+  {
+    address: addressSchema,
+    personalDetails: {
+      firstName: {
+        type: String,
+        required: true,
+      },
+      lastName: {
+        type: String,
+        required: true,
+      },
+      phone: {
+        type: String,
+        required: true,
+      },
+      email: {
+        type: String,
+        required: true,
+      },
+      dateOfBirth: {
+        type: Date,
+      },
+      gender: {
+        type: String,
+      },
+    },
+    companyDetails: {
+      companyName: {
+        type: String,
+        required: true,
+      },
+      designation: {
+        type: String,
+      },
+      industry: {
+        type: String,
+      },
+      website: {
+        type: String,
+      },
+      phone: {
+        type: String,
+      },
+    },
+
+    sourceName: {
+      type: String,
+      required: false,
+    },
+    status: {
+      type: [String],
+      enum: ["Pending", "Contacted", "Qualified", "Converted", "Closed"],
+      default: ["Pending"],
     },
     priorityLevel: {
       type: String,
-      enum: ["Low", "Medium", "High"],
+      enum: ["Low", "Medium", "High", "Urgent"],
+      default: "Medium",
     },
-    status: {
-      type: String,
-      enum: [
-        "New",
-        "Contacted",
-        "Qualified",
-        "Proposal Sent",
-        "Closed Won",
-        "Closed Lost",
-      ],
-      default: "New",
+    assignedSalesPerson: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: User,
+      required: false,
     },
-    updateComments: {
+    assignedDate: {
+      type: Date,
+      required: false,
+    },
+    statusUpdate: {
       type: [
         {
           update: String,
@@ -46,27 +106,15 @@ const leadSchema = new Schema(
         },
       ],
     },
-    phone: {
-      type: String,
-      required: true,
-    },
-    companyName: {
-      type: String,
-      required: true,
-    },
-    source: {
-      type: String,
-      required: true,
-      enum: ["Website", "Referral", "Event"],
-    },
-    address: {
-      type: String,
-    },
-    jobTitle: {
-      type: String,
-    },
-    notes: {
-      type: String,
+    metaData: {
+      query: {
+        type: String,
+        required: false,
+      },
+      tags: {
+        type: [String],
+        required: false,
+      },
     },
   },
   { timestamps: true },

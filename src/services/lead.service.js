@@ -12,8 +12,18 @@ export const getLeads = async (id, filter = {}) => {
 };
 
 export const createLead = async (leadData) => {
-  const { salesPerson: userId } = leadData;
-  userId ? await User.findUserById(userId) : null;
+  const { assignedSalesPerson: userId } = leadData;
+  if (userId) {
+    const user = await User.findUserById(userId);
+    if (!user) {
+      throw {
+        status: false,
+        message: "SalesPerson not found",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+    leadData.assignedDate = new Date();
+  }
   const lead = await Lead.create(leadData);
   return lead;
 };
@@ -46,6 +56,6 @@ export const updateLead = async (id, updates) => {
 };
 
 export const deleteLead = async (id) => {
-  const existingLead = await Lead.findByIdAndDelete(id);
+  await Lead.findByIdAndDelete(id);
   return true;
 };

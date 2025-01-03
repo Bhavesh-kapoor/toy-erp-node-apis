@@ -13,7 +13,6 @@ export async function authentication(req, res, next) {
       };
     }
 
-    console.log(token);
     const payload = verifyToken(token);
     const user = await User.findById(payload.id);
     if (!user) {
