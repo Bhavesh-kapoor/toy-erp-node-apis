@@ -74,11 +74,13 @@ const userSchema = new mongoose.Schema(
     total: {
       type: Number,
     },
-    panCard: { type: String },
-
-    aadhaarCard: { type: String },
-
-    otherDocuments: {
+    panCard: {
+      type: String,
+    },
+    aadhaarCard: {
+      type: String,
+    },
+    otherDocument: {
       type: String,
     },
     password: {
@@ -102,6 +104,9 @@ const userSchema = new mongoose.Schema(
     isDeleted: {
       type: Boolean,
       default: false,
+    },
+    metaData: {
+      type: mongoose.Schema.Types.Mixed,
     },
   },
   { timestamps: true },

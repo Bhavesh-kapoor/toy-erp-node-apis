@@ -1,9 +1,15 @@
 import mongoose from "mongoose";
+import { session, transactionMethods } from "#middlewares/session";
 
-export default function globalErrorHandler(err, req, res, next) {
+export default async function globalErrorHandler(err, req, res, next) {
   let statusCode = err.httpStatus ?? 500;
   let message = err.message;
-  console.log(err);
+
+  if (transactionMethods.includes(req.method)) {
+    const transactionSession = session.get("transaction");
+    await transactionSession.abortTransaction();
+  }
+
   if (err instanceof mongoose.Error) {
     switch (true) {
       case err instanceof mongoose.Error.ValidationError:
