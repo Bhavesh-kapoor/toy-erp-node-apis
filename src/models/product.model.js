@@ -3,10 +3,11 @@ import httpStatus from "#utils/httpStatus";
 import ProductUom from "#models/productUom";
 import mongoose, { Schema } from "mongoose";
 import ProductCategory from "#models/productCategory";
+import BaseSchema from "#models/base";
 
 export const productTypeArr = ["Finished", "Raw Material"];
 
-const productSchema = new Schema(
+const productSchema = new BaseSchema(
   {
     productCode: {
       type: String,

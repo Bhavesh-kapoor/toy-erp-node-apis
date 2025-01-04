@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import BaseSchema from "#models/base";
 
-const departmentSchema = new mongoose.Schema({
+const departmentSchema = new BaseSchema({
   name: {
     type: String,
     required: true,

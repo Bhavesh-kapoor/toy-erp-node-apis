@@ -17,7 +17,7 @@ const allowedFileUploads = [
 
 export const getUsers = async (id, filter = {}) => {
   if (!id) {
-    const userData = await User.find(filter);
+    const userData = await User.findAll(filter);
     return userData;
   }
   const userData = await User.findById(id).populate("role");
@@ -96,8 +96,7 @@ export const createUser = async (userData) => {
     ? (userData.isTwoFactorEnabled = true)
     : (userData.isTwoFactorEnabled = false);
 
-
-	const user = new User(userData);
+  const user = new User(userData);
   const filePaths = await uploadFiles(files, `users/${user.id}`);
   for (let i in filePaths) {
     user[i] = filePaths[i];

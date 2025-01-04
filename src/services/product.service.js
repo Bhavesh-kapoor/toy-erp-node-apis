@@ -3,7 +3,7 @@ import Product from "#models/product";
 
 export const getProduct = async (id, filter = {}) => {
   if (!id) {
-    const productData = await Product.find(filter);
+    const productData = await Product.findAll(filter);
     return productData;
   }
   const productData = await Product.findById(id);

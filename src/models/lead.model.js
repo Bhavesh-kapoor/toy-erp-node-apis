@@ -1,9 +1,10 @@
 import User from "#models/user";
 import mongoose from "mongoose";
+import BaseSchema from "#models/base";
 
 let leadCount = 0;
 
-const leadSchema = new mongoose.Schema(
+const leadSchema = new BaseSchema(
   {
     addresses: [mongoose.Schema.Types.ObjectId],
     personalDetails: {

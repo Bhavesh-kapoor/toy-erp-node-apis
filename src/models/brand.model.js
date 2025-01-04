@@ -1,7 +1,8 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import slugify from "slugify";
+import BaseSchema from "#models/base";
 
-const brandSchema = new mongoose.Schema(
+const brandSchema = new BaseSchema(
   {
     name: {
       type: String,
@@ -27,7 +28,7 @@ const brandSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true, versionKey: "version" }
+  { timestamps: true, versionKey: "version" },
 );
 
 brandSchema.pre("save", function (next) {

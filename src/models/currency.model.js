@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import BaseSchema from "#models/base";
 
-const currencySchema = new mongoose.Schema(
+const currencySchema = new BaseSchema(
   {
     name: {
       type: String,

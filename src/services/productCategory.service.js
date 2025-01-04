@@ -3,7 +3,7 @@ import ProductCategory from "#models/productCategory";
 
 export const getProductCategory = async (id, filter = {}) => {
   if (!id) {
-    const productCategoryData = await ProductCategory.find(filter);
+    const productCategoryData = await ProductCategory.findAll(filter);
     return productCategoryData;
   }
   const productCategoryData = await ProductCategory.findById(id);

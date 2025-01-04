@@ -1,7 +1,7 @@
 import multer from "multer";
 import colors from "colors";
 import express from "express";
-import { logger } from "./logger.js";
+import logger from "#configs/logger";
 import routeMapper from "#routes/index";
 import rateLimit from "express-rate-limit";
 import globalErrorHandler from "#utils/error";
@@ -28,7 +28,7 @@ app.use((req, res, next) => {
         req.originalUrl.yellow
       } - ${"STATUS:".blue} ${fetchStatus()} - ${"Response Time:".blue} ${
         responseTime.magenta
-      } ${"ms".magenta}`
+      } ${"ms".magenta}`,
     );
   });
   next();

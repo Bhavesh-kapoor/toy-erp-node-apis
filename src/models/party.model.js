@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import User from "#models/user";
+import BaseSchema from "#models/base";
 
 export const ledgerEnumArr = ["Customer", "Supplier", "Cash", "Bank", "Both"];
 
-const partySchema = new mongoose.Schema(
+const partySchema = new BaseSchema(
   {
     companyName: {
       type: String,

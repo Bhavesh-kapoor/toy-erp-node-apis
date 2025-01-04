@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import BaseSchema from "#models/base";
 
 export const instructionTypeEnumArr = ["Order", "Proforma", "Sampling"];
 
-const instructionSchema = new mongoose.Schema(
+const instructionSchema = new BaseSchema(
   {
     instructionType: {
       type: String,

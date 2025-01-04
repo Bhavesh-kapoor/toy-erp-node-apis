@@ -2,7 +2,7 @@ import Department from "#models/department";
 
 export const getDepartment = async (id, filter = {}) => {
   if (!id) {
-    const departmentData = await Department.find(filter);
+    const departmentData = await Department.findAll(filter);
     return departmentData;
   }
   const departmentData = await Department.findById(id);

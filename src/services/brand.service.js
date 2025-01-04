@@ -3,7 +3,7 @@ import Brand from "#models/brand";
 
 export const getBrand = async (id, filter = {}) => {
   if (!id) {
-    const brandData = await Brand.find(filter);
+    const brandData = await Brand.findAll(filter);
     return brandData;
   }
   const brandData = await Brand.findById(id);

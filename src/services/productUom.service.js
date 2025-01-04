@@ -3,7 +3,7 @@ import ProductUom from "#models/productUom";
 
 export const getProductUom = async (id, filter = {}) => {
   if (!id) {
-    const productUomData = await ProductUom.find(filter);
+    const productUomData = await ProductUom.findAll(filter);
     return productUomData;
   }
   const productUomData = await ProductUom.findById(id);

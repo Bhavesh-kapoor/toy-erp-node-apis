@@ -3,7 +3,7 @@ import Instruction from "#models/instruction";
 
 export const getInstruction = async (id, filter = {}) => {
   if (!id) {
-    const instructionData = await Instruction.find(filter);
+    const instructionData = await Instruction.findAll(filter);
     return instructionData;
   }
   const instructionData = await Instruction.findById(id);

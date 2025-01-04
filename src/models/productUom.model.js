@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import BaseSchema from "#models/base";
 
-const productUomSchema = new mongoose.Schema(
+const productUomSchema = new BaseSchema(
   {
     name: {
       type: String,

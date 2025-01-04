@@ -3,7 +3,7 @@ import Currency from "#models/currency";
 
 export const getCurrency = async (id, filter = {}) => {
   if (!id) {
-    const currencyData = await Currency.find(filter);
+    const currencyData = await Currency.findAll(filter);
     return currencyData;
   }
   const currencyData = await Currency.findById(id);

@@ -5,7 +5,7 @@ import httpStatus from "#utils/httpStatus";
 
 export const getLeads = async (id, filter = {}) => {
   if (!id) {
-    const leadData = await Lead.find(filter);
+    const leadData = await Lead.findAll(filter);
     return leadData;
   }
   const leadData = await Lead.findById(id);

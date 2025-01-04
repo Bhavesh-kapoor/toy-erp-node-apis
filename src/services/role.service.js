@@ -2,7 +2,7 @@ import Role from "#models/role";
 
 export const getRole = async (id, filter = {}) => {
   if (!id) {
-    const roleData = await Role.find(filter);
+    const roleData = await Role.findAll(filter);
     return roleData;
   }
   const roleData = await Role.findById(id);

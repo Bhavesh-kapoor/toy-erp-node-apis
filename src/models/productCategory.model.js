@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
+import BaseSchema from "#models/base";
 
-const { Schema } = mongoose;
-
-const productCategorySchema = new Schema(
+const productCategorySchema = new BaseSchema(
   {
     name: {
       type: String,

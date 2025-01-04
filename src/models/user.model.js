@@ -2,8 +2,9 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import httpStatus from "#utils/httpStatus";
 import Role from "#models/role";
+import BaseSchema from "#models/base";
 
-const userSchema = new mongoose.Schema(
+const userSchema = new BaseSchema(
   {
     name: {
       type: String,

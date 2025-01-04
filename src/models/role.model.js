@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import BaseSchema from "#models/base";
 
 /**
  * PermissionSchema defines the structure for granular permissions.
  */
-const permissionSchema = new mongoose.Schema({
+const permissionSchema = new BaseSchema({
   module: {
     type: String,
     required: true,
@@ -43,7 +44,7 @@ const roleSchema = new mongoose.Schema(
       description: "Optional description of the role's purpose and scope.",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("Role", roleSchema);

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import BaseSchema from "#/models/base";
 
-const activityLogSchema = new mongoose.Schema(
+const activityLogSchema = new BaseSchema(
   {
     leadId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -74,7 +75,7 @@ const activityLogSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 activityLogSchema.index({ leadId: 1, createdAt: -1 });
