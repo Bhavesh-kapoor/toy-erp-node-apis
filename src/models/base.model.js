@@ -1,8 +1,20 @@
 import mongoose, { Schema } from "mongoose";
 
+// TODO Proper data insertion and filterable check
 class BaseSchema extends Schema {
   constructor(schemaDefinition, options) {
     super(schemaDefinition, options);
+
+    this.statics.create = async function (documentData) {
+      const modelKeys = this.schema.tree;
+      const idChecks = [];
+      for (let i in modelKeys) {
+        console.log(modelKeys);
+      }
+      const createdDoc = new this(documentData);
+      await createdDoc.save();
+      return createdDoc;
+    };
 
     this.statics.findAll = async function (filters) {
       const {
@@ -86,7 +98,6 @@ class BaseSchema extends Schema {
           currentPage: pageNumber,
         },
       };
-      return await Promise.all([]);
     };
   }
 }

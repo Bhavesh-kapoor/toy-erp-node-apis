@@ -6,6 +6,7 @@ import BaseSchema from "#models/base";
 
 const userSchema = new BaseSchema(
   {
+    // Personal Details
     name: {
       type: String,
       required: true,
@@ -14,10 +15,6 @@ const userSchema = new BaseSchema(
     profilePic: {
       type: String,
       isFile: true,
-    },
-    department: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: Department,
     },
     qualification: {
       type: String,
@@ -28,6 +25,35 @@ const userSchema = new BaseSchema(
     aadhaarNo: {
       type: Number,
     },
+    birthDate: {
+      type: Date,
+    },
+    joiningDate: {
+      type: Date,
+    },
+    leavingDate: {
+      type: Date,
+    },
+
+    // Contact Details
+    mobileNo: {
+      type: String,
+      required: true,
+    },
+    altMobileNo: {
+      type: String,
+    },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+      trim: true,
+    },
+    familyRefInfo: {
+      type: String,
+    },
+
+    // Address Details
     address: {
       type: String,
     },
@@ -38,31 +64,8 @@ const userSchema = new BaseSchema(
       type: String,
       required: true,
     },
-    mobileNo: {
-      type: String,
-      required: true,
-    },
-    altMobileNo: {
-      type: String,
-    },
-    familyRefInfo: {
-      type: String,
-    },
-    email: {
-      type: String,
-      unique: true,
-      required: true,
-      trim: true,
-    },
-    birthDate: {
-      type: Date,
-    },
-    joiningDate: {
-      type: Date,
-    },
-    leavingDate: {
-      type: Date,
-    },
+
+    // Salary Details
     basic: {
       type: Number,
     },
@@ -75,24 +78,34 @@ const userSchema = new BaseSchema(
     total: {
       type: Number,
     },
-    panCard: {
-      type: String,
+
+    // Expenses (if applicable)
+    expenses: {
+      type: [mongoose.Schema.Types.Mixed], // Array to store flexible expense objects
     },
-    aadhaarCard: {
-      type: String,
-    },
-    otherDocument: {
-      type: String,
-    },
-    password: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+
+    // Role
     role: {
       type: mongoose.Schema.Types.ObjectId,
       ref: Role,
       required: true,
+    },
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Department,
+    },
+
+    // Active Status
+    status: {
+      type: Boolean,
+      default: true,
+    },
+
+    // Authentication
+    password: {
+      type: String,
+      required: true,
+      trim: true,
     },
     secret: {
       type: String,
@@ -102,12 +115,14 @@ const userSchema = new BaseSchema(
       type: Boolean,
       required: true,
     },
+
+    // Metadata and Soft Delete
+    metaData: {
+      type: mongoose.Schema.Types.Mixed,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
-    },
-    metaData: {
-      type: mongoose.Schema.Types.Mixed,
     },
   },
   { timestamps: true },

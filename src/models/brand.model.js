@@ -1,3 +1,4 @@
+import Role from "#models/role";
 import mongoose, { Schema } from "mongoose";
 import slugify from "slugify";
 import BaseSchema from "#models/base";
