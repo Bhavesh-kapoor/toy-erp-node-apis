@@ -2,49 +2,39 @@ import User from "#models/user";
 import Lead from "#models/lead";
 import Address from "#models/address";
 import httpStatus from "#utils/httpStatus";
+import Service from "#services/base";
 
-export const getLeads = async (id, filter = {}) => {
-  if (!id) {
-    const leadData = await Lead.findAll(filter);
-    return leadData;
-  }
-  const leadData = await Lead.findById(id);
-  return leadData;
-};
+class LeadService extends Service {
+  static Model = Lead;
 
-export const createLead = async (leadData) => {
-  const { assignedSalesPerson: userId } = leadData;
-  if (userId) {
-    const user = await User.findUserById(userId);
-    if (!user) {
+  static async create(leadData) {
+    const { assignedSalesPerson: userId } = leadData;
+    if (userId) {
+      leadData.assignedDate = new Date();
+    }
+
+    const { addresses = [] } = leadData;
+    let selected = 0;
+    const addedAddresses = addresses.map((address) => {
+      address.isActive ? (selected += 1) : null;
+      return Address.create(address);
+    });
+
+    if (selected !== 1) {
       throw {
         status: false,
-        message: "SalesPerson not found",
-        httpStatus: httpStatus.BAD_REQUEST,
+        message: "Only one primary address is allowed",
+        httpStatus: httpStatus.CONFLICT,
       };
     }
-    leadData.assignedDate = new Date();
+
+    const createdAddresses = await Promise.all(addedAddresses);
+    leadData.addresses = [];
+    createdAddresses.forEach((ele, index) => leadData.addresses.push(ele.id));
+    const lead = await this.Model.create(leadData);
+    return lead;
   }
-  const { addresses } = leadData;
-  let selected = 0;
-  const addedAddresses = addresses.map((address) => {
-    address.selected ? (selected += 1) : null;
-    return Address.create(address);
-  });
-
-  if (selected !== 1) {
-    throw {
-      status: false,
-      message: "Only one primary address is allowed",
-      httpStatus: httpStatus.CONFLICT,
-    };
-  }
-
-  await Promise.all(addedAddresses);
-
-  const lead = await Lead.create(leadData);
-  return lead;
-};
+}
 
 export const updateLead = async (id, updates) => {
   const lead = await Lead.findById(id);
@@ -73,7 +63,4 @@ export const updateLead = async (id, updates) => {
   return lead;
 };
 
-export const deleteLead = async (id) => {
-  await Lead.findByIdAndDelete(id);
-  return true;
-};
+export default LeadService;

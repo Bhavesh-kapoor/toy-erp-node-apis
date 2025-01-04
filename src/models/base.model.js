@@ -1,19 +1,62 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
+import httpStatus from "#utils/httpStatus";
 
-// TODO Proper data insertion and filterable check
 class BaseSchema extends Schema {
   constructor(schemaDefinition, options) {
-    super(schemaDefinition, options);
+    super(schemaDefinition, { timestamps: true, versionKey: false, options });
 
-    this.statics.create = async function (documentData) {
-      const modelKeys = this.schema.tree;
+    // TODO: Implement check for refPath
+    this.pre("save", async function (next) {
+      const modelKeys = this.constructor.schema.tree;
       const idChecks = [];
-      for (let i in modelKeys) {
-        console.log(modelKeys);
+      const files = {};
+      for (let key in modelKeys) {
+        if (modelKeys[key].file) files[key] = true;
+        if (!modelKeys[key].ref) continue;
+        if (modelKeys[key].required) {
+          const check = modelKeys[key].ref.findDocById(this[key]);
+          idChecks.push(check);
+        } else {
+          if (this[key]) {
+            const check = modelKeys[key].ref.findDocById(this[key]);
+            idChecks.push(check);
+          }
+        }
       }
-      const createdDoc = new this(documentData);
-      await createdDoc.save();
-      return createdDoc;
+      await Promise.all(idChecks);
+      next();
+    });
+
+    this.statics.findDocByFilters = async function (filters = {}) {
+      const doc = await this.findOne(filters);
+      if (doc) return doc;
+
+      throw {
+        status: false,
+        message: `${this.modelName} doesn't exist`,
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    };
+
+    this.statics.findDocById = async function (id) {
+      const fields = Object.keys(this.schema.tree);
+      const populateFieldsArr = fields
+        .filter((field) => this.schema.tree[field].ref)
+        .map((field) => ({
+          path: field,
+          model: this.schema.tree[field].ref,
+        }));
+
+      const doc = await this.findById(id).populate(populateFieldsArr);
+
+      if (!doc) {
+        throw {
+          status: false,
+          message: `${this.modelName} with id ${id} doesn't exist`,
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+      return doc;
     };
 
     this.statics.findAll = async function (filters) {
@@ -88,7 +131,7 @@ class BaseSchema extends Schema {
 
       const totalCount = countResult.length > 0 ? countResult[0].totalCount : 0;
       const totalPages = Math.ceil(totalCount / limitNumber);
-
+      console.log(pipeline);
       return {
         data: logs,
         meta: {
@@ -98,6 +141,12 @@ class BaseSchema extends Schema {
           currentPage: pageNumber,
         },
       };
+    };
+
+    this.methods.update = function (updates) {
+      for (let i in updates) {
+        this[i] = updates[i];
+      }
     };
   }
 }

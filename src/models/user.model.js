@@ -1,132 +1,142 @@
-import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import httpStatus from "#utils/httpStatus";
 import Role from "#models/role";
+import mongoose from "mongoose";
 import BaseSchema from "#models/base";
+import Address from "#models/address";
+import httpStatus from "#utils/httpStatus";
 
-const userSchema = new BaseSchema(
-  {
-    // Personal Details
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    profilePic: {
-      type: String,
-      isFile: true,
-    },
-    qualification: {
-      type: String,
-    },
-    panNo: {
-      type: String,
-    },
-    aadhaarNo: {
-      type: Number,
-    },
-    birthDate: {
-      type: Date,
-    },
-    joiningDate: {
-      type: Date,
-    },
-    leavingDate: {
-      type: Date,
-    },
-
-    // Contact Details
-    mobileNo: {
-      type: String,
-      required: true,
-    },
-    altMobileNo: {
-      type: String,
-    },
-    email: {
-      type: String,
-      unique: true,
-      required: true,
-      trim: true,
-    },
-    familyRefInfo: {
-      type: String,
-    },
-
-    // Address Details
-    address: {
-      type: String,
-    },
-    pinCode: {
-      type: String,
-    },
-    state: {
-      type: String,
-      required: true,
-    },
-
-    // Salary Details
-    basic: {
-      type: Number,
-    },
-    hra: {
-      type: Number,
-    },
-    conveyance: {
-      type: Number,
-    },
-    total: {
-      type: Number,
-    },
-
-    // Expenses (if applicable)
-    expenses: {
-      type: [mongoose.Schema.Types.Mixed], // Array to store flexible expense objects
-    },
-
-    // Role
-    role: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: Role,
-      required: true,
-    },
-    department: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: Department,
-    },
-
-    // Active Status
-    status: {
-      type: Boolean,
-      default: true,
-    },
-
-    // Authentication
-    password: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    secret: {
-      type: String,
-      required: true,
-    },
-    isTwoFactorEnabled: {
-      type: Boolean,
-      required: true,
-    },
-
-    // Metadata and Soft Delete
-    metaData: {
-      type: mongoose.Schema.Types.Mixed,
-    },
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
+const userSchema = new BaseSchema({
+  // Personal Details
+  name: {
+    type: String,
+    required: true,
+    trim: true,
   },
-  { timestamps: true },
-);
+  profilePic: {
+    type: String,
+    isFile: true,
+  },
+  qualification: {
+    type: String,
+  },
+  panNo: {
+    type: String,
+  },
+  aadhaarNo: {
+    type: Number,
+  },
+  birthDate: {
+    type: Date,
+  },
+  joiningDate: {
+    type: Date,
+  },
+  leavingDate: {
+    type: Date,
+  },
+
+  // Contact Details
+  mobileNo: {
+    type: String,
+    required: true,
+  },
+  altMobileNo: {
+    type: String,
+  },
+  email: {
+    type: String,
+    unique: true,
+    required: true,
+    trim: true,
+  },
+  familyRefInfo: {
+    type: String,
+  },
+
+  // Address Details
+  address: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Address,
+  },
+  pinCode: {
+    type: String,
+  },
+  state: {
+    type: String,
+    required: true,
+  },
+
+  // Salary Details
+  basic: {
+    type: Number,
+  },
+  hra: {
+    type: Number,
+  },
+  conveyance: {
+    type: Number,
+  },
+
+  // Expenses (if applicable)
+  expenses: {
+    type: [mongoose.Schema.Types.Mixed], // Array to store flexible expense objects
+  },
+
+  // Role
+  role: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Role,
+    required: true,
+  },
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Department,
+  },
+
+  // Active Status
+  status: {
+    type: Boolean,
+    default: true,
+  },
+
+  // Authentication
+  password: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  secret: {
+    type: String,
+    required: true,
+  },
+  isTwoFactorEnabled: {
+    type: Boolean,
+    required: true,
+  },
+
+  // Metadata and Soft Delete
+  metaData: {
+    type: mongoose.Schema.Types.Mixed,
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+
+  // Documents
+  panCardDoc: {
+    type: String,
+    file: true,
+  },
+  aadhaarCardDoc: {
+    type: String,
+    file: true,
+  },
+  otherDoc: {
+    type: String,
+    file: true,
+  },
+});
 
 import Department from "#models/department";
 userSchema.pre("save", async function (next) {

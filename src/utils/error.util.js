@@ -5,10 +5,11 @@ export default async function globalErrorHandler(err, req, res, next) {
   let statusCode = err.httpStatus ?? 500;
   let message = err.message;
 
-  if (transactionMethods.includes(req.method)) {
+  // TODO: transaction has to implemented here
+  /**if (transactionMethods.includes(req.method)) {
     const transactionSession = session.get("transaction");
     await transactionSession.abortTransaction();
-  }
+  }*/
 
   if (err instanceof mongoose.Error) {
     switch (true) {

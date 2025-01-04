@@ -2,12 +2,14 @@ import { session } from "#middlewares/session";
 
 export const sendResponse = async (statusCode, res, data, message) => {
   const status = statusCode >= 400 ? false : true;
-  const transactionSession = session.get("transaction");
+
+  //TODO: Transaction has to be implemented here
+  /**const transactionSession = session.get("transaction");
   if (transactionSession) {
     status
       ? await transactionSession.commitTransaction()
       : await transactionSession.abortTransaction;
-  }
+  }*/
 
   //const pagination = {
   //  currentPage: pageNumber,

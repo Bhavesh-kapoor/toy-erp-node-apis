@@ -3,34 +3,31 @@ import mongoose, { Schema } from "mongoose";
 import slugify from "slugify";
 import BaseSchema from "#models/base";
 
-const brandSchema = new BaseSchema(
-  {
-    name: {
-      type: String,
-      unique: true,
-      required: [true, "Brand name is required"],
-      minlength: [3, "Brand name must be at least 3 characters long"],
-      maxlength: [100, "Brand name must be less than 100 characters"],
-    },
-    description: {
-      type: String,
-      required: [true, "Description is required"],
-      minlength: [10, "Description must be at least 10 characters long"],
-      maxlength: [500, "Description must be less than 500 characters"],
-    },
-    slug: {
-      type: String,
-      unique: true,
-      lowercase: true,
-      required: true,
-    },
-    deletedAt: {
-      type: Date,
-      default: null,
-    },
+const brandSchema = new BaseSchema({
+  name: {
+    type: String,
+    unique: true,
+    required: [true, "Brand name is required"],
+    minlength: [3, "Brand name must be at least 3 characters long"],
+    maxlength: [100, "Brand name must be less than 100 characters"],
   },
-  { timestamps: true, versionKey: "version" },
-);
+  description: {
+    type: String,
+    required: [true, "Description is required"],
+    minlength: [10, "Description must be at least 10 characters long"],
+    maxlength: [500, "Description must be less than 500 characters"],
+  },
+  slug: {
+    type: String,
+    unique: true,
+    lowercase: true,
+    required: true,
+  },
+  deletedAt: {
+    type: Date,
+    default: null,
+  },
+});
 
 brandSchema.pre("save", function (next) {
   // Generate a slug from the name field if it's not set

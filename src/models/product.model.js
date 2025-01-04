@@ -93,10 +93,6 @@ const productSchema = new BaseSchema(
       required: true,
       unique: true,
     },
-    description: {
-      type: String,
-      default: "",
-    },
     manufacturer: {
       type: String,
       default: "",
@@ -109,17 +105,5 @@ const productSchema = new BaseSchema(
   },
   { timestamps: true },
 );
-
-productSchema.pre("save", async function (next) {
-  const productCategory = await ProductCategory.findById(this.productCategory);
-  if (!productCategory) {
-    throw {
-      status: false,
-      message: "Product category doesn't exist",
-      httpStatus: httpStatus.BAD_REQUEST,
-    };
-  }
-  next();
-});
 
 export default mongoose.model("Product", productSchema);
