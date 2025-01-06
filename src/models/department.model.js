@@ -6,6 +6,7 @@ const departmentSchema = new BaseSchema({
     type: String,
     required: true,
     trim: true,
+    unique: true,
   },
 });
 export default mongoose.model("Department", departmentSchema);

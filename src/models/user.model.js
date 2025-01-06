@@ -54,16 +54,9 @@ const userSchema = new BaseSchema({
   },
 
   // Address Details
-  address: {
-    type: mongoose.Schema.Types.ObjectId,
+  addresses: {
+    type: [mongoose.Schema.Types.ObjectId],
     ref: Address,
-  },
-  pinCode: {
-    type: String,
-  },
-  state: {
-    type: String,
-    required: true,
   },
 
   // Salary Details

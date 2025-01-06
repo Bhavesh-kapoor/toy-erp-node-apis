@@ -1,24 +1,30 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import httpStatus from "#utils/httpStatus";
 
 class BaseSchema extends Schema {
-  constructor(schemaDefinition, options) {
-    super(schemaDefinition, { timestamps: true, versionKey: false, options });
+  constructor(schemaDefinition, options = {}) {
+    super(schemaDefinition, {
+      timestamps: true,
+      versionKey: false,
+      ...options,
+    });
 
     // TODO: Implement check for refPath
     this.pre("save", async function (next) {
       const modelKeys = this.constructor.schema.tree;
       const idChecks = [];
-      const files = {};
       for (let key in modelKeys) {
-        if (modelKeys[key].file) files[key] = true;
         if (!modelKeys[key].ref) continue;
+        const model =
+          typeof modelKeys[key].ref !== "string"
+            ? modelKeys[key].ref
+            : mongoose.model(modelKeys[key].ref);
         if (modelKeys[key].required) {
-          const check = modelKeys[key].ref.findDocById(this[key]);
+          const check = model.findDocById(this[key]);
           idChecks.push(check);
         } else {
           if (this[key]) {
-            const check = modelKeys[key].ref.findDocById(this[key]);
+            const check = model.findDocById(this[key]);
             idChecks.push(check);
           }
         }
@@ -131,7 +137,7 @@ class BaseSchema extends Schema {
 
       const totalCount = countResult.length > 0 ? countResult[0].totalCount : 0;
       const totalPages = Math.ceil(totalCount / limitNumber);
-      console.log(pipeline);
+
       return {
         data: logs,
         meta: {

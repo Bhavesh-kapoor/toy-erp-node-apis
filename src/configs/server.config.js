@@ -1,3 +1,5 @@
+import path, { dirname, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "url";
 import multer from "multer";
 import colors from "colors";
 import express from "express";
@@ -10,6 +12,8 @@ import queryHandler from "#middlewares/queryHandler";
 import sessionMiddleware from "#middlewares/session";
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 app.use((req, res, next) => {
   const startTime = process.hrtime();
@@ -33,6 +37,7 @@ app.use((req, res, next) => {
   });
   next();
 });
+const uploadsDir = path.join(__dirname, "../uploads");
 
 const limiter = rateLimit({
   windowMs: 30 * 1000,
@@ -40,6 +45,7 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 app.use(limiter);
+app.use("/uploads", express.static(uploadsDir));
 
 app.use(multer().any());
 app.use(express.json());

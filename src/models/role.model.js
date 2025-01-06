@@ -21,7 +21,7 @@ const permissionSchema = new BaseSchema(
         "CRUD access: { create: true, read: true, update: false, delete: false }",
     },
   },
-  { timestamps: false },
+  { timestamps: false, _id: false },
 );
 
 /**

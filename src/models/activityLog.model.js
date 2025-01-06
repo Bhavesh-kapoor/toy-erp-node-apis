@@ -41,9 +41,11 @@ const leadActionArr = [
 ];
 
 const activityLogSchema = new BaseSchema({
+  //TODO: We should also add quotation id and packing id ?? because creating a quotation without lead is possible
+
   leadId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: Lead,
+    ref: "Lead",
     index: true,
     required: true,
   },

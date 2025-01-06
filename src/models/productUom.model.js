@@ -2,14 +2,15 @@ import mongoose from "mongoose";
 import BaseSchema from "#models/base";
 
 const productUomSchema = new BaseSchema({
-  name: {
+  shortName: {
     type: String,
     required: true,
     unique: true,
   },
-  description: {
+  longName: {
     type: String,
     required: true,
+    unique: true,
   },
 });
 

@@ -13,6 +13,7 @@ const productCategorySchema = new BaseSchema({
   hsnCode: {
     type: String,
     required: true,
+    unique: true,
   },
   igst: {
     type: Number,
@@ -30,6 +31,10 @@ const productCategorySchema = new BaseSchema({
   parentCategory: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "ProductCategory",
+  },
+  //TODO: Has to be addressed
+  customTax: {
+    type: Map,
   },
 });
 

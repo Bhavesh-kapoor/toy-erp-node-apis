@@ -1,62 +1,62 @@
-import User from "#models/user";
 import Lead from "#models/lead";
 import Address from "#models/address";
 import httpStatus from "#utils/httpStatus";
 import Service from "#services/base";
+import { addressManager } from "#services/user";
+import ActivityLogService from "#services/activitylog";
 
 class LeadService extends Service {
   static Model = Lead;
 
   static async create(leadData) {
-    const { assignedSalesPerson: userId } = leadData;
-    if (userId) {
-      leadData.assignedDate = new Date();
+    const lead = new this.Model(leadData);
+    leadData.id = lead.id;
+    await addressManager(leadData);
+
+    for (const key in leadData) {
+      lead[key] = leadData[key] ?? lead[key];
     }
 
-    const { addresses = [] } = leadData;
-    let selected = 0;
-    const addedAddresses = addresses.map((address) => {
-      address.isActive ? (selected += 1) : null;
-      return Address.create(address);
-    });
-
-    if (selected !== 1) {
-      throw {
-        status: false,
-        message: "Only one primary address is allowed",
-        httpStatus: httpStatus.CONFLICT,
-      };
-    }
-
-    const createdAddresses = await Promise.all(addedAddresses);
-    leadData.addresses = [];
-    createdAddresses.forEach((ele, index) => leadData.addresses.push(ele.id));
-    const lead = await this.Model.create(leadData);
-    return lead;
+    return await lead.save();
   }
 }
 
 export const updateLead = async (id, updates) => {
   const lead = await Lead.findById(id);
   const existingStatus = lead.status;
+  const existingStatusUpdates = lead.statusUpdate;
+
+  updates.id = id;
+  await addressManager(updates);
+
   for (const key in updates) {
-    lead[key] = updates[key];
+    lead[key] = updates[key] ?? lead[key];
   }
   await lead.validate();
-
   if (existingStatus !== updates.status) {
-    if (!updates.statusUpdate) {
+    if (updates.statusUpdate.length <= existingStatusUpdates.length) {
       throw {
         status: false,
         message: "A reason is required to make a status update",
         httpStatus: httpStatus.NOT_FOUND,
       };
     }
-    const obj = {
-      update: `status changed from ${lead.get("status")} to ${lead.status}`,
-      message: updates.statusUpdate,
+    // TODO: create a new activitylog here
+    await ActivityLogService.create({
+      leadId: lead.id,
+      ...(lead.assignedSalesPerson ? { userId: lead.assignedSalesPerson } : {}),
+      action: "LEAD_UPDATED",
+      description: `Lead status was changed from ${existingStatus} to ${updates.status}`,
+      metadata: updates.statusUpdate[updates.statusUpdate.length - 1],
+    });
+  }
+
+  if (updates.statusUpdate.length < existingStatusUpdates.length) {
+    throw {
+      status: false,
+      message: "Invalid changes to status updates are not allowed",
+      httpStatus: httpStatus.BAD_REQUEST,
     };
-    lead.updateComments.push(obj);
   }
 
   await lead.save();

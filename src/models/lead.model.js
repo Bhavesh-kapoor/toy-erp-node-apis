@@ -64,9 +64,9 @@ const leadSchema = new BaseSchema({
     required: false,
   },
   status: {
-    type: [String],
+    type: String,
     enum: ["Pending", "Contacted", "Qualified", "Converted", "Closed"],
-    default: ["Pending"],
+    default: "Pending",
   },
   priorityLevel: {
     type: String,
@@ -76,10 +76,6 @@ const leadSchema = new BaseSchema({
   assignedSalesPerson: {
     type: mongoose.Schema.Types.ObjectId,
     ref: User,
-    required: false,
-  },
-  assignedDate: {
-    type: Date,
     required: false,
   },
   statusUpdate: {

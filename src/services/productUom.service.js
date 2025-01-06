@@ -1,31 +1,9 @@
 import httpStatus from "#utils/httpStatus";
 import ProductUom from "#models/productUom";
+import Service from "#services/base";
 
-export const getProductUom = async (id, filter = {}) => {
-  if (!id) {
-    const productUomData = await ProductUom.findAll(filter);
-    return productUomData;
-  }
-  const productUomData = await ProductUom.findById(id);
-  return productUomData;
-};
+class ProductUomService extends Service {
+  static Model = ProductUom;
+}
 
-export const createProductUom = async (productUomData) => {
-  const productUom = await ProductUom.create(productUomData);
-  return productUom;
-};
-
-export const updateProductUom = async (id, updates) => {
-  const productUom = await ProductUom.findById(id);
-  for (const key in updates) {
-    productUom[key] = updates[key];
-  }
-
-  await productUom.save();
-  return productUom;
-};
-
-export const deleteProductUom = async (id) => {
-  const existingProductUom = await ProductUom.findByIdAndDelete(id);
-  return true;
-};
+export default ProductUomService;
