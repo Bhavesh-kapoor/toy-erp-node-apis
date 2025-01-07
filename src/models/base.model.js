@@ -138,15 +138,15 @@ class BaseSchema extends Schema {
         this.aggregate(countPipeline),
       ]);
 
-      const totalCount = countResult.length > 0 ? countResult[0].totalCount : 0;
+      const totalItems = countResult.length > 0 ? countResult[0].totalCount : 0;
       const totalPages = Math.ceil(totalCount / limitNumber);
 
       return {
-        data: logs,
-        meta: {
-          totalCount,
+        result: logs,
+        pagination: {
+          totalItems,
           totalPages,
-          limit: limitNumber,
+          itemsPerPage: limitNumber,
           currentPage: pageNumber,
         },
       };
