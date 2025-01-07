@@ -1,31 +1,9 @@
 import httpStatus from "#utils/httpStatus";
 import Currency from "#models/currency";
+import Service from "#services/base";
 
-export const getCurrency = async (id, filter = {}) => {
-  if (!id) {
-    const currencyData = await Currency.findAll(filter);
-    return currencyData;
-  }
-  const currencyData = await Currency.findById(id);
-  return currencyData;
-};
+class CurrencyService extends Service {
+  static Model = Currency;
+}
 
-export const createCurrency = async (currencyData) => {
-  const currency = await Currency.create(currencyData);
-  return currency;
-};
-
-export const updateCurrency = async (id, updates) => {
-  const currency = await Currency.findById(id);
-  for (const key in updates) {
-    currency[key] = updates[key];
-  }
-
-  await currency.save();
-  return currency;
-};
-
-export const deleteCurrency = async (id) => {
-  const existingCurrency = await Currency.findByIdAndDelete(id);
-  return true;
-};
+export default CurrencyService;

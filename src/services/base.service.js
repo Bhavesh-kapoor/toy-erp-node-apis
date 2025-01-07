@@ -8,8 +8,8 @@ class Service {
   }
 
   /**
-   * Fetch docs by lead ID or with filters.
-   * @param {string | number} leadId - Doc ID.
+   * Fetch docs by ID or with filters.
+   * @param {string | number} id - Doc ID.
    * @param {Object} filters - Query parameters for filtering and pagination.
    * @returns {Promise<Object>} - Paginated list of docs.
    */
