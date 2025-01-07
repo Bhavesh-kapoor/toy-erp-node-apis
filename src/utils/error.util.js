@@ -66,7 +66,7 @@ export default async function globalErrorHandler(err, req, res, next) {
   }
 
   res.status(statusCode).json({
-    status: false,
+    success: false,
     message,
   });
 }

@@ -1,5 +1,6 @@
 import path, { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "url";
+import cors from "cors";
 import multer from "multer";
 import colors from "colors";
 import express from "express";
@@ -32,7 +33,7 @@ app.use((req, res, next) => {
         req.originalUrl.yellow
       } - ${"STATUS:".blue} ${fetchStatus()} - ${"Response Time:".blue} ${
         responseTime.magenta
-      } ${"ms".magenta}`,
+      } ${"ms".magenta}`
     );
   });
   next();
@@ -45,6 +46,7 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 app.use(limiter);
+app.use(cors());
 app.use("/uploads", express.static(uploadsDir));
 
 app.use(multer().any());

@@ -1,7 +1,7 @@
 import { session } from "#middlewares/session";
 
 export const sendResponse = async (statusCode, res, data, message) => {
-  const status = statusCode >= 400 ? false : true;
+  const success = statusCode >= 400 ? false : true;
 
   //TODO: Transaction has to be implemented here
   /**const transactionSession = session.get("transaction");
@@ -20,5 +20,5 @@ export const sendResponse = async (statusCode, res, data, message) => {
 
   res
     .status(statusCode)
-    .json({ status, ...(message ? { message } : null), data });
+    .json({ success, ...(message ? { message } : null), data });
 };
