@@ -1,5 +1,5 @@
 import { sendResponse } from "#utils/response";
-import LeadService, { updateLead } from "#services/lead";
+import LeadService from "#services/lead";
 import httpStatus from "#utils/httpStatus";
 import asyncHandler from "#utils/asyncHandler";
 
@@ -23,7 +23,7 @@ export const create = asyncHandler(async (req, res, next) => {
 export const update = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const data = req.body;
-  const updatedData = await updateLead(id, data);
+  const updatedData = await LeadService.update(id, data);
   sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
 });
 

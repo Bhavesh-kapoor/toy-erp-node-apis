@@ -45,14 +45,15 @@ const limiter = rateLimit({
   max: 1000,
   message: "Too many requests from this IP, please try again later.",
 });
+
 app.use(limiter);
 app.use(cors());
 app.use("/uploads", express.static(uploadsDir));
 
+app.use(sessionMiddleware);
 app.use(multer().any());
 app.use(express.json());
 app.use(queryHandler);
-app.use(sessionMiddleware);
 app.use("/api", routeMapper);
 app.use(globalErrorHandler);
 

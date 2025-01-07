@@ -21,6 +21,24 @@ export const login = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, loginData, "Logged in successfully");
 });
 
+export const forgotPass = asyncHandler(async (req, res, next) => {
+  const userData = req.body;
+  const otpData = await UserService.forgotPasswordRequest(userData);
+  sendResponse(httpStatus.OK, res, otpData, "Otp sent successfully");
+});
+
+export const verifyPasswordResetOtp = asyncHandler(async (req, res, next) => {
+  const otpData = req.body;
+  const tokenData = await UserService.verifyOTP(otpData);
+  sendResponse(httpStatus.OK, res, tokenData, "Otp verified successfully");
+});
+
+export const resetPass = asyncHandler(async (req, res, next) => {
+  const { password } = req.body;
+  await UserService.changePassword(password);
+  sendResponse(httpStatus.OK, res, null, "Password changed successfully");
+});
+
 export const enabletwoFactorAuth = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const twoFactorData = await UserService.enable2FA(id);

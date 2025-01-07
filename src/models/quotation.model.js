@@ -3,6 +3,9 @@ import Party from "#models/party";
 import Product from "#models/product";
 import BaseSchema from "#models/base";
 
+let quotationCount = 0;
+const quotationStatusArr = ["Approved", "Cancelled", "Pending"];
+
 // Schema for individual line items
 const itemSchema = new BaseSchema(
   {
@@ -56,7 +59,7 @@ const itemSchema = new BaseSchema(
       min: 0,
     },
   },
-  { timestamps: false, id: false },
+  { timestamps: false, _id: false },
 );
 
 // Main schema for the quotation
@@ -160,6 +163,25 @@ const quotationSchema = new mongoose.Schema({
     min: 0,
     default: 0,
   },
+  status: {
+    type: String,
+    enum: quotationStatusArr,
+    required: true,
+    default: "Pending",
+  },
 });
 
-export default mongoose.model("Quotation", quotationSchema);
+quotationSchema.post("save", async function (doc, next) {
+  if (doc.quotationNo) return next();
+  quotationCount += 1;
+  doc.quotationNo = `Q-NO-${quotationCount + 1000}`;
+  next();
+});
+
+const Quotation = mongoose.model("Quotation", quotationSchema);
+
+Quotation.countDocuments().then((count) => {
+  quotationCount = count;
+});
+
+export default Quotation;

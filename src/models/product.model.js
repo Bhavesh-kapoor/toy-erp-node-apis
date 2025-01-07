@@ -1,11 +1,23 @@
 import Brand from "#models/brand";
-import httpStatus from "#utils/httpStatus";
+import BaseSchema from "#models/base";
 import ProductUom from "#models/productUom";
 import mongoose, { Schema } from "mongoose";
 import ProductCategory from "#models/productCategory";
-import BaseSchema from "#models/base";
 
 export const productTypeArr = ["Finished", "Raw Material"];
+
+const imagesSchema = new BaseSchema(
+  {
+    name: {
+      type: String,
+    },
+    image: {
+      type: String,
+      file: true,
+    },
+  },
+  { timestamps: false, _id: false },
+);
 
 const productSchema = new BaseSchema(
   {
@@ -101,7 +113,12 @@ const productSchema = new BaseSchema(
       type: String,
       default: "",
     },
-    tags: [String],
+    tags: {
+      type: [String],
+    },
+    images: {
+      type: [imagesSchema],
+    },
   },
   { timestamps: true },
 );

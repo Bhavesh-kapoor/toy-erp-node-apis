@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import BaseSchema from "#models/base";
-import Lead from "#models/lead";
 import User from "#models/user";
+import Quotation from "#models/quotation";
 
 const leadActionArr = [
   // General Actions
@@ -41,18 +41,19 @@ const leadActionArr = [
 ];
 
 const activityLogSchema = new BaseSchema({
-  //TODO: We should also add quotation id and packing id ?? because creating a quotation without lead is possible
-
   leadId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Lead",
     index: true,
-    required: true,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: User,
     description: "User who performed the action.",
+  },
+  quotationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Quotation,
   },
   action: {
     type: String,

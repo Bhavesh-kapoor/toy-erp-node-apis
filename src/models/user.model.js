@@ -129,6 +129,9 @@ const userSchema = new BaseSchema({
     type: String,
     file: true,
   },
+  forgotPassSecret: {
+    type: String,
+  },
 });
 
 import Department from "#models/department";

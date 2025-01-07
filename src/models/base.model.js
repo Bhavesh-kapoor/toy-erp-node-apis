@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import httpStatus from "#utils/httpStatus";
+import uploadFile from "#utils/uploadFile";
 
 class BaseSchema extends Schema {
   constructor(schemaDefinition, options = {}) {
@@ -14,6 +15,8 @@ class BaseSchema extends Schema {
       const modelKeys = this.constructor.schema.tree;
       const idChecks = [];
       for (let key in modelKeys) {
+        //if (modelKeys[key].file) await uploadFile(this[key]);
+
         if (!modelKeys[key].ref) continue;
         const model =
           typeof modelKeys[key].ref !== "string"
@@ -33,7 +36,7 @@ class BaseSchema extends Schema {
       next();
     });
 
-    this.statics.findDocByFilters = async function (filters = {}) {
+    this.statics.findDoc = async function (filters = {}) {
       const doc = await this.findOne(filters);
       if (doc) return doc;
 

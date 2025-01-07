@@ -22,10 +22,18 @@ class UserService extends Service {
   static async loginUser(userData) {
     // id,name,dob,mobile,email,role,profilePic
     const { email, password, otp } = userData;
+    const selectOptions = {
+      name: 1,
+      birthDate: 1,
+      mobileNo: 1,
+      email: 1,
+      role[name]: 1,
+      "role.permission": 1,
+      profilePic: 1,
+      password: 1,
+    };
 
-    let existingUser = await this.Model.findOne({ email })
-      .populate("role", "name permissions")
-      .select("name dob mobile email role profilePic password mobileNo");
+    const existingUser = await this.Model.findDoc({ email }, selectOptions);
 
     if (!existingUser.isPasswordCorrect(password)) {
       throw {
@@ -60,11 +68,6 @@ class UserService extends Service {
     const token = createToken(payload, env.JWT_SECRET, {
       expiresIn: env.JWT_TOKEN_AGE,
     });
-    existingUser = existingUser.toJSON();
-    existingUser.permissions = existingUser.role.permissions;
-    existingUser.role = existingUser.role.name;
-    delete existingUser.password;
-    console.log(token);
     return { token, userData: existingUser };
   }
 

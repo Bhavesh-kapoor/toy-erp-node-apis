@@ -101,19 +101,8 @@ const leadSchema = new BaseSchema({
 leadSchema.post("save", async function (doc, next) {
   if (doc.leadId) return next();
   leadCount += 1;
-  doc.leadId = `L-${leadCount + 1000}`;
+  doc.leadId = `L-NO-${leadCount + 1000}`;
   await doc.save();
-  const activityLogData = {
-    leadId: doc.id,
-    ...(doc.assignedSalesPerson ? { userId: doc.assignedSalesPerson } : {}),
-    action: "LEAD_CREATED",
-    description: "A new lead was successfully created by the user.",
-    metadata: {
-      message: "This is a dummy data",
-    },
-  };
-
-  await ActivityLog.create(activityLogData);
   next();
 });
 

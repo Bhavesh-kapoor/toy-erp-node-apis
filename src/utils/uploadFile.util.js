@@ -24,8 +24,6 @@ export default async function uploadFile(files, folder, allowedFiles) {
 
   const paths = {};
 
-  //TODO: Update file extension
-
   for (const file of files) {
     const ext = path.extname(file.originalname).toLowerCase();
     const newFileName = `${file.fieldname}${ext}`;
