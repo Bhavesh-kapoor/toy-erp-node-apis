@@ -137,9 +137,8 @@ class BaseSchema extends Schema {
         }),
         this.aggregate(countPipeline),
       ]);
-
       const totalItems = countResult.length > 0 ? countResult[0].totalCount : 0;
-      const totalPages = Math.ceil(totalCount / limitNumber);
+      const totalPages = Math.ceil(totalItems / limitNumber);
 
       return {
         result: logs,
