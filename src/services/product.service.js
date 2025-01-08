@@ -44,7 +44,7 @@ class ProductService extends Service {
           barCode: 1,
           updatedAt: 1,
           createdAt: 1,
-          ouPrice: 1,
+          ourPrice: 1,
           productCode: 1,
         },
       },
