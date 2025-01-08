@@ -9,10 +9,21 @@ class LeadService extends Service {
   static Model = Lead;
 
   static async get(id, filter) {
-    // salesPerson .name .email, name, email, leadId, priorityLevel,source,status,phone, companyName
     if (id) {
       return this.Model.findDocById(id);
     }
+
+    const initialStage = [
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignedSalesPerson",
+          foreignField: "_id",
+          as: "assignedSalesPerson",
+        },
+      },
+    ];
+
     const extraStage = [
       {
         $project: {
@@ -37,16 +48,7 @@ class LeadService extends Service {
         },
       },
     ];
-    const initialStage = [
-      {
-        $lookup: {
-          from: "users",
-          localField: "assignedSalesPerson",
-          foreignField: "_id",
-          as: "assignedSalesPerson",
-        },
-      },
-    ];
+
     const leadData = this.Model.findAll(filter, initialStage, extraStage);
     return leadData;
   }

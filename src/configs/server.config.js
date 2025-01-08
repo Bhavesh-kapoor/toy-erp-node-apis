@@ -11,6 +11,7 @@ import globalErrorHandler from "#utils/error";
 import { authentication } from "#middlewares/auth";
 import queryHandler from "#middlewares/queryHandler";
 import sessionMiddleware from "#middlewares/session";
+import bodyParseMiddleware from "#middlewares/bodyParse";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -33,7 +34,7 @@ app.use((req, res, next) => {
         req.originalUrl.yellow
       } - ${"STATUS:".blue} ${fetchStatus()} - ${"Response Time:".blue} ${
         responseTime.magenta
-      } ${"ms".magenta}`
+      } ${"ms".magenta}`,
     );
   });
   next();
@@ -49,10 +50,10 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(cors());
 app.use("/uploads", express.static(uploadsDir));
-
-app.use(sessionMiddleware);
 app.use(multer().any());
 app.use(express.json());
+app.use(bodyParseMiddleware);
+app.use(sessionMiddleware);
 app.use(queryHandler);
 app.use("/api", routeMapper);
 app.use(globalErrorHandler);
