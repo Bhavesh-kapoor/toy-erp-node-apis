@@ -33,8 +33,20 @@ class UserService extends Service {
         },
       },
     ];
-    const extraStage = [];
-    return this.Model.findAll(filter, initialStage);
+    //id,name,email,mobileNo,role,createdAt,status
+    const extraStage = [
+      {
+        $project: {
+          name: 1,
+          email: 1,
+          mobileNo: 1,
+          createdAt: 1,
+          status: 1,
+          role: { $arrayElemAt: ["$role.name", 0] },
+        },
+      },
+    ];
+    return this.Model.findAll(filter, initialStage, extraStage);
   }
 
   static async loginUser(userData) {
