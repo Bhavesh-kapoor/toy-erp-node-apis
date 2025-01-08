@@ -16,8 +16,8 @@ class LeadService extends Service {
     const extraStage = [
       {
         $project: {
-          salesPersonName: "$assignedSalesPerson.name",
-          salesPersonEmail: "$assignedSalesPerson.email",
+          salesPersonName: { $arrayElemAt: ["$assignedSalesPerson.name", 0] },
+          salesPersonEmail: { $arrayElemAt: ["$assignedSalesPerson.email", 0] },
           companyName: "$companyDetails.companyName",
           leadId: 1,
           name: {
@@ -32,6 +32,7 @@ class LeadService extends Service {
           source: "$sourceName",
           priorityLevel: 1,
           status: 1,
+          updatedAt: 1,
           _id: 1,
         },
       },
@@ -85,8 +86,11 @@ class LeadService extends Service {
       lead[key] = updates[key] ?? lead[key];
     }
     await lead.validate();
-    if (existingStatus !== updates.status) {
-      if (updates.statusUpdate.length <= existingStatusUpdates.length) {
+    if (updates.status && existingStatus !== updates.status) {
+      if (
+        updates.statusUpdate ||
+        updates.statusUpdate.length <= existingStatusUpdates.length
+      ) {
         throw {
           status: false,
           message: "A reason is required to make a status update",
@@ -104,7 +108,10 @@ class LeadService extends Service {
       });
     }
 
-    if (updates.statusUpdate.length < existingStatusUpdates.length) {
+    if (
+      updates.statusUpdate &&
+      updates.statusUpdate.length < existingStatusUpdates.length
+    ) {
       throw {
         status: false,
         message: "Invalid changes to status updates are not allowed",

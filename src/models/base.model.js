@@ -90,7 +90,7 @@ class BaseSchema extends Schema {
       const matchStage = {};
       const pipeline = [];
 
-      if (initialStage.length) pipeline.push(...initialStage);
+      if (initialStage?.length) pipeline.push(...initialStage);
 
       pipeline.push({ $match: matchStage });
 
@@ -129,7 +129,7 @@ class BaseSchema extends Schema {
         delete filters[filter];
       }
 
-      extraStages.length ? pipeline.push(...extraStages) : null;
+      extraStages?.length ? pipeline.push(...extraStages) : null;
 
       // Count total documents for pagination metadata
       const countPipeline = [...pipeline];
