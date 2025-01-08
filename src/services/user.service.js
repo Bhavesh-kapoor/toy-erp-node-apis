@@ -169,8 +169,9 @@ class UserService extends Service {
 
     // TODO: Handle file updates here
 
-    const { address: existingAddress } = userData;
-    const address = await AddressService.get(existingAddress.id);
+    let { address: existingAddress } = userData;
+
+    const address = await AddressService.getSafe(user.address);
 
     address.update(existingAddress);
     await address.save();

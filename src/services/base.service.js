@@ -20,6 +20,13 @@ class Service {
     return await this.Model.findDocById(id);
   }
 
+  static async getSafe(id) {
+    if (!id) {
+      return null;
+    }
+    return await this.Model.findById(id);
+  }
+
   /**
    * Update an doc by ID.
    * @param {string} id- ID of the doc to update.
