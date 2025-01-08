@@ -27,8 +27,13 @@ class UserService extends Service {
 
   static async get(id, filter) {
     if (id) {
-      const user = await this.Model.findDocById(id);
+      let user = await this.Model.findDocById(id);
       user.role = user.role.id;
+      user = user.toJSON();
+
+      user = { ...user, ...user?.address };
+      delete user.address;
+      delete user.department;
       return user;
     }
     const initialStage = [
