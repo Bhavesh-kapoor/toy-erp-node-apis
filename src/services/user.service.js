@@ -30,8 +30,7 @@ class UserService extends Service {
       let user = await this.Model.findDocById(id);
       user.role = user.role.id;
       user = user.toJSON();
-
-      user = { ...user, ...user?.address };
+      user = { ...user, ...user?.address, _id: id };
       delete user.address;
       delete user.department;
       return user;
@@ -147,9 +146,6 @@ class UserService extends Service {
     address.recipient = user.id;
     address.belongsTo = "User";
 
-    const { id: addressId } = await AddressService.create(address);
-    user.address = addressId;
-
     user.update(userData);
 
     //TODO: implement aws s3
@@ -177,7 +173,6 @@ class UserService extends Service {
     // TODO: Handle file updates here
 
     let { address: existingAddress } = userData;
-
     const address = await AddressService.getSafe(user.address);
 
     address.update(existingAddress);
