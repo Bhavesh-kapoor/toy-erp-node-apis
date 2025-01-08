@@ -19,6 +19,24 @@ const allowedFileUploads = new Set([
 class UserService extends Service {
   static Model = User;
 
+  static async get(id, filter) {
+    if (id) {
+      return this.Model.findDocById(id);
+    }
+    const initialStage = [
+      {
+        $lookup: {
+          from: "roles",
+          localField: "role",
+          foreignField: "_id",
+          as: "role",
+        },
+      },
+    ];
+    const extraStage = [];
+    return this.Model.findAll(filter, initialStage);
+  }
+
   static async loginUser(userData) {
     // id,name,dob,mobile,email,role,profilePic
     const { email, password, otp } = userData;
