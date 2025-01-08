@@ -8,6 +8,48 @@ import ActivityLogService from "#services/activitylog";
 class LeadService extends Service {
   static Model = Lead;
 
+  static async get(id, filter) {
+    // salesPerson .name .email, name, email, leadId, priorityLevel,source,status,phone, companyName
+    if (id) {
+      return this.Model.findDocById(id);
+    }
+    const extraStage = [
+      {
+        $project: {
+          salesPersonName: "$assignedSalesPerson.name",
+          salesPersonEmail: "$assignedSalesPerson.email",
+          companyName: "$companyDetails.companyName",
+          leadId: 1,
+          name: {
+            $concat: [
+              { $ifNull: ["$personalDetails.firstName", ""] },
+              " ",
+              { $ifNull: ["$personalDetails.lastName", ""] },
+            ],
+          },
+          email: "$personalDetails.email",
+          phone: "$personalDetails.phone",
+          source: "$sourceName",
+          priorityLevel: 1,
+          status: 1,
+          _id: 1,
+        },
+      },
+    ];
+    const initialStage = [
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignedSalesPerson",
+          foreignField: "_id",
+          as: "assignedSalesPerson",
+        },
+      },
+    ];
+    const leadData = this.Model.findAll(filter, initialStage, extraStage);
+    return leadData;
+  }
+
   static async create(leadData) {
     const lead = new this.Model(leadData);
     leadData.id = lead.id;

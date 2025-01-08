@@ -34,8 +34,8 @@ export const verifyPasswordResetOtp = asyncHandler(async (req, res, next) => {
 });
 
 export const resetPass = asyncHandler(async (req, res, next) => {
-  const { password } = req.body;
-  await UserService.changePassword(password);
+  const userData = req.body;
+  await UserService.changePassword(userData);
   sendResponse(httpStatus.OK, res, null, "Password changed successfully");
 });
 

@@ -68,7 +68,11 @@ class BaseSchema extends Schema {
       return doc;
     };
 
-    this.statics.findAll = async function (filters) {
+    this.statics.findAll = async function (
+      filters,
+      initialStage = [],
+      extraStages = [],
+    ) {
       const {
         endDate,
         page = 1,
@@ -84,7 +88,11 @@ class BaseSchema extends Schema {
       const limitNumber = parseInt(limit);
 
       const matchStage = {};
-      const pipeline = [{ $match: matchStage }];
+      const pipeline = [];
+
+      if (initialStage.length) pipeline.push(...initialStage);
+
+      pipeline.push({ $match: matchStage });
 
       // Apply search filter
       if (search && searchkey) {
@@ -120,6 +128,8 @@ class BaseSchema extends Schema {
         [(matchStage[filter] = filters[filter])];
         delete filters[filter];
       }
+
+      extraStages.length ? pipeline.push(...extraStages) : null;
 
       // Count total documents for pagination metadata
       const countPipeline = [...pipeline];

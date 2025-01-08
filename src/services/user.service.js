@@ -25,9 +25,11 @@ class UserService extends Service {
 
     let existingUser = await this.Model.findOne({ email })
       .populate("role", "name permissions")
-      .select("name dob mobile email role profilePic password mobileNo");
+      .select(
+        "name dob mobile email role profilePic password mobileNo secret isTwoFactorEnabled",
+      );
 
-    if (!existingUser.isPasswordCorrect(password)) {
+    if (!(await existingUser.isPasswordCorrect(password))) {
       throw {
         status: false,
         message: "Incorrect Password",
@@ -64,7 +66,8 @@ class UserService extends Service {
     existingUser.permissions = existingUser.role.permissions;
     existingUser.role = existingUser.role.name;
     delete existingUser.password;
-    console.log(token);
+    delete existingUser.secret;
+    delete existingUser.isTwoFactorEnabled;
     return { token, userData: existingUser };
   }
 
@@ -129,7 +132,7 @@ class UserService extends Service {
   static async forgotPasswordRequest(userData) {
     const { email } = userData;
     const user = await User.findDoc({ email });
-    const { otp, secret } = generateToken(10);
+    const { otp, secret } = generateToken(user.secret);
     user.forgotPassSecret = secret;
     await user.save();
     //TODO: Send email to the end user;
@@ -138,10 +141,9 @@ class UserService extends Service {
 
   static async verifyOTP(otpData) {
     const { email, otp } = otpData;
-
     const user = await User.findDoc({ email });
     const { forgotPassSecret, id } = user;
-    if (forgotPassSecret || !verifyOTP(forgotPassSecret, otp, 10)) {
+    if (!forgotPassSecret || !verifyOTP(forgotPassSecret, otp, 10)) {
       throw {
         status: false,
         message:
@@ -166,7 +168,7 @@ class UserService extends Service {
 
   static async deleteData(id) {
     const user = await User.findDocById(id);
-    const addresses = user.addresses.map((id) => Address.findDocById(id));
+    //const addresses = user.addresses.map((id) => Address.findDocById(id));
   }
 }
 

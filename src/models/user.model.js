@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import BaseSchema from "#models/base";
 import Address from "#models/address";
 import httpStatus from "#utils/httpStatus";
+import Department from "#models/department";
 
 const userSchema = new BaseSchema({
   // Personal Details
@@ -134,7 +135,6 @@ const userSchema = new BaseSchema({
   },
 });
 
-import Department from "#models/department";
 userSchema.pre("save", async function (next) {
   try {
     if (!this.isModified("password")) return next();
