@@ -39,7 +39,7 @@ class Service {
    * @returns {Promise<Object>} - Deleted doc.
    */
   static async deleteDoc(id) {
-    const deletedDoc = await this.Model.findByDocId(id);
+    const deletedDoc = await this.Model.findDocById(id);
     deletedDoc.deletedAt = new Date();
     await deletedDoc.save();
     return deletedDoc;
