@@ -27,7 +27,9 @@ class UserService extends Service {
 
   static async get(id, filter) {
     if (id) {
-      return this.Model.findDocById(id);
+      const user = await this.Model.findDocById(id);
+      user.role = user.role.id;
+      return user;
     }
     const initialStage = [
       {
