@@ -101,7 +101,6 @@ const userSchema = new BaseSchema({
   },
   secret: {
     type: String,
-    required: true,
   },
   isTwoFactorEnabled: {
     type: Boolean,
