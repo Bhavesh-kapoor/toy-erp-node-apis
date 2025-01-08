@@ -55,8 +55,8 @@ const userSchema = new BaseSchema({
   },
 
   // Address Details
-  addresses: {
-    type: [mongoose.Schema.Types.ObjectId],
+  address: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: Address,
   },
 

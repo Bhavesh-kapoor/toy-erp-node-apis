@@ -17,6 +17,11 @@ export const generateQRCode = async ({ label, issuer }) => {
   }
 };
 
+export const generateSecret = (length = 10) => {
+  const secret = speakeasy.generateSecret({ length });
+  return secret.base32;
+};
+
 export const generateToken = () => {
   const secret = speakeasy.generateSecret({ length: 20 });
 

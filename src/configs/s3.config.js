@@ -1,6 +1,5 @@
-// Import the AWS SDK
 import AWS from "aws-sdk";
-import fs from "fs";
+import fs from "node:fs/promises";
 import env from "#configs/env";
 
 // Set up AWS SDK with your credentials (for local development)
@@ -17,12 +16,11 @@ const s3 = new AWS.S3();
 const BUCKET_NAME = "your-bucket-name";
 
 // Upload a file to S3
-export function uploadFile(filePath, key) {
-  const fileContent = fs.readFileSync(filePath);
+export function uploadFile(file, key) {
   const params = {
     Bucket: BUCKET_NAME,
     Key: key,
-    Body: fileContent,
+    Body: file,
     ContentType: "application/octet-stream", // Modify content type if necessary
   };
 

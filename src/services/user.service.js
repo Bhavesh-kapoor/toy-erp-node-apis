@@ -6,13 +6,19 @@ import { createToken } from "#utils/jwt";
 import httpStatus from "#utils/httpStatus";
 import uploadFiles from "#utils/uploadFile";
 import { session } from "#middlewares/session";
-import { generateQRCode, verifyOTP, generateToken } from "#utils/twoFactorAuth";
+import AddressService from "#services/address";
+import {
+  generateQRCode,
+  verifyOTP,
+  generateToken,
+  generateSecret,
+} from "#utils/twoFactorAuth";
 
 // TODO: Implement with both creation and update
 const allowedFileUploads = new Set([
   "profilePic",
-  "aadhaarCard",
-  "panCard",
+  "aadhaarCardDoc",
+  "panCardDoc",
   "otherDocument",
 ]);
 
@@ -126,36 +132,55 @@ class UserService extends Service {
     const files = session.get("files");
 
     userData.isTwoFactorEnabled = false;
+    const { address } = userData;
+    delete userData.address;
 
     const user = new User();
     userData.id = user.id;
-    await addressManager(userData);
+    address.recipient = user.id;
+    address.belongsTo = "User";
+
+    const { id: addressId } = await AddressService.create(address);
+    user.address = addressId;
+
     user.update(userData);
+
+    //TODO: implement aws s3
     const filePaths = await uploadFiles(
       files,
       `users/${user.id}`,
       allowedFileUploads,
     );
 
+    // TODO: send password via email
+    const password = generateSecret(10);
+    user.password = password;
+
     for (let i in filePaths) {
       user[i] = filePaths[i];
     }
+
     await user.save();
     return user;
   }
 
   static async update(id, userData) {
-    const files = session.get("files");
     const user = await User.findDocById(id);
-    delete userData.isTwoFactorEnabled;
-    delete userData.password;
-    userData.id = id;
-    await addressManager(userData);
 
     // TODO: Handle file updates here
 
+    const { address: existingAddress } = userData;
+    const address = await AddressService.get(existingAddress.id);
+
+    address.update(existingAddress);
+    await address.save();
+
+    delete userData.password;
+    delete userData.address;
+    delete userData.isTwoFactorEnabled;
     user.update(userData);
     await user.save();
+    user.address = address;
     return user;
   }
 
@@ -185,6 +210,10 @@ class UserService extends Service {
     const token = createToken(payload, env.JWT_SECRET, {
       expiresIn: "180s",
     });
+
+    user.forgotPassSecret = null;
+
+    await user.save();
     return { token };
   }
 

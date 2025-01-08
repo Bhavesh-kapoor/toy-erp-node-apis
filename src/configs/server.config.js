@@ -1,5 +1,5 @@
-import path, { dirname, join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "url";
+import path, { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import cors from "cors";
 import multer from "multer";
 import colors from "colors";
@@ -8,16 +8,15 @@ import logger from "#configs/logger";
 import routeMapper from "#routes/index";
 import rateLimit from "express-rate-limit";
 import globalErrorHandler from "#utils/error";
-import { authentication } from "#middlewares/auth";
 import queryHandler from "#middlewares/queryHandler";
 import sessionMiddleware from "#middlewares/session";
 import bodyParseMiddleware from "#middlewares/bodyParse";
 
-const app = express();
+const server = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-app.use((req, res, next) => {
+server.use((req, res, next) => {
   const startTime = process.hrtime();
   res.on("finish", () => {
     const fetchStatus = () => {
@@ -47,15 +46,15 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 
-app.use(limiter);
-app.use(cors());
-app.use("/uploads", express.static(uploadsDir));
-app.use(multer().any());
-app.use(express.json());
-app.use(bodyParseMiddleware);
-app.use(sessionMiddleware);
-app.use(queryHandler);
-app.use("/api", routeMapper);
-app.use(globalErrorHandler);
+server.use(limiter);
+server.use(cors());
+server.use("/uploads", express.static(uploadsDir));
+server.use(multer().any());
+server.use(express.json());
+server.use(bodyParseMiddleware);
+server.use(sessionMiddleware);
+server.use(queryHandler);
+server.use("/api", routeMapper);
+server.use(globalErrorHandler);
 
-export default app;
+export default server;

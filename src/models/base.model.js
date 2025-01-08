@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import httpStatus from "#utils/httpStatus";
-import uploadFile from "#utils/uploadFile";
+import { session } from "#middlewares/session";
 
 class BaseSchema extends Schema {
   constructor(schemaDefinition, options = {}) {
@@ -15,13 +15,12 @@ class BaseSchema extends Schema {
       const modelKeys = this.constructor.schema.tree;
       const idChecks = [];
       for (let key in modelKeys) {
-        //if (modelKeys[key].file) await uploadFile(this[key]);
-
         if (!modelKeys[key].ref) continue;
         const model =
           typeof modelKeys[key].ref !== "string"
             ? modelKeys[key].ref
             : mongoose.model(modelKeys[key].ref);
+
         if (modelKeys[key].required) {
           const check = model.findDocById(this[key]);
           idChecks.push(check);
@@ -35,6 +34,12 @@ class BaseSchema extends Schema {
       await Promise.all(idChecks);
       next();
     });
+
+    //TODO: add a common file uploader for all operations
+    //this.post("save", async function (doc, next) {
+    //  const files = session.get("files");
+    //  next();
+    //});
 
     this.statics.findDoc = async function (filters = {}) {
       const doc = await this.findOne(filters);

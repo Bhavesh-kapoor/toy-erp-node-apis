@@ -19,7 +19,6 @@ const addressSchema = new BaseSchema({
   },
   street: {
     type: String,
-    required: true,
     trim: true,
   },
   city: {
@@ -37,8 +36,8 @@ const addressSchema = new BaseSchema({
     required: true,
     trim: true,
     validate: {
-      validator: (value) => /^\d{6}$/.test(value), // Matches a 6-digit PIN code
-      message: "Please enter a valid 6-digit PIN code.",
+      validator: (value) => /^[1-9]\d{4,9}$/.test(value), // Matches a 10-digit PIN code
+      message: "Please enter a valid 10-digit PIN code.",
     },
   },
   country: {
@@ -56,12 +55,10 @@ const addressSchema = new BaseSchema({
     required: true,
   },
   longitude: {
-    type: Number,
-    required: true,
+    type: String,
   },
   latitude: {
-    type: Number,
-    required: true,
+    type: String,
   },
 });
 

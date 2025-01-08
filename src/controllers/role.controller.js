@@ -1,5 +1,11 @@
 import { sendResponse } from "#utils/response";
-import { getRole, createRole, updateRole, deleteRole } from "#services/role";
+import {
+  getRole,
+  createRole,
+  updateRole,
+  deleteRole,
+  getLimitedRoleFields,
+} from "#services/role";
 import httpStatus from "#utils/httpStatus";
 import asyncHandler from "#utils/asyncHandler";
 
@@ -7,6 +13,12 @@ export const get = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const filter = req.query;
   const data = await getRole(id, filter);
+  sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
+});
+
+export const getLimitedFields = asyncHandler(async (req, res, next) => {
+  const fields = req.params;
+  const data = await getLimitedRoleFields(fields);
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 

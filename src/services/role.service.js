@@ -9,6 +9,11 @@ export const getRole = async (id, filter = {}) => {
   return roleData;
 };
 
+export const getLimitedRoleFields = async (fields) => {
+  const roleData = await Role.find().select("id name");
+  return roleData;
+};
+
 export const createRole = async (roleData) => {
   const role = await Role.create(roleData);
   return role;
