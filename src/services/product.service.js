@@ -1,31 +1,57 @@
 import httpStatus from "#utils/httpStatus";
 import Product from "#models/product";
+import Service from "#services/base";
 
-export const getProduct = async (id, filter = {}) => {
-  if (!id) {
-    const productData = await Product.findAll(filter);
-    return productData;
+class ProductService extends Service {
+  static Model = Product;
+
+  static async get(id, filter) {
+    if (id) {
+      return this.Model.findDocById(id);
+    }
+    const initialStage = [
+      {
+        $lookup: {
+          from: "productcategories",
+          localField: "productCategory",
+          foreignField: "_id",
+          as: "productCategory",
+        },
+      },
+      {
+        $lookup: {
+          from: "brands",
+          localField: "brand",
+          foreignField: "_id",
+          as: "brandName",
+        },
+      },
+    ];
+
+    const extraStage = [
+      {
+        $project: {
+          productCategory: { $arrayElemAt: ["$productCategory.name", 0] },
+          brandName: { $arrayElemAt: ["$brandName.name", 0] },
+          name: 1,
+          sku: 1,
+          status: 1,
+          updatedAt: 1,
+          isTaxed: 1,
+          mrp: 1,
+          _id: 1,
+          quotationDate: 1,
+          barCode: 1,
+          updatedAt: 1,
+          createdAt: 1,
+          ouPrice: 1,
+          productCode: 1,
+        },
+      },
+    ];
+
+    return this.Model.findAll(filter, initialStage, extraStage);
   }
-  const productData = await Product.findById(id);
-  return productData;
-};
+}
 
-export const createProduct = async (productData) => {
-  const product = await Product.create(productData);
-  return product;
-};
-
-export const updateProduct = async (id, updates) => {
-  const product = await Product.findById(id);
-  for (const key in updates) {
-    product[key] = updates[key];
-  }
-
-  await product.save();
-  return product;
-};
-
-export const deleteProduct = async (id) => {
-  const existingProduct = await Product.findByIdAndDelete(id);
-  return true;
-};
+export default ProductService;
