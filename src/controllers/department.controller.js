@@ -20,12 +20,14 @@ export const create = asyncHandler(async (req, res, next) => {
     "Record created successfully",
   );
 });
+
 export const update = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const data = req.body;
   const updatedData = await DepartmentService.update(id, data);
   sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
 });
+
 export const deleteData = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   await DepartmentService.deleteData(id);

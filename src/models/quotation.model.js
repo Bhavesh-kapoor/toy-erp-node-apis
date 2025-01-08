@@ -63,7 +63,7 @@ const itemSchema = new BaseSchema(
 );
 
 // Main schema for the quotation
-const quotationSchema = new mongoose.Schema({
+const quotationSchema = new BaseSchema({
   quotationNo: {
     type: String,
     unique: true,
@@ -168,6 +168,9 @@ const quotationSchema = new mongoose.Schema({
     enum: quotationStatusArr,
     required: true,
     default: "Pending",
+  },
+  expectedDelivery: {
+    type: String,
   },
 });
 
