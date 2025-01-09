@@ -1,10 +1,12 @@
 import User from "#models/user";
 import { verifyToken } from "#utils/jwt";
 import httpStatus from "#utils/httpStatus";
+import { session } from "#middlewares/session";
 
 export async function authentication(req, res, next) {
   try {
     const token = req.headers["authorization"]?.split(" ")[1];
+
     if (!token) {
       throw {
         status: false,
@@ -13,9 +15,11 @@ export async function authentication(req, res, next) {
       };
     }
 
-    console.log(token);
     const payload = verifyToken(token);
-    const user = await User.findById(payload.id);
+    let user = await User.findOne({ _id: payload.id })
+      .populate("role", "name permissions")
+      .select("name dob mobile email role profilePic password mobileNo");
+
     if (!user) {
       throw {
         status: false,
@@ -23,8 +27,14 @@ export async function authentication(req, res, next) {
         message: "User doesn't exist",
       };
     }
+    user = user.toJSON();
+    user.permissions = user.role.permissions;
+    user.role = user.role.name;
+    delete user.password;
+
     req.user = user;
-    req.payload = payload;
+    session.set("user", user);
+    session.set("payload", payload);
     next();
   } catch (err) {
     next(err);
@@ -33,7 +43,7 @@ export async function authentication(req, res, next) {
 
 export function authorization(role) {
   return async function (req, _res, next) {
-    const payload = req.payload;
+    const payload = session.get("payload");
     if (payload.role === ADMIN) return next();
     if (role === ADMIN || role !== payload.role) {
       throw {

@@ -1,12 +1,25 @@
 import Brand from "#models/brand";
-import httpStatus from "#utils/httpStatus";
+import BaseSchema from "#models/base";
 import ProductUom from "#models/productUom";
 import mongoose, { Schema } from "mongoose";
 import ProductCategory from "#models/productCategory";
 
 export const productTypeArr = ["Finished", "Raw Material"];
 
-const productSchema = new Schema(
+const imagesSchema = new BaseSchema(
+  {
+    name: {
+      type: String,
+    },
+    image: {
+      type: String,
+      file: true,
+    },
+  },
+  { timestamps: false, _id: false },
+);
+
+const productSchema = new BaseSchema(
   {
     productCode: {
       type: String,
@@ -92,10 +105,6 @@ const productSchema = new Schema(
       required: true,
       unique: true,
     },
-    description: {
-      type: String,
-      default: "",
-    },
     manufacturer: {
       type: String,
       default: "",
@@ -104,21 +113,14 @@ const productSchema = new Schema(
       type: String,
       default: "",
     },
-    tags: [String],
+    tags: {
+      type: [String],
+    },
+    images: {
+      type: [imagesSchema],
+    },
   },
   { timestamps: true },
 );
-
-productSchema.pre("save", async function (next) {
-  const productCategory = await ProductCategory.findById(this.productCategory);
-  if (!productCategory) {
-    throw {
-      status: false,
-      message: "Product category doesn't exist",
-      httpStatus: httpStatus.BAD_REQUEST,
-    };
-  }
-  next();
-});
 
 export default mongoose.model("Product", productSchema);

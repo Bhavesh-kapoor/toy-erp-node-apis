@@ -3,7 +3,7 @@ import _ from "lodash";
 
 export const getParty = async (id, filter = {}) => {
   if (!id) {
-    const partyData = await Party.find(filter);
+    const partyData = await Party.findAll(filter);
     return partyData;
   }
   const partyData = await Party.findById(id);

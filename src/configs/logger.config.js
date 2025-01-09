@@ -1,7 +1,7 @@
 import "colors";
 import winston from "winston";
 
-export const logger = winston.createLogger({
+const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
     winston.format.timestamp({
@@ -20,7 +20,9 @@ export const logger = winston.createLogger({
     }),
     winston.format.printf(({ timestamp, level, message }) => {
       return `${timestamp.grey} ${level.yellow}: ${message}`;
-    })
+    }),
   ),
   transports: [new winston.transports.Console()],
 });
+
+export default logger;

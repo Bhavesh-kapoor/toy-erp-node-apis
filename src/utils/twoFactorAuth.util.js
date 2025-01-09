@@ -17,12 +17,28 @@ export const generateQRCode = async ({ label, issuer }) => {
   }
 };
 
-export const verifyOTP = (secret, token) => {
+export const generateSecret = (length = 10) => {
+  const secret = speakeasy.generateSecret({ length });
+  return secret.base32;
+};
+
+export const generateToken = () => {
+  const secret = speakeasy.generateSecret({ length: 20 });
+
+  const otp = speakeasy.totp({
+    secret: secret.base32,
+  });
+  return { otp, secret: secret.base32 };
+};
+
+export const verifyOTP = (secret, otp, window) => {
   try {
-    const verified = speakeasy.totp.verify({
+    const options = {
       secret: secret,
-      token: token,
-    });
+      token: otp,
+      ...(window ? { window } : {}),
+    };
+    const verified = speakeasy.totp.verify(options);
     return verified;
   } catch (err) {
     console.error("Error verifying OTP:", err);

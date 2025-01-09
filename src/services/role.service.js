@@ -2,10 +2,15 @@ import Role from "#models/role";
 
 export const getRole = async (id, filter = {}) => {
   if (!id) {
-    const roleData = await Role.find(filter);
+    const roleData = await Role.findAll(filter);
     return roleData;
   }
   const roleData = await Role.findById(id);
+  return roleData;
+};
+
+export const getLimitedRoleFields = async (fields) => {
+  const roleData = await Role.find().select("id name");
   return roleData;
 };
 

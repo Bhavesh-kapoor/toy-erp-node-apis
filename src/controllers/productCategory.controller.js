@@ -1,23 +1,18 @@
 import { sendResponse } from "#utils/response";
-import {
-  getProductCategory,
-  createProductCategory,
-  updateProductCategory,
-  deleteProductCategory,
-} from "#services/productCategory";
+import ProductCategoryService from "#services/productCategory";
 import httpStatus from "#utils/httpStatus";
 import asyncHandler from "#utils/asyncHandler";
 
 export const get = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const filter = req.query;
-  const data = await getProductCategory(id, filter);
+  const data = await ProductCategoryService.get(id, filter);
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
 export const create = asyncHandler(async (req, res, next) => {
   const data = req.body;
-  const createdData = await createProductCategory(data);
+  const createdData = await ProductCategoryService.create(data);
   sendResponse(
     httpStatus.CREATED,
     res,
@@ -28,11 +23,11 @@ export const create = asyncHandler(async (req, res, next) => {
 export const update = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const data = req.body;
-  const updatedData = await updateProductCategory(id, data);
+  const updatedData = await ProductCategoryService.update(id, data);
   sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
 });
 export const deleteData = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  await deleteProductCategory(id);
+  await ProductCategoryService.deleteData(id);
   sendResponse(httpStatus.NO_CONTENT, res, null, "Record deleted successfully");
 });

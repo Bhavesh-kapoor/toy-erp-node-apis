@@ -1,51 +1,129 @@
-import User from "#models/user";
 import Lead from "#models/lead";
+import Address from "#models/address";
 import httpStatus from "#utils/httpStatus";
+import Service from "#services/base";
+import { addressManager } from "#services/user";
+import ActivityLogService from "#services/activitylog";
 
-export const getLeads = async (id, filter = {}) => {
-  if (!id) {
-    const leadData = await Lead.find(filter);
+class LeadService extends Service {
+  static Model = Lead;
+
+  static async get(id, filter) {
+    if (id) {
+      return this.Model.findDocById(id);
+    }
+
+    const initialStage = [
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignedSalesPerson",
+          foreignField: "_id",
+          as: "assignedSalesPerson",
+        },
+      },
+    ];
+
+    const extraStage = [
+      {
+        $project: {
+          salesPersonName: { $arrayElemAt: ["$assignedSalesPerson.name", 0] },
+          salesPersonEmail: { $arrayElemAt: ["$assignedSalesPerson.email", 0] },
+          companyName: "$companyDetails.companyName",
+          leadId: 1,
+          name: {
+            $concat: [
+              { $ifNull: ["$personalDetails.firstName", ""] },
+              " ",
+              { $ifNull: ["$personalDetails.lastName", ""] },
+            ],
+          },
+          email: "$personalDetails.email",
+          phone: "$personalDetails.phone",
+          source: "$sourceName",
+          priorityLevel: 1,
+          status: 1,
+          updatedAt: 1,
+          _id: 1,
+        },
+      },
+    ];
+
+    const leadData = this.Model.findAll(filter, initialStage, extraStage);
     return leadData;
   }
-  const leadData = await Lead.findById(id);
-  return leadData;
-};
 
-export const createLead = async (leadData) => {
-  const { salesPerson: userId } = leadData;
-  userId ? await User.findUserById(userId) : null;
-  const lead = await Lead.create(leadData);
-  return lead;
-};
+  static async create(leadData) {
+    const lead = new this.Model(leadData);
+    leadData.id = lead.id;
+    await addressManager(leadData);
 
-export const updateLead = async (id, updates) => {
-  const lead = await Lead.findById(id);
-  const existingStatus = lead.status;
-  for (const key in updates) {
-    lead[key] = updates[key];
+    for (const key in leadData) {
+      lead[key] = leadData[key] ?? lead[key];
+    }
+
+    await lead.save();
+    const activityLogData = {
+      leadId: lead.id,
+      ...(lead.assignedSalesPerson ? { userId: lead.assignedSalesPerson } : {}),
+      action: "LEAD_CREATED",
+      description: "A new lead was successfully created by the user.",
+      metadata: {
+        message: "This is a dummy data",
+      },
+    };
+
+    await ActivityLog.create(activityLogData);
+    return lead;
   }
-  await lead.validate();
+  static async update(id, updates) {
+    const lead = await this.Model.findDocById(id);
+    const existingStatus = lead.status;
+    const existingStatusUpdates = lead.statusUpdate;
 
-  if (existingStatus !== updates.status) {
-    if (!updates.statusUpdate) {
+    updates.id = id;
+    await addressManager(updates);
+
+    for (const key in updates) {
+      lead[key] = updates[key] ?? lead[key];
+    }
+    await lead.validate();
+    if (updates.status && existingStatus !== updates.status) {
+      if (
+        updates.statusUpdate ||
+        updates.statusUpdate.length <= existingStatusUpdates.length
+      ) {
+        throw {
+          status: false,
+          message: "A reason is required to make a status update",
+          httpStatus: httpStatus.NOT_FOUND,
+        };
+      }
+      await ActivityLogService.create({
+        leadId: lead.id,
+        ...(lead.assignedSalesPerson
+          ? { userId: lead.assignedSalesPerson }
+          : {}),
+        action: "LEAD_UPDATED",
+        description: `Lead status was changed from ${existingStatus} to ${updates.status}`,
+        metadata: updates.statusUpdate[updates.statusUpdate.length - 1],
+      });
+    }
+
+    if (
+      updates.statusUpdate &&
+      updates.statusUpdate.length < existingStatusUpdates.length
+    ) {
       throw {
         status: false,
-        message: "A reason is required to make a status update",
-        httpStatus: httpStatus.NOT_FOUND,
+        message: "Invalid changes to status updates are not allowed",
+        httpStatus: httpStatus.BAD_REQUEST,
       };
     }
-    const obj = {
-      update: `status changed from ${lead.get("status")} to ${lead.status}`,
-      message: updates.statusUpdate,
-    };
-    lead.updateComments.push(obj);
+
+    await lead.save();
+    return lead;
   }
+}
 
-  await lead.save();
-  return lead;
-};
-
-export const deleteLead = async (id) => {
-  const existingLead = await Lead.findByIdAndDelete(id);
-  return true;
-};
+export default LeadService;

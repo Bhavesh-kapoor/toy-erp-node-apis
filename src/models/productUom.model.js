@@ -1,18 +1,17 @@
 import mongoose from "mongoose";
+import BaseSchema from "#models/base";
 
-const productUomSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
+const productUomSchema = new BaseSchema({
+  shortName: {
+    type: String,
+    required: true,
+    unique: true,
   },
-  { timestamps: true },
-);
+  longName: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+});
 
 export default mongoose.model("ProductUom", productUomSchema);
