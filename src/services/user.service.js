@@ -61,6 +61,35 @@ class UserService extends Service {
     return this.Model.findAll(filter, initialStage, extraStage);
   }
 
+  static async getUserByRole(role = "Employee") {
+    const salesPersonData = await this.Model.aggregate([
+      {
+        $lookup: {
+          from: "roles",
+          localField: "role",
+          foreignField: "_id",
+          as: "role",
+        },
+      },
+      {
+        $unwind: "$role",
+      },
+      {
+        $match: {
+          "role.name": role,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          email: 1,
+        },
+      },
+    ]);
+    return salesPersonData;
+  }
+
   static async loginUser(userData) {
     // id,name,dob,mobile,email,role,profilePic
     const { email, password, otp } = userData;
@@ -149,19 +178,19 @@ class UserService extends Service {
     user.update(userData);
 
     //TODO: implement aws s3
-    const filePaths = await uploadFiles(
-      files,
-      `users/${user.id}`,
-      allowedFileUploads,
-    );
+    //const filePaths = await uploadFiles(
+    //  files,
+    //  `users/${user.id}`,
+    //  allowedFileUploads,
+    //);
 
     // TODO: send password via email
     const password = generateSecret(10);
     user.password = password;
 
-    for (let i in filePaths) {
-      user[i] = filePaths[i];
-    }
+    //for (let i in filePaths) {
+    //  user[i] = filePaths[i];
+    //}
 
     await user.save();
     return user;

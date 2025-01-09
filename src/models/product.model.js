@@ -2,6 +2,7 @@ import Brand from "#models/brand";
 import BaseSchema from "#models/base";
 import ProductUom from "#models/productUom";
 import mongoose, { Schema } from "mongoose";
+import uploadFile from "#utils/uploadFile";
 import ProductCategory from "#models/productCategory";
 
 export const productTypeArr = ["Finished", "Raw Material"];
@@ -122,5 +123,7 @@ const productSchema = new BaseSchema(
   },
   { timestamps: true },
 );
+
+imagesSchema.pre("save", uploadFile);
 
 export default mongoose.model("Product", productSchema);

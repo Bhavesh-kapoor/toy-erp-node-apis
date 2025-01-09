@@ -15,6 +15,17 @@ export const getCurrentUser = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, user);
 });
 
+export const getUserByRole = asyncHandler(async (req, res, next) => {
+  const { role } = req.params;
+  const salesPersonData = await UserService.getUserByRole(role);
+  sendResponse(
+    httpStatus.OK,
+    res,
+    salesPersonData,
+    "Record fetched successfully",
+  );
+});
+
 export const login = asyncHandler(async (req, res, next) => {
   const userData = req.body;
   const loginData = await UserService.loginUser(userData);

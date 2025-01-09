@@ -5,7 +5,7 @@ import BaseSchema from "#models/base";
 import Address from "#models/address";
 import httpStatus from "#utils/httpStatus";
 import Department from "#models/department";
-import { session } from "#middlewares/session";
+import uploadFile from "#utils/uploadFile";
 
 const userSchema = new BaseSchema({
   // Personal Details
@@ -144,6 +144,8 @@ userSchema.pre("save", async function (next) {
     next(err);
   }
 });
+
+userSchema.pre("save", uploadFile);
 
 userSchema.statics.findUserById = async function (id) {
   const user = await this.findById(id);
