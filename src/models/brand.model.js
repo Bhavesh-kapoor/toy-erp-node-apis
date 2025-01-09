@@ -25,6 +25,11 @@ const brandSchema = new BaseSchema({
     type: Date,
     default: null,
   },
+  status: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 });
 
 brandSchema.pre("save", function (next) {
