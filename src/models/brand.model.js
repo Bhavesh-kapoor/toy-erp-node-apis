@@ -20,7 +20,6 @@ const brandSchema = new BaseSchema({
     type: String,
     unique: true,
     lowercase: true,
-    required: true,
   },
   deletedAt: {
     type: Date,
