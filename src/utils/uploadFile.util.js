@@ -34,3 +34,22 @@ export default async function uploadFile(files, folder, allowedFiles) {
 
   return paths;
 }
+
+async function func(next) {
+  const files = session.get("files");
+  if (!files) return next();
+  const modelKeys = this.constructor.schema.tree;
+  const modelName = this.constructor.modelName;
+  const filePaths = {};
+
+  files.forEach((file) => {
+    if (!modelKeys[file.fieldname]) return;
+    if (!modelKeys[file.fieldname].file) return;
+
+    const filePath = `${modelName}/${this.id}/${file.fieldname}`.toLowerCase();
+
+    filePaths[file.fieldname] = () => bucket.uploadFile(file, filePath);
+  });
+
+  next();
+}

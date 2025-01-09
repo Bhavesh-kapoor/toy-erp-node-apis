@@ -5,6 +5,7 @@ import BaseSchema from "#models/base";
 import Address from "#models/address";
 import httpStatus from "#utils/httpStatus";
 import Department from "#models/department";
+import { session } from "#middlewares/session";
 
 const userSchema = new BaseSchema({
   // Personal Details
@@ -15,7 +16,7 @@ const userSchema = new BaseSchema({
   },
   profilePic: {
     type: String,
-    isFile: true,
+    file: true,
   },
   qualification: {
     type: String,

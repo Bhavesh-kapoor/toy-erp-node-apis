@@ -36,6 +36,11 @@ const productCategorySchema = new BaseSchema({
   customTax: {
     type: Map,
   },
+  status: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 });
 
 export default mongoose.model("ProductCategory", productCategorySchema);

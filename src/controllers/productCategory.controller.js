@@ -10,6 +10,12 @@ export const get = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getLimitedFields = asyncHandler(async (req, res, next) => {
+  const fields = req.query;
+  const data = await ProductCategoryService.getSelectedCategories(fields);
+  sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
+});
+
 export const create = asyncHandler(async (req, res, next) => {
   const data = req.body;
   const createdData = await ProductCategoryService.create(data);

@@ -12,6 +12,11 @@ const productUomSchema = new BaseSchema({
     required: true,
     unique: true,
   },
+  status: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 });
 
 export default mongoose.model("ProductUom", productUomSchema);

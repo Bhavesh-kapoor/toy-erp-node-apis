@@ -1,14 +1,19 @@
 import { Upload } from "@aws-sdk/lib-storage";
-import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { extractS3KeyFromUrl } from "../utils/helper.js";
-import env from "./env.config.js";
+import {
+  S3Client,
+  DeleteObjectCommand,
+  ListObjectsV2Command,
+} from "@aws-sdk/client-s3";
+import { extractS3KeyFromUrl } from "#utils/helper";
+import env from "#configs/env";
+
 class s3ServiceWithProgress {
-  constructor() {
+  constructor(region, accessKeyId, secretAccessKey) {
     this.s3Client = new S3Client({
-      region: env.AWS_REGION,
+      region: region ?? env.AWS_REGION,
       credentials: {
-        accessKeyId: env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+        accessKeyId: accessKeyId ?? env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: secretAccessKey ?? env.AWS_SECRET_ACCESS_KEY,
       },
     });
   }
@@ -62,6 +67,32 @@ class s3ServiceWithProgress {
       throw error;
     }
   }
+
+  async listFiles(prefix = "") {
+    try {
+      const listParams = {
+        Bucket: env.AWS_BUCKET_NAME,
+        Prefix: prefix, // Optional: List files under a specific "folder"
+      };
+
+      const command = new ListObjectsV2Command(listParams);
+      const data = await this.s3Client.send(command);
+
+      const files = (data.Contents || []).map((file) => ({
+        key: file.Key,
+        lastModified: file.LastModified,
+        size: file.Size,
+        storageClass: file.StorageClass,
+      }));
+
+      console.log("Files in S3 bucket:", files);
+      return files;
+    } catch (error) {
+      console.error("Error listing files from S3:", error.message);
+      throw new Error("Failed to list files from S3");
+    }
+  }
+
   async deleteFile(s3Path) {
     const key = extractS3KeyFromUrl(s3Path);
     try {
@@ -80,5 +111,7 @@ class s3ServiceWithProgress {
     }
   }
 }
+
+export const bucket = new s3ServiceWithProgress();
 
 export default s3ServiceWithProgress;
