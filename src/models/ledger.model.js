@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import User from "#models/user";
 import BaseSchema from "#models/base";
+import Address from "#models/address";
 
 export const ledgerEnumArr = ["Customer", "Supplier", "Cash", "Bank", "Both"];
 
@@ -18,27 +19,20 @@ const ledgerSchema = new BaseSchema({
     required: true,
     enum: ledgerEnumArr,
   },
+  //TODO: What this field will reference?
   groupBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: User,
   },
   billingAddress1: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Address,
   },
   billingAddress2: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Address,
   },
-  pinCode: {
-    type: String,
-  },
-  country: {
-    type: String,
-    required: true,
-    default: "India",
-  },
-  state: {
-    type: String,
-  },
+
   jobWork: {
     type: String,
   },
@@ -48,15 +42,31 @@ const ledgerSchema = new BaseSchema({
   panNo: {
     type: String,
   },
-  yobAmount: { type: Number }, // YOB(Amount)
-  cbAmount: { type: Number }, // CB(Amount)
-  eYobAmount: { type: Number }, // E-YOB(Amt.)
-  eCbAmount: { type: Number }, // E-CB(Amt.)
-  creditDays: { type: Number }, // Credit Days
-  creditLimit: { type: Number }, // Credit Limit
+  yobAmount: {
+    type: Number,
+  }, // YOB(Amount)
+  cbAmount: {
+    type: Number,
+  }, // CB(Amount)
+  eYobAmount: {
+    type: Number,
+  }, // E-YOB(Amt.)
+  eCbAmount: {
+    type: Number,
+  }, // E-CB(Amt.)
+  creditDays: {
+    type: Number,
+  }, // Credit Days
+  creditLimit: {
+    type: Number,
+  }, // Credit Limit
 
-  addtionalMobileNumbers: [{ type: String }],
-  additionalEmails: [{ type: String }],
+  addtionalMobileNumbers: {
+    type: [String],
+  },
+  additionalEmails: {
+    type: [String],
+  },
   transport: {
     type: String,
   },
@@ -73,11 +83,22 @@ const ledgerSchema = new BaseSchema({
     type: String,
   },
 
-  accountNo: { type: String }, // Account No.
-  bankName: { type: String }, // Bank Name
-  branchAddress: { type: String }, // Branch Address
-  ifscCode: { type: String }, // IFSC Code
-  swiftCode: { type: String }, // Swift Code
+  // Bank Details
+  accountNo: {
+    type: String,
+  },
+  bankName: {
+    type: String,
+  },
+  branchAddress: {
+    type: String,
+  },
+  ifscCode: {
+    type: String,
+  },
+  swiftCode: {
+    type: String,
+  },
 });
 
 export default mongoose.model("Ledger", ledgerSchema);

@@ -1,5 +1,4 @@
 import "colors";
-import figlet from "figlet";
 import mongoose from "mongoose";
 import logger from "#configs/logger";
 

@@ -5,7 +5,7 @@ const addressSchema = new BaseSchema({
   belongsTo: {
     type: String,
     required: true,
-    enum: ["User", "Lead"],
+    enum: ["User", "Lead", "Ledger"],
   },
   recipient: {
     type: mongoose.Schema.Types.ObjectId,
@@ -37,7 +37,7 @@ const addressSchema = new BaseSchema({
     trim: true,
     validate: {
       validator: (value) => /^[1-9]\d{4,9}$/.test(value), // Matches a 10-digit PIN code
-      message: "Please enter a valid 10-digit PIN code.",
+      message: "Please enter a valid PIN code.",
     },
   },
   country: {
