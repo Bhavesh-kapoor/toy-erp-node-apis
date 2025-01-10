@@ -33,27 +33,12 @@ const ledgerSchema = new BaseSchema({
     ref: Address,
   },
 
-  jobWork: {
-    type: String,
-  },
   gstNo: {
     type: String,
   },
   panNo: {
     type: String,
   },
-  yobAmount: {
-    type: Number,
-  }, // YOB(Amount)
-  cbAmount: {
-    type: Number,
-  }, // CB(Amount)
-  eYobAmount: {
-    type: Number,
-  }, // E-YOB(Amt.)
-  eCbAmount: {
-    type: Number,
-  }, // E-CB(Amt.)
   creditDays: {
     type: Number,
   }, // Credit Days
@@ -61,25 +46,10 @@ const ledgerSchema = new BaseSchema({
     type: Number,
   }, // Credit Limit
 
-  addtionalMobileNumbers: {
-    type: [String],
-  },
-  additionalEmails: {
-    type: [String],
-  },
-  transport: {
+  addtionalMobileNumber: {
     type: String,
   },
-  privateMark: {
-    type: String,
-  },
-  factor: {
-    type: String,
-  },
-  debit: {
-    type: String,
-  },
-  websiteUrl: {
+  additionalEmail: {
     type: String,
   },
 
@@ -94,9 +64,6 @@ const ledgerSchema = new BaseSchema({
     type: String,
   },
   ifscCode: {
-    type: String,
-  },
-  swiftCode: {
     type: String,
   },
 });

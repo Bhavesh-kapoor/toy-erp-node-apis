@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import BaseSchema from "#models/base";
+import Ledger from "#models/ledger";
 
 const PurchaseOrderSchema = new BaseSchema({
   purchaseNumber: {
@@ -11,8 +12,9 @@ const PurchaseOrderSchema = new BaseSchema({
     required: true,
   },
   vendor: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: Ledger,
   },
   remarks: {
     type: String,

@@ -97,26 +97,23 @@ const productSchema = new BaseSchema(
     buyerRefNo: {
       type: String,
     },
-    isTaxed: {
-      type: Boolean,
-      reuqired: true,
-      default: false,
+    sgst: {
+      type: Number,
+    },
+    cgst: {
+      type: Number,
+    },
+    igst: {
+      type: Number,
     },
     sku: {
       type: String,
       required: true,
       unique: true,
     },
-    manufacturer: {
+    coverImage: {
       type: String,
-      default: "",
-    },
-    dimensions: {
-      type: String,
-      default: "",
-    },
-    tags: {
-      type: [String],
+      file: true,
     },
     images: {
       type: [imagesSchema],

@@ -1,5 +1,6 @@
 import User from "#models/user";
 import Ledger from "#models/ledger";
+import Product from "#models/product";
 import BaseSchema from "#models/base";
 import Quotation from "#models/quotation";
 import mongoose, { Schema } from "mongoose";
@@ -7,6 +8,7 @@ import mongoose, { Schema } from "mongoose";
 const productSchema = new Schema({
   id: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: Product,
   },
   quotationQuantity: {
     type: Number,
@@ -51,6 +53,9 @@ const packingSchema = new BaseSchema({
   },
   transport: {
     type: String,
+  },
+  products: {
+    type: [productSchema],
   },
   totalQuantity: {
     type: Number,

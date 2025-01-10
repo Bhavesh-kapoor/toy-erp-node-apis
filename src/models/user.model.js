@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 import BaseSchema from "#models/base";
 import Address from "#models/address";
 import httpStatus from "#utils/httpStatus";
-import Department from "#models/department";
 import uploadFile from "#utils/uploadFile";
 
 const userSchema = new BaseSchema({
@@ -82,10 +81,6 @@ const userSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: Role,
     required: true,
-  },
-  department: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: Department,
   },
 
   // Active Status
