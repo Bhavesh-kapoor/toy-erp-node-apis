@@ -7,6 +7,7 @@ import ProductCategory from "#models/productCategory";
 
 export const productTypeArr = ["Finished", "Raw Material"];
 
+// FIX: Has to be addressed to function properly
 const imagesSchema = new BaseSchema(
   {
     name: {
@@ -17,7 +18,7 @@ const imagesSchema = new BaseSchema(
       file: true,
     },
   },
-  { timestamps: false, _id: false },
+  { timestamps: false },
 );
 
 const productSchema = new BaseSchema(

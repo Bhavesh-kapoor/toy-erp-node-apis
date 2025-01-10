@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Party from "#models/party";
+import Ledger from "#models/ledger";
 import Product from "#models/product";
 import BaseSchema from "#models/base";
 
@@ -75,7 +75,7 @@ const quotationSchema = new BaseSchema({
   },
   customer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: Party,
+    ref: Ledger,
     required: true,
   },
   poNo: {

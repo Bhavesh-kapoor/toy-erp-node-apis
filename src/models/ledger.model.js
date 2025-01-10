@@ -4,7 +4,7 @@ import BaseSchema from "#models/base";
 
 export const ledgerEnumArr = ["Customer", "Supplier", "Cash", "Bank", "Both"];
 
-const partySchema = new BaseSchema({
+const ledgerSchema = new BaseSchema({
   companyName: {
     type: String,
     required: true,
@@ -80,4 +80,4 @@ const partySchema = new BaseSchema({
   swiftCode: { type: String }, // Swift Code
 });
 
-export default mongoose.model("Party", partySchema);
+export default mongoose.model("Ledger", ledgerSchema);

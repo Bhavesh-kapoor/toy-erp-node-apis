@@ -1,5 +1,5 @@
 import express from "express";
-import { get, create, update, deleteData } from "#controllers/party";
+import { get, create, update, deleteData } from "#controllers/ledger";
 
 const router = express.Router();
 
