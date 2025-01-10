@@ -30,6 +30,6 @@ export const update = asyncHandler(async (req, res, next) => {
 
 export const deleteData = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  await ProductService.deleteData(id);
+  await ProductService.deleteDoc(id);
   sendResponse(httpStatus.NO_CONTENT, res, null, "Record deleted successfully");
 });

@@ -20,14 +20,16 @@ export const create = asyncHandler(async (req, res, _next) => {
     "Record created successfully",
   );
 });
+
 export const update = asyncHandler(async (req, res, _next) => {
   const { id } = req.params;
   const data = req.body;
   const updatedData = await CurrencyService.update(id, data);
   sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
 });
+
 export const deleteData = asyncHandler(async (req, res, _next) => {
   const { id } = req.params;
-  await CurrencyService.deleteData(id);
+  await CurrencyService.deleteDoc(id);
   sendResponse(httpStatus.NO_CONTENT, res, null, "Record deleted successfully");
 });

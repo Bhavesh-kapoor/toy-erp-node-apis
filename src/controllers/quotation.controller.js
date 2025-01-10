@@ -20,6 +20,7 @@ export const create = asyncHandler(async (req, res, next) => {
     "Record created successfully",
   );
 });
+
 export const update = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const data = req.body;

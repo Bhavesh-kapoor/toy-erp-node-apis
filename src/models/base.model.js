@@ -1,7 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 import httpStatus from "#utils/httpStatus";
-import { session } from "#middlewares/session";
-import { bucket } from "#configs/awsS3";
 
 class BaseSchema extends Schema {
   constructor(schemaDefinition, options = {}) {
