@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
-import User from "#models/user";
+import User, { addressSchema } from "#models/user";
 import BaseSchema from "#models/base";
-import Address from "#models/address";
 
-export const ledgerEnumArr = ["Customer", "Supplier", "Cash", "Bank", "Both"];
+export const ledgerEnumArr = ["Customer", "Supplier", "Both"];
 
 const ledgerSchema = new BaseSchema({
   companyName: {
@@ -19,18 +18,15 @@ const ledgerSchema = new BaseSchema({
     required: true,
     enum: ledgerEnumArr,
   },
-  //TODO: What this field will reference?
   groupBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: User,
   },
   billingAddress1: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: Address,
+    type: addressSchema,
   },
   billingAddress2: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: Address,
+    type: addressSchema,
   },
 
   gstNo: {
@@ -41,11 +37,16 @@ const ledgerSchema = new BaseSchema({
   },
   creditDays: {
     type: Number,
-  }, // Credit Days
+  },
   creditLimit: {
     type: Number,
-  }, // Credit Limit
-
+  },
+  mobileNo: {
+    type: String,
+  },
+  email: {
+    type: String,
+  },
   addtionalMobileNumber: {
     type: String,
   },

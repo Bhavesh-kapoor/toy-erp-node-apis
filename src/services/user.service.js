@@ -1,12 +1,9 @@
 import env from "#configs/env";
 import User from "#models/user";
 import Service from "#services/base";
-import Address from "#models/address";
 import { createToken } from "#utils/jwt";
 import httpStatus from "#utils/httpStatus";
-import uploadFiles from "#utils/uploadFile";
 import { session } from "#middlewares/session";
-import AddressService from "#services/address";
 import {
   generateQRCode,
   verifyOTP,
@@ -14,20 +11,13 @@ import {
   generateSecret,
 } from "#utils/twoFactorAuth";
 
-// TODO: Implement with both creation and update
-const allowedFileUploads = new Set([
-  "profilePic",
-  "aadhaarCardDoc",
-  "panCardDoc",
-  "otherDocument",
-]);
-
 class UserService extends Service {
   static Model = User;
 
   static async get(id, filter) {
     if (id) {
       let user = await this.Model.findDocById(id);
+      console.log(user);
       user.role = user.role.id;
       user = user.toJSON();
       user = { ...user, ...user?.address, _id: id };
@@ -91,14 +81,9 @@ class UserService extends Service {
   }
 
   static async loginUser(userData) {
-    // id,name,dob,mobile,email,role,profilePic
     const { email, password, otp } = userData;
 
-    let existingUser = await this.Model.findOne({ email })
-      .populate("role", "name permissions")
-      .select(
-        "name dob mobile email role profilePic password mobileNo secret isTwoFactorEnabled",
-      );
+    let existingUser = await this.Model.findDoc({ email });
 
     if (!(await existingUser.isPasswordCorrect(password))) {
       throw {
@@ -130,16 +115,33 @@ class UserService extends Service {
       email,
     };
 
+    await existingUser.populate({
+      path: "role",
+      select: "name permissions",
+    });
+
+    const selectedFields = [
+      "name",
+      "dob",
+      "mobile",
+      "email",
+      "role",
+      "profilePic",
+      "mobileNo",
+    ];
+
     const token = createToken(payload, env.JWT_SECRET, {
       expiresIn: env.JWT_TOKEN_AGE,
     });
-    existingUser = existingUser.toJSON();
-    existingUser.permissions = existingUser.role.permissions;
-    existingUser.role = existingUser.role.name;
-    delete existingUser.password;
-    delete existingUser.secret;
-    delete existingUser.isTwoFactorEnabled;
-    return { token, userData: existingUser };
+
+    const user = {};
+    selectedFields.forEach((key) => {
+      user[key] = existingUser[key];
+    });
+
+    user.permissions = user.role.permissions;
+    user.role = user.role.name;
+    return { token, userData: user };
   }
 
   static async enable2FA(id) {
@@ -199,20 +201,11 @@ class UserService extends Service {
   static async update(id, userData) {
     const user = await User.findDocById(id);
 
-    // TODO: Handle file updates here
-
-    let { address: existingAddress } = userData;
-    const address = await AddressService.getSafe(user.address);
-
-    address.update(existingAddress);
-    await address.save();
-
     delete userData.password;
     delete userData.address;
     delete userData.isTwoFactorEnabled;
     user.update(userData);
     await user.save();
-    user.address = address;
     return user;
   }
 
@@ -260,64 +253,6 @@ class UserService extends Service {
   static async deleteData(id) {
     const user = await User.findDocById(id);
     //const addresses = user.addresses.map((id) => Address.findDocById(id));
-  }
-}
-
-export async function addressManager(updates) {
-  try {
-    const { addresses, id } = updates;
-
-    let existingAddresses = [];
-    let selected = 0;
-
-    for (let i in addresses) {
-      const address = addresses[i];
-      address.isActive === true || address.isActive === "true"
-        ? (selected += 1)
-        : null;
-      if (address.id || address._id) {
-        address.recipient = id;
-        addresses[i] = address.id || address._id;
-        existingAddresses.push(
-          Address.findByIdAndUpdate(addresses[i], address, {
-            runValidators: true,
-            new: true,
-          }),
-        );
-        continue;
-      }
-      const newAddress = new Address(address);
-      newAddress.recipient = id;
-      newAddress.save();
-      existingAddresses.push(newAddress);
-      addresses[i] = newAddress.id;
-    }
-
-    if (selected !== 1) {
-      throw {
-        status: false,
-        message: "Only one primary address is allowed",
-        httpStatus: httpStatus.CONFLICT,
-      };
-    }
-
-    existingAddresses = await Promise.all(existingAddresses);
-    for (let i in existingAddresses) {
-      let add = existingAddresses[i];
-      if (add === null) {
-        throw {
-          status: false,
-          message: `address with id ${addresses[i]} doesn't exist`,
-          httpStatus: httpStatus.BAD_REQUEST,
-        };
-      }
-    }
-  } catch (err) {
-    throw {
-      status: false,
-      message: err.message,
-      httpStatus: err.httpStatus,
-    };
   }
 }
 

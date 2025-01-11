@@ -1,8 +1,6 @@
 import Lead from "#models/lead";
-import Address from "#models/address";
 import httpStatus from "#utils/httpStatus";
 import Service from "#services/base";
-import { addressManager } from "#services/user";
 import ActivityLogService from "#services/activitylog";
 
 class LeadService extends Service {
@@ -29,21 +27,21 @@ class LeadService extends Service {
         $project: {
           salesPersonName: { $arrayElemAt: ["$assignedSalesPerson.name", 0] },
           salesPersonEmail: { $arrayElemAt: ["$assignedSalesPerson.email", 0] },
-          companyName: "$companyDetails.companyName",
+          companyName: "$companyName",
           leadId: 1,
           name: {
             $concat: [
-              { $ifNull: ["$personalDetails.firstName", ""] },
+              { $ifNull: ["$firstName", ""] },
               " ",
-              { $ifNull: ["$personalDetails.lastName", ""] },
+              { $ifNull: ["$lastName", ""] },
             ],
           },
-          email: "$personalDetails.email",
-          phone: "$personalDetails.phone",
-          source: "$sourceName",
+          email: 1,
+          phone: 1,
+          source: 1,
           priorityLevel: 1,
           status: 1,
-          updatedAt: 1,
+          lastName: 1,
           _id: 1,
         },
       },
@@ -55,14 +53,8 @@ class LeadService extends Service {
 
   static async create(leadData) {
     const lead = new this.Model(leadData);
-    leadData.id = lead.id;
-    await addressManager(leadData);
-
-    for (const key in leadData) {
-      lead[key] = leadData[key] ?? lead[key];
-    }
-
     await lead.save();
+
     const activityLogData = {
       leadId: lead.id,
       ...(lead.assignedSalesPerson ? { userId: lead.assignedSalesPerson } : {}),
@@ -73,16 +65,13 @@ class LeadService extends Service {
       },
     };
 
-    await ActivityLog.create(activityLogData);
+    await ActivityLogService.create(activityLogData);
     return lead;
   }
   static async update(id, updates) {
     const lead = await this.Model.findDocById(id);
     const existingStatus = lead.status;
     const existingStatusUpdates = lead.statusUpdate;
-
-    updates.id = id;
-    await addressManager(updates);
 
     for (const key in updates) {
       lead[key] = updates[key] ?? lead[key];

@@ -1,3 +1,4 @@
+import User from "#models/user";
 import mongoose from "mongoose";
 import Ledger from "#models/ledger";
 import Product from "#models/product";
@@ -30,20 +31,24 @@ const itemSchema = new BaseSchema(
       required: true,
       min: 0,
     },
-    discount: {
-      percentage: {
-        type: Number,
-        min: 0,
-        max: 100,
-      },
-      amount: {
-        type: Number,
-        min: 0,
-      },
-    },
-    gst: {
+    discountPercentage: {
       type: Number,
       min: 0,
+      max: 100,
+    },
+    discountAmount: {
+      type: Number,
+      min: 0,
+    },
+    cgst: {
+      type: Number,
+      min: 0,
+    },
+    sgst: {
+      type: Number,
+    },
+    igst: {
+      type: Number,
     },
     gstAmount: {
       type: Number,
@@ -90,25 +95,32 @@ const quotationSchema = new BaseSchema({
     trim: true,
   },
   preparedBy: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     trim: true,
+    ref: User,
   },
-  tax: {
+  isTaxed: {
     type: Boolean,
     default: false,
   },
 
-  // Line items
-  lineItems: {
+  // Products
+  products: {
     type: [itemSchema],
     default: [],
   },
 
   // Payment terms
-  paymentTerms: { type: String, trim: true },
+  paymentTerms: {
+    type: String,
+    trim: true,
+  },
 
   // Transport details
-  transport: { type: Number, min: 1 },
+  transport: {
+    type: Number,
+    min: 1,
+  },
 
   // Totals
   totalQuantity: {
@@ -126,17 +138,15 @@ const quotationSchema = new BaseSchema({
     min: 0,
     default: 0,
   },
-  additionalDiscount: {
-    percentage: {
-      type: Number,
-      min: 0,
-      default: 0,
-    },
-    amount: {
-      type: Number,
-      min: 0,
-      default: 0,
-    },
+  additionalDiscountPercentage: {
+    type: Number,
+    min: 0,
+    default: 0,
+  },
+  additionalDiscountAmount: {
+    type: Number,
+    min: 0,
+    default: 0,
   },
   freightAmount: {
     type: Number,
@@ -149,6 +159,16 @@ const quotationSchema = new BaseSchema({
     default: 0,
   },
   taxableAmount: {
+    type: Number,
+    min: 0,
+    default: 0,
+  },
+  cgstAmount: {
+    type: Number,
+    min: 0,
+    default: 0,
+  },
+  sgstAmount: {
     type: Number,
     min: 0,
     default: 0,

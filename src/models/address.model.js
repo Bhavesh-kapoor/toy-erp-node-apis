@@ -1,17 +1,6 @@
-import mongoose from "mongoose";
-import BaseSchema from "#models/base";
+import mongoose, { Schema } from "mongoose";
 
-const addressSchema = new BaseSchema({
-  belongsTo: {
-    type: String,
-    required: true,
-    enum: ["User", "Lead", "Ledger"],
-  },
-  recipient: {
-    type: mongoose.Schema.Types.ObjectId,
-    refPath: "belongsTo",
-    required: true,
-  },
+export const addressSchema = new Schema({
   line1: {
     type: String,
     required: true,
@@ -48,11 +37,6 @@ const addressSchema = new BaseSchema({
   landmark: {
     type: String,
     trim: true,
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-    required: true,
   },
   longitude: {
     type: String,

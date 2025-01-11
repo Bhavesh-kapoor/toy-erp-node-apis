@@ -1,8 +1,6 @@
-import User from "#models/user";
 import mongoose from "mongoose";
-import Address from "#models/address";
 import BaseSchema from "#models/base";
-import ActivityLog from "#models/activityLog";
+import User, { addressSchema } from "#models/user";
 
 let leadCount = 0;
 
@@ -10,58 +8,56 @@ const leadSchema = new BaseSchema({
   leadId: {
     type: String,
   },
-  addresses: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: Address,
+  billingAddress1: {
+    type: addressSchema,
   },
-  personalDetails: {
-    firstName: {
-      type: String,
-      required: true,
-    },
-    lastName: {
-      type: String,
-      required: true,
-    },
-    phone: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-    },
-    dateOfBirth: {
-      type: Date,
-    },
-    gender: {
-      type: String,
-    },
+  billingAddress2: {
+    type: addressSchema,
   },
-  companyDetails: {
-    companyName: {
-      type: String,
-      required: true,
-    },
-    designation: {
-      type: String,
-    },
-    industry: {
-      type: String,
-    },
-    website: {
-      type: String,
-    },
-    phone: {
-      type: String,
-    },
-    companyAddress: {
-      type: mongoose.Schema.Types.ObjectId,
-    },
-  },
-  sourceName: {
+  firstName: {
     type: String,
-    required: false,
+    required: true,
+  },
+  lastName: {
+    type: String,
+    required: true,
+  },
+  phone: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  dateOfBirth: {
+    type: Date,
+  },
+  gender: {
+    type: String,
+    enum: ["Male", "Female", "Other"],
+  },
+  companyName: {
+    type: String,
+    required: true,
+  },
+  designation: {
+    type: String,
+  },
+  industry: {
+    type: String,
+  },
+  website: {
+    type: String,
+  },
+  companyPhoneNo: {
+    type: String,
+  },
+  companyAddress: {
+    type: addressSchema,
+  },
+  source: {
+    type: String,
   },
   status: {
     type: String,
@@ -76,7 +72,6 @@ const leadSchema = new BaseSchema({
   assignedSalesPerson: {
     type: mongoose.Schema.Types.ObjectId,
     ref: User,
-    required: false,
   },
   statusUpdate: {
     type: [
@@ -89,11 +84,9 @@ const leadSchema = new BaseSchema({
   metaData: {
     query: {
       type: String,
-      required: false,
     },
     tags: {
       type: [String],
-      required: false,
     },
   },
 });

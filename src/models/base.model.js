@@ -129,7 +129,7 @@ class BaseSchema extends Schema {
 
       // Add filters if any
       for (let filter in filters) {
-        [(matchStage[filter] = filters[filter])];
+        matchStage[filter] = filters[filter];
         delete filters[filter];
       }
 
