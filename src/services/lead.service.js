@@ -8,7 +8,7 @@ class LeadService extends Service {
 
   static async get(id, filter) {
     if (id) {
-      return this.Model.findDocById(id);
+      return this.Model.findById(id);
     }
 
     const initialStage = [
@@ -83,7 +83,16 @@ class LeadService extends Service {
     const lead = await this.Model.findDocById(id);
     const existingStatus = lead.status;
     const existingStatusUpdates = lead.statusUpdate;
+    delete updates.statusUpdate;
 
+    const { companyAddress } = updates;
+
+    const keys = Object.keys(companyAddress);
+    for (let i of keys) {
+      const key = i.replace("EMP", "");
+      companyAddress[key] = companyAddress[i];
+      delete companyAddress[i];
+    }
     for (const key in updates) {
       lead[key] = updates[key] ?? lead[key];
     }
