@@ -43,12 +43,6 @@ export const addressSchema = new Schema({
     type: String,
     trim: true,
   },
-  longitude: {
-    type: String,
-  },
-  latitude: {
-    type: String,
-  },
 });
 
 const userSchema = new BaseSchema({

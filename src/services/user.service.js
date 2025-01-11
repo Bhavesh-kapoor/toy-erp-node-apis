@@ -166,35 +166,13 @@ class UserService extends Service {
     return true;
   }
   static async create(userData) {
-    const files = session.get("files");
+    //TODO: Send password via mail
 
-    userData.isTwoFactorEnabled = false;
-    const { address } = userData;
-    delete userData.address;
-
-    const user = new User();
-    userData.id = user.id;
-    address.recipient = user.id;
-    address.belongsTo = "User";
-
-    user.update(userData);
-
-    //TODO: implement aws s3
-    //const filePaths = await uploadFiles(
-    //  files,
-    //  `users/${user.id}`,
-    //  allowedFileUploads,
-    //);
-
-    // TODO: send password via email
     const password = generateSecret(10);
-    user.password = password;
+    userData.isTwoFactorEnabled = false;
+    userData.password = password;
 
-    //for (let i in filePaths) {
-    //  user[i] = filePaths[i];
-    //}
-
-    await user.save();
+    const user = await this.Model.create(userData);
     return user;
   }
 
@@ -202,7 +180,6 @@ class UserService extends Service {
     const user = await User.findDocById(id);
 
     delete userData.password;
-    delete userData.address;
     delete userData.isTwoFactorEnabled;
     user.update(userData);
     await user.save();

@@ -1,10 +1,10 @@
 import User from "#models/user";
 import mongoose from "mongoose";
+import Lead from "#models/lead";
 import Ledger from "#models/ledger";
 import Product from "#models/product";
 import BaseSchema from "#models/base";
 
-let quotationCount = 0;
 const quotationStatusArr = ["Approved", "Cancelled", "Pending"];
 
 // Schema for individual line items
@@ -59,10 +59,6 @@ const itemSchema = new BaseSchema(
       required: true,
       min: 0,
     },
-    stockInHand: {
-      type: Number,
-      min: 0,
-    },
   },
   { timestamps: false, _id: false },
 );
@@ -81,7 +77,10 @@ const quotationSchema = new BaseSchema({
   customer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: Ledger,
-    required: true,
+  },
+  lead: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Lead,
   },
   poNo: {
     type: String,
@@ -96,12 +95,16 @@ const quotationSchema = new BaseSchema({
   },
   preparedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    trim: true,
     ref: User,
+    required: true,
   },
   isTaxed: {
     type: Boolean,
     default: false,
+  },
+  packing: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Packing",
   },
 
   // Products
@@ -153,7 +156,7 @@ const quotationSchema = new BaseSchema({
     min: 0,
     default: 0,
   },
-  packing: {
+  packingCount: {
     type: Number,
     min: 0,
     default: 0,
@@ -189,22 +192,16 @@ const quotationSchema = new BaseSchema({
     required: true,
     default: "Pending",
   },
-  expectedDelivery: {
-    type: String,
-  },
 });
 
 quotationSchema.post("save", async function (doc, next) {
   if (doc.quotationNo) return next();
-  quotationCount += 1;
+  const quotationCount = await Quotation.countDocuments();
   doc.quotationNo = `Q-NO-${quotationCount + 1000}`;
+  await doc.save();
   next();
 });
 
 const Quotation = mongoose.model("Quotation", quotationSchema);
-
-Quotation.countDocuments().then((count) => {
-  quotationCount = count;
-});
 
 export default Quotation;

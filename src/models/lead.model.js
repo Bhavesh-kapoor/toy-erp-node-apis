@@ -8,10 +8,7 @@ const leadSchema = new BaseSchema({
   leadId: {
     type: String,
   },
-  billingAddress1: {
-    type: addressSchema,
-  },
-  billingAddress2: {
+  address: {
     type: addressSchema,
   },
   firstName: {

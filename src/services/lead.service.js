@@ -52,6 +52,17 @@ class LeadService extends Service {
   }
 
   static async create(leadData) {
+    delete leadData.statusUpdate;
+
+    const { companyAddress } = leadData;
+
+    const keys = Object.keys(companyAddress);
+    for (let i of keys) {
+      const key = i.replace("EMP", "");
+      companyAddress[key] = companyAddress[i];
+      delete companyAddress[i];
+    }
+
     const lead = new this.Model(leadData);
     await lead.save();
 

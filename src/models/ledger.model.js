@@ -22,10 +22,10 @@ const ledgerSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: User,
   },
-  billingAddress1: {
+  address1: {
     type: addressSchema,
   },
-  billingAddress2: {
+  address2: {
     type: addressSchema,
   },
 

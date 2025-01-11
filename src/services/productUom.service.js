@@ -1,4 +1,3 @@
-import httpStatus from "#utils/httpStatus";
 import ProductUom from "#models/productUom";
 import Service from "#services/base";
 
