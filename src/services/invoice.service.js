@@ -1,6 +1,6 @@
 import Service from "#services/base";
 import Invoice from "#models/invoice";
-
+import mongoose from "mongoose";
 class InvoiceService extends Service {
   static Model = Invoice;
 
@@ -82,17 +82,16 @@ class InvoiceService extends Service {
     ];
 
     if (!id) {
-      const leadData = this.Model.findAll(filter, initialStage, extraStage);
-      return leadData;
+      const invoiceData = this.Model.findAll(filter, initialStage, extraStage);
+      return invoiceData;
     }
-    console.log(id);
-    const leadData = await this.Model.aggregate([
+    const invoiceData = await this.Model.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       ...initialStage,
       {
         $lookup: {
           from: "products",
-          localField: "products.product",
+          localField: "quotationDetails.products.product",
           foreignField: "_id",
           pipeline: [
             {
@@ -103,14 +102,29 @@ class InvoiceService extends Service {
                 as: "uom",
               },
             },
-            { $unwind: "$uom" },
+            { $unwind: { path: "$uom", preserveNullAndEmptyArrays: true } },
+            {
+              $lookup: {
+                from: "productcategories",
+                localField: "productCategory",
+                foreignField: "_id",
+                as: "productcategories",
+              },
+            },
+            {
+              $unwind: {
+                path: "$productcategories",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
             {
               $project: {
-                _id: 0,
+                _id: 1,
                 name: 1,
                 description: 1,
                 productCode: 1,
                 uom: "$uom.shortName",
+                hsnCode: "$productcategories.hsnCode",
               },
             },
           ],
@@ -119,43 +133,50 @@ class InvoiceService extends Service {
       },
       {
         $addFields: {
+          invoiceToName: "$invoiceToDetails.companyName",
+          shipToName: "$shipToDetails.companyName",
+          shipToAddress: "$shipToDetails.address1",
+          preparedByName: "$preparedByDetails.name",
+          preparedById: "$preparedByDetails._id",
+          quotationNo: "$quotationDetails.quotationNo",
+          quotationId: "$quotationDetails._id",
           products: {
             $map: {
-              input: "$products",
+              input: "$quotationDetails.products",
               as: "product",
               in: {
                 $mergeObjects: [
                   "$$product",
                   {
                     $arrayElemAt: [
-                      "$productDetails",
                       {
-                        $indexOfArray: [
-                          "$productDetails._id",
-                          "$$product.product",
-                        ],
+                        $filter: {
+                          input: "$productDetails",
+                          as: "detail",
+                          cond: { $eq: ["$$detail._id", "$$product.product"] },
+                        },
                       },
+                      0,
                     ],
                   },
                 ],
               },
             },
           },
-          preparedByName: { $arrayElemAt: ["$preparedByData.name", 0] },
-          preparedByEmail: { $arrayElemAt: ["$preparedByData.email", 0] },
-          customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
         },
       },
       {
         $project: {
           productDetails: 0,
-          preparedByData: 0,
-          customerData: 0,
-          leadData: 0,
+          invoiceToDetails: 0,
+          shipToDetails: 0,
+          preparedByDetails: 0,
+          quotationDetails: 0,
         },
       },
     ]);
-    return leadData;
+
+    return invoiceData;
   }
 }
 
