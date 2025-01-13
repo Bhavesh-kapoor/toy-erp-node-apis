@@ -61,7 +61,7 @@ class QuotationService extends Service {
       const leadData = this.Model.findAll(filter, initialStage, extraStage);
       return leadData;
     }
-    console.log(id);
+
     const leadData = await this.Model.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       ...initialStage,

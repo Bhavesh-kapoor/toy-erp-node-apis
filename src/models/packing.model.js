@@ -1,22 +1,8 @@
 import User from "#models/user";
 import Ledger from "#models/ledger";
-import Product from "#models/product";
 import BaseSchema from "#models/base";
 import Quotation from "#models/quotation";
 import mongoose, { Schema } from "mongoose";
-
-const productSchema = new Schema({
-  id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: Product,
-  },
-  quotationQuantity: {
-    type: Number,
-  },
-  packingQuantity: {
-    type: Number,
-  },
-});
 
 const packingSchema = new BaseSchema({
   packingNo: {
@@ -54,9 +40,6 @@ const packingSchema = new BaseSchema({
   transport: {
     type: String,
   },
-  products: {
-    type: [productSchema],
-  },
   totalQuantity: {
     type: Number,
     min: 1,
@@ -65,6 +48,18 @@ const packingSchema = new BaseSchema({
     type: Number,
     min: 1,
   },
+  packed: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+packingSchema.post("save", async function (doc, next) {
+  if (doc.packingNo) return next();
+  const packingCount = await Packing.countDocuments();
+  doc.packingNo = `P-NO-${packingCount + 1000}`;
+  await doc.save();
+  next();
 });
 
 export default mongoose.model("Packing", packingSchema);
