@@ -2,6 +2,7 @@ import Service from "#services/base";
 import Quotation from "#models/quotation";
 import httpStatus from "#utils/httpStatus";
 import ActivityLogService from "#services/activitylog";
+import mongoose from "mongoose";
 
 class QuotationService extends Service {
   static Model = Quotation;
@@ -13,7 +14,7 @@ class QuotationService extends Service {
           from: "users",
           localField: "preparedBy",
           foreignField: "_id",
-          as: "salesPerson",
+          as: "preparedByData",
         },
       },
       {
@@ -24,6 +25,7 @@ class QuotationService extends Service {
           as: "customerData",
         },
       },
+
       {
         $lookup: {
           from: "leads",
@@ -37,9 +39,16 @@ class QuotationService extends Service {
     const extraStage = [
       {
         $project: {
-          salesPersonName: { $arrayElemAt: ["$salesPerson.name", 0] },
-          salesPersonEmail: { $arrayElemAt: ["$salesPerson.email", 0] },
+          preparedByName: { $arrayElemAt: ["$preparedByData.name", 0] },
+          preparedByEmail: { $arrayElemAt: ["$preparedByData.email", 0] },
           customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
+          leadName: {
+            $concat: [
+              { $arrayElemAt: ["$leadData.firstName", 0] },
+              " ",
+              { $arrayElemAt: ["$leadData.lastName", 0] },
+            ],
+          },
           quotationNo: 1,
           netAmount: 1,
           status: 1,
@@ -48,7 +57,80 @@ class QuotationService extends Service {
       },
     ];
 
-    const leadData = this.Model.findAll(filter, initialStage, extraStage);
+    if (!id) {
+      const leadData = this.Model.findAll(filter, initialStage, extraStage);
+      return leadData;
+    }
+    console.log(id);
+    const leadData = await this.Model.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(id) } },
+      ...initialStage,
+      {
+        $lookup: {
+          from: "products",
+          localField: "products.product",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $lookup: {
+                from: "productuoms",
+                localField: "uom",
+                foreignField: "_id",
+                as: "uom",
+              },
+            },
+            { $unwind: "$uom" },
+            {
+              $project: {
+                _id: 0,
+                name: 1,
+                description: 1,
+                productCode: 1,
+                uom: "$uom.shortName",
+              },
+            },
+          ],
+          as: "productDetails",
+        },
+      },
+      {
+        $addFields: {
+          products: {
+            $map: {
+              input: "$products",
+              as: "product",
+              in: {
+                $mergeObjects: [
+                  "$$product",
+                  {
+                    $arrayElemAt: [
+                      "$productDetails",
+                      {
+                        $indexOfArray: [
+                          "$productDetails._id",
+                          "$$product.product",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+          preparedByName: { $arrayElemAt: ["$preparedByData.name", 0] },
+          preparedByEmail: { $arrayElemAt: ["$preparedByData.email", 0] },
+          customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
+        },
+      },
+      {
+        $project: {
+          productDetails: 0,
+          preparedByData: 0,
+          customerData: 0,
+          leadData: 0,
+        },
+      },
+    ]);
     return leadData;
   }
 
@@ -61,6 +143,7 @@ class QuotationService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+    if (customer) delete quotationData.lead;
     const quotation = await this.Model.create(quotationData);
     await ActivityLogService.create({
       quotation: quotation.id,
