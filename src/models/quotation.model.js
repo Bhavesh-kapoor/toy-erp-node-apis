@@ -8,7 +8,7 @@ import BaseSchema from "#models/base";
 const quotationStatusArr = ["Approved", "Cancelled", "Pending"];
 
 // Schema for individual line items
-const itemSchema = new BaseSchema(
+export const itemSchema = new BaseSchema(
   {
     product: {
       type: mongoose.Schema.Types.ObjectId,

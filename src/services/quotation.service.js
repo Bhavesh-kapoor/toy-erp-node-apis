@@ -134,6 +134,17 @@ class QuotationService extends Service {
     return leadData;
   }
 
+  static async getLimitedFields(fields = {}) {
+    const data = await this.Model.aggregate([
+      {
+        $project: {
+          quotationNo: 1,
+        },
+      },
+    ]);
+    return data;
+  }
+
   static async create(quotationData) {
     const { customer, lead } = quotationData;
     if (!customer && !lead) {

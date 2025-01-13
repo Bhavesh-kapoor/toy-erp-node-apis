@@ -175,8 +175,8 @@ class InvoiceService extends Service {
         },
       },
     ]);
-
-    return invoiceData;
+    //FIX: solve this using aggregation
+    return invoiceData[0];
   }
 }
 

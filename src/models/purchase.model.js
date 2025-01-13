@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
-import BaseSchema from "#models/base";
 import Ledger from "#models/ledger";
+import BaseSchema from "#models/base";
+import { itemSchema } from "#models/quotation";
 
-const PurchaseOrderSchema = new BaseSchema({
-  purchaseNumber: {
+const purchaseOrderSchema = new BaseSchema({
+  purchaseNo: {
     type: String,
     unique: true,
   },
@@ -29,31 +30,64 @@ const PurchaseOrderSchema = new BaseSchema({
   poDate: {
     type: Date,
   },
-
-  // TODO: this has to be fixed
-  products: [
-    {
-      productCode: { type: String, required: true },
-      description: { type: String, required: true },
-      uom: { type: String, required: true },
-      hsn: { type: String, required: true },
-      quantity: { type: Number, required: true },
-      rate: { type: Number, required: true },
-      value: { type: Number, required: true },
-      discountPercentage: { type: Number },
-      discountAmount: { type: Number },
-      cgstPercentage: { type: Number },
-      cgstAmount: { type: Number },
-      sgstPercentage: { type: Number },
-      sgstAmount: { type: Number },
-      netValue: { type: Number, required: true },
-    },
-  ],
+  products: [itemSchema],
   paymentMode: {
     type: String,
+    enum: ["Cash", "Cheuqe", "NEFT"],
     required: true,
+  },
+  totalQuantity: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
+  totalValue: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
+  discountAmount: {
+    type: Number,
+    min: 0,
+  },
+  additionalDiscountPercentage: {
+    type: Number,
+    min: 0,
+  },
+  additionalDiscountAmount: {
+    type: Number,
+
+    min: 0,
+  },
+  freight: {
+    type: Number,
+  },
+  cgst: {
+    type: Number,
+    min: 0,
+  },
+  sgst: {
+    type: Number,
+    min: 0,
+  },
+  igst: {
+    type: Number,
+    min: 0,
+  },
+  netAmount: {
+    type: Number,
   },
 });
 
+purchaseOrderSchema.post("save", async function (doc, next) {
+  if (doc.purchaseNo) return next();
+  const purchaseCount = await Purchase.countDocuments();
+  doc.purchaseNo = `PU-NO-${purchaseCount + 1000}`;
+  await doc.save();
+  next();
+});
+
+const Purchase = mongoose.model("Purchase", purchaseOrderSchema);
+
 // Create and export the model
-export default mongoose.model("PurchaseOrder", PurchaseOrderSchema);
+export default Purchase;

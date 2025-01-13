@@ -43,8 +43,11 @@ class PackingService extends Service {
           netAmount: { $arrayElemAt: ["$quotationData.netAmount", 0] },
           packedBy: { $arrayElemAt: ["$packedByData.name", 0] },
           packingDate: 1,
+          enquiryDate: 1,
+          nagPacking: 1,
           totalQuantity: 1,
           netPackedQuantity: 1,
+          quotation: { $arrayElemAt: ["$quotationData._id", 0] },
         },
       },
     ];
@@ -53,65 +56,78 @@ class PackingService extends Service {
       return this.Model.findAll(filter, initialStage, extraStage);
     }
 
-    initialStage.push({
-      $lookup: {
-        from: "products", // Replace with the name of your products collection
-        localField: "quotationData.products.product",
-        foreignField: "_id",
-        as: "productDetails",
-        pipeline: [
-          {
-            $project: {
-              productCode: 1,
-            },
-          },
-        ],
-      },
-    });
-
-    extraStage[0]["$project"]["products"] = {
-      $map: {
-        input: { $arrayElemAt: ["$quotationData.products", 0] },
-        as: "product",
-        in: {
-          $mergeObjects: [
-            "$$product",
+    return this.Model.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(id) } },
+      ...initialStage,
+      {
+        $lookup: {
+          from: "products",
+          localField: "quotationData.products.product",
+          foreignField: "_id",
+          pipeline: [
             {
-              productCode: {
-                $let: {
-                  vars: {
-                    productDetail: {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: "$productDetails",
-                            as: "detail",
-                            cond: {
-                              $eq: ["$$detail._id", "$$product.product"],
-                            },
-                          },
-                        },
-                        0,
-                      ],
-                    },
-                  },
-                  in: "$$productDetail.productCode",
-                },
+              $lookup: {
+                from: "productuoms",
+                localField: "uom",
+                foreignField: "_id",
+                as: "uom",
+              },
+            },
+            { $unwind: { path: "$uom" } },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                description: 1,
+                productCode: 1,
+                uom: "$uom.shortName",
               },
             },
           ],
+          as: "productDetails",
         },
       },
-    };
-
-    const data = await this.Model.aggregate([
       {
-        $match: { _id: new mongoose.Types.ObjectId(id) },
+        $addFields: {
+          packedByName: "$packedByData.name",
+          packedById: "$packedByData._id",
+          quotationNo: "$quotationData.quotationNo",
+          quotationId: "$quotationData._id",
+          products: {
+            $map: {
+              input: "$quotationData.products",
+              as: "product",
+              in: {
+                $mergeObjects: [
+                  "$$product",
+                  {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: "$productDetails",
+                          as: "detail",
+                          cond: { $eq: ["$$detail._id", "$$product.product"] },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
       },
-      ...initialStage,
-      ...extraStage,
+      {
+        $project: {
+          productDetails: 0,
+          invoiceToDetails: 0,
+          shipToDetails: 0,
+          preparedByDetails: 0,
+          quotationDetails: 0,
+        },
+      },
     ]);
-    return data[0];
   }
 }
 

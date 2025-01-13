@@ -1,24 +1,18 @@
 import { sendResponse } from "#utils/response";
-import QuotationService from "#services/quotation";
+import PurchaseService from "#services/purchase";
 import httpStatus from "#utils/httpStatus";
 import asyncHandler from "#utils/asyncHandler";
 
 export const get = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const filter = req.query;
-  const data = await QuotationService.get(id, filter);
-  sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
-});
-
-export const getLimitedFields = asyncHandler(async (req, res, next) => {
-  const fields = req.query;
-  const data = await QuotationService.getLimitedFields(fields);
+  const data = await PurchaseService.get(id, filter);
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
 export const create = asyncHandler(async (req, res, next) => {
   const data = req.body;
-  const createdData = await QuotationService.create(data);
+  const createdData = await PurchaseService.create(data);
   sendResponse(
     httpStatus.CREATED,
     res,
@@ -30,19 +24,12 @@ export const create = asyncHandler(async (req, res, next) => {
 export const update = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const data = req.body;
-  const updatedData = await QuotationService.update(id, data);
-  sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
-});
-
-export const updateStatus = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const data = req.body;
-  const updatedData = await QuotationService.changeQuotationStatus(id, data);
+  const updatedData = await PurchaseService.update(id, data);
   sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
 });
 
 export const deleteData = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  await QuotationService.deleteDoc(id);
+  await PurchaseService.deleteDoc(id);
   sendResponse(httpStatus.NO_CONTENT, res, null, "Record deleted successfully");
 });
