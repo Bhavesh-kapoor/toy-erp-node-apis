@@ -17,7 +17,6 @@ class UserService extends Service {
   static async get(id, filter) {
     if (id) {
       let user = await this.Model.findDocById(id);
-      console.log(user);
       user.role = user.role.id;
       user = user.toJSON();
       user = { ...user, ...user?.address, _id: id };
