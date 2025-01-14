@@ -43,6 +43,8 @@ class LeadService extends Service {
           status: 1,
           lastName: 1,
           _id: 1,
+          createdAt: 1,
+          updatedAt: 1,
         },
       },
     ];
