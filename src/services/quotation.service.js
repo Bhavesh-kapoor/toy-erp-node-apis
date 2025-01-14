@@ -197,6 +197,41 @@ class QuotationService extends Service {
     return quotation;
   }
 
+  static async update(id, updates) {
+    const status = updates.status;
+
+    const quotation = await this.Model.findDocById(id);
+
+    if (status !== quotation.status) {
+      throw {
+        status: false,
+        message: "Updating status via this route ain't allowed",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (quotation.status !== "Pending") {
+      switch (quotation.status) {
+        case "Approved":
+          throw {
+            status: false,
+            message:
+              "Cannot update a approved quotation, please create a new one",
+            httpStatus: httpStatus.BAD_REQUEST,
+          };
+        case "Cancelled":
+          throw {
+            status: false,
+            message: "Cannot update a cancelled quotation",
+            httpStatus: httpStatus.BAD_REQUEST,
+          };
+      }
+    }
+    quotation.update(updates);
+    await quotation.save();
+    return quotation;
+  }
+
   static async changeQuotationStatus(id, quotationData) {
     const quotation = await this.Model.findDocById(id);
     const { status: existingStatus } = quotation;
