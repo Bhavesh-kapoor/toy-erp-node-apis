@@ -170,7 +170,7 @@ class QuotationService extends Service {
       set.add(ele.product);
     });
 
-    if (set.size() !== quotationData.products.length) {
+    if (set.size !== quotationData.products.length) {
       throw {
         status: false,
         message: "Duplicate entries for products are not allowed",
