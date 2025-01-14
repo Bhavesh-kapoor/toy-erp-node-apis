@@ -282,6 +282,11 @@ class QuotationService extends Service {
     }
     quotation.status = "Approved";
     await quotation.save();
+    await ActivityLogService.create({
+      quotationId: id,
+      action: "QUOTATION_APPROVED",
+      description: `Quotation approved for the customer ${quotation.customer}`,
+    });
     return quotation;
   }
 }
