@@ -47,7 +47,7 @@ class LedgerService extends Service {
       ...initialStage,
       {
         $set: {
-          line1: "$address.line",
+          line1: "$address.line1",
           street: "$address.street",
           city: "$address.city",
           pinCode: "$address.pinCode",

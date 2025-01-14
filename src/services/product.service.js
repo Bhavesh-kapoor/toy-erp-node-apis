@@ -1,6 +1,9 @@
 import httpStatus from "#utils/httpStatus";
 import Product from "#models/product";
 import Service from "#services/base";
+import BrandService from "#services/brand";
+import ProductCategoryService from "#services/productCategory";
+import ProductUomService from "#services/productUom";
 
 class ProductService extends Service {
   static Model = Product;
@@ -51,6 +54,23 @@ class ProductService extends Service {
     ];
 
     return this.Model.findAll(filter, initialStage, extraStage);
+  }
+
+  static async getBaseFields() {
+    const brandData = BrandService.getSelectedBrands();
+    const categoryData = ProductCategoryService.getSelectedCategories();
+    const uomData = ProductUomService.getSelectedFields();
+
+    const [brands, categories, uoms] = await Promise.all([
+      brandData,
+      categoryData,
+      uomData,
+    ]);
+    return {
+      brands,
+      categories,
+      uoms,
+    };
   }
 }
 

@@ -5,7 +5,13 @@ class BrandService extends Service {
   static Model = Brand;
 
   static async getSelectedBrands(fields) {
-    const brandData = await this.Model.find().select("id name");
+    const brandData = await this.Model.aggregate([
+      {
+        $project: {
+          name: 1,
+        },
+      },
+    ]);
     return brandData;
   }
 }
