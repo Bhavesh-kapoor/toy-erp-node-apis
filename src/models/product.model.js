@@ -38,6 +38,8 @@ const productSchema = new BaseSchema(
     },
     barCode: {
       type: String,
+      unique: true,
+      required: true,
     },
     productSeries: {
       type: String,
@@ -51,16 +53,19 @@ const productSchema = new BaseSchema(
     brand: {
       type: Schema.Types.ObjectId,
       ref: Brand,
+      required: true,
     },
     uom: {
       type: Schema.Types.ObjectId,
       ref: ProductUom,
+      required: true,
     },
     description: {
       type: String,
     },
     baseQuantity: {
       type: Number,
+      min: 1,
     },
     weight: {
       type: Number,
@@ -99,12 +104,15 @@ const productSchema = new BaseSchema(
     },
     sgst: {
       type: Number,
+      min: 0,
     },
     cgst: {
       type: Number,
+      min: 0,
     },
     igst: {
       type: Number,
+      min: 0,
     },
     sku: {
       type: String,
@@ -114,6 +122,7 @@ const productSchema = new BaseSchema(
     coverImage: {
       type: String,
       file: true,
+      required: true,
     },
     images: {
       type: [imagesSchema],
