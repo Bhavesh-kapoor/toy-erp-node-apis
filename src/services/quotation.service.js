@@ -119,6 +119,13 @@ class QuotationService extends Service {
               },
             },
           },
+          leadName: {
+            $concat: [
+              { $arrayElemAt: ["$leadData.firstName", 0] },
+              " ",
+              { $arrayElemAt: ["$leadData.lastName", 0] },
+            ],
+          },
           preparedByName: { $arrayElemAt: ["$preparedByData.name", 0] },
           preparedByEmail: { $arrayElemAt: ["$preparedByData.email", 0] },
           customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
@@ -157,6 +164,30 @@ class QuotationService extends Service {
       };
     }
     if (customer) delete quotationData.lead;
+
+    const set = new Set();
+    quotationData.products.forEach((ele) => {
+      set.add(ele.product);
+    });
+
+    if (set.size() !== quotationData.products.length) {
+      throw {
+        status: false,
+        message: "Duplicate entries for products are not allowed",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (lead) {
+      const existingQuotation = await this.Model.findOne({ lead });
+      if (existingQuotation) {
+        throw {
+          status: false,
+          message: `Another quotation for this lead already exist with the id ${existingQuotation.id}`,
+          httpStatus: httpStatus.CONFLICT,
+        };
+      }
+    }
     const quotation = await this.Model.create(quotationData);
     await ActivityLogService.create({
       quotation: quotation.id,
