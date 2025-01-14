@@ -2,6 +2,7 @@ import Lead from "#models/lead";
 import httpStatus from "#utils/httpStatus";
 import Service from "#services/base";
 import ActivityLogService from "#services/activitylog";
+import LedgerService from "#services/ledger";
 
 class LeadService extends Service {
   static Model = Lead;
@@ -56,15 +57,17 @@ class LeadService extends Service {
   static async create(leadData) {
     delete leadData.statusUpdate;
 
+    const { email } = leadData;
+    const ledger = await LedgerService;
     const { companyAddress } = leadData;
 
-    const keys = Object.keys(companyAddress);
-    for (let i of keys) {
-      const key = i.replace("EMP", "");
-      companyAddress[key] = companyAddress[i];
-      delete companyAddress[i];
-    }
-
+    //const keys = Object.keys(companyAddress);
+    //for (let i of keys) {
+    //  const key = i.replace("EMP", "");
+    //  companyAddress[key] = companyAddress[i];
+    //  delete companyAddress[i];
+    //}
+    //
     const lead = new this.Model(leadData);
     await lead.save();
 

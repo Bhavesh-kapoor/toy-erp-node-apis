@@ -39,7 +39,6 @@ class PackingService extends Service {
       },
     ];
 
-    // FIX: Has to be fixed later
     const extraStage = [
       {
         $project: {

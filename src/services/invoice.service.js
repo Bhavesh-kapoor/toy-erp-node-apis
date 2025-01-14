@@ -133,6 +133,7 @@ class InvoiceService extends Service {
       },
       {
         $addFields: {
+          shipTo: 1,
           invoiceToName: "$invoiceToDetails.companyName",
           shipToName: "$shipToDetails.companyName",
           shipToAddress: "$shipToDetails.address1",

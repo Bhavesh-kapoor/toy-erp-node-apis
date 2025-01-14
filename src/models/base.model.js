@@ -52,15 +52,15 @@ class BaseSchema extends Schema {
     };
 
     this.statics.findDocById = async function (id) {
-      const fields = Object.keys(this.schema.tree);
-      const populateFieldsArr = fields
-        .filter((field) => this.schema.tree[field].ref)
-        .map((field) => ({
-          path: field,
-          model: this.schema.tree[field].ref,
-        }));
-
-      const doc = await this.findById(id).populate(populateFieldsArr);
+      //const fields = Object.keys(this.schema.tree);
+      //const populateFieldsArr = fields
+      //  .filter((field) => this.schema.tree[field].ref)
+      //  .map((field) => ({
+      //    path: field,
+      //    model: this.schema.tree[field].ref,
+      //  }));
+      //
+      const doc = await this.findById(id); /**.populate(populateFieldsArr);***/
 
       if (!doc) {
         throw {

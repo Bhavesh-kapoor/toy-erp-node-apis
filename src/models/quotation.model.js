@@ -102,7 +102,7 @@ const quotationSchema = new BaseSchema({
     type: Boolean,
     default: false,
   },
-  packing: {
+  packingId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Packing",
   },

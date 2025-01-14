@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Ledger from "#models/ledger";
 import BaseSchema from "#models/base";
+import Warehouse from "#models/warehouse";
 import { itemSchema } from "#models/quotation";
 
 const purchaseOrderSchema = new BaseSchema({
@@ -16,6 +17,11 @@ const purchaseOrderSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: Ledger,
+  },
+  warehouseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: Warehouse,
   },
   remarks: {
     type: String,

@@ -3,6 +3,8 @@ import Quotation from "#models/quotation";
 import httpStatus from "#utils/httpStatus";
 import ActivityLogService from "#services/activitylog";
 import mongoose from "mongoose";
+import LeadService from "#services/lead";
+import LedgerService from "#services/ledger";
 
 class QuotationService extends Service {
   static Model = Quotation;
@@ -166,15 +168,55 @@ class QuotationService extends Service {
 
   static async changeQuotationStatus(id, quotationData) {
     const quotation = await this.Model.findDocById(id);
+    const { status: existingStatus } = quotation;
     const { status } = quotationData;
-    if (status !== "Approved") {
-      quotation.status = status;
-      await quotation.save();
-      return quotation;
+
+    if (status === existingStatus) {
+      return;
     }
 
-    if (quotation.customer) {
+    switch (existingStatus) {
+      case "Cancelled":
+        throw {
+          status: false,
+          message: "Unable to update a cancelled quotation",
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      case "Approved":
+        if (quotation.packingId) {
+          throw {
+            status: false,
+            message: "Please delete the existing packing for this quotation",
+            httpStatus: httpStatus.BAD_REQUEST,
+          };
+        }
+
+        return;
     }
+
+    if (status === "Cancelled") {
+      quotation.status = "Cancelled";
+      await quotation.save();
+      return true;
+    }
+
+    if (quotation.lead && !quotation.customer) {
+      const lead = await LeadService.get(quotation.lead);
+      const customer = await LedgerService.create({
+        companyName: lead.companyName,
+        contactPerson: lead.firstName,
+        ledgerType: "Customer",
+        address1: lead.address,
+        mobileNo: lead.phone,
+        email: lead.email,
+      });
+
+      const customerId = customer.id;
+      quotation.customer = customerId;
+    }
+    quotation.status = "Approved";
+    await quotation.save();
+    return quotation;
   }
 }
 
