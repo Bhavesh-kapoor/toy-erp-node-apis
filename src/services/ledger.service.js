@@ -61,7 +61,7 @@ class LedgerService extends Service {
       },
     ]);
 
-    return ledgerData;
+    return ledgerData[0];
   }
 }
 
