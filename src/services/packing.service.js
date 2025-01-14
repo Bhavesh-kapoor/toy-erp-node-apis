@@ -1,6 +1,7 @@
 import Service from "#services/base";
 import Packing from "#models/packing";
 import mongoose from "mongoose";
+import QuotationService from "#services/quotation";
 
 class PackingService extends Service {
   static Model = Packing;
@@ -131,6 +132,29 @@ class PackingService extends Service {
         },
       },
     ]);
+  }
+
+  static async create(packingData) {
+    const { quotationId } = packingData;
+    const quotation = await QuotationService.get(quotationId);
+    if (quotation.status !== "Approved") {
+      throw {
+        status: false,
+        message: `Can't create packing for ${quotation.status} quotation`,
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    const existingPacking = await this.Model.findOne({ quotationId });
+    if (existingPacking) {
+      throw {
+        status: false,
+        message: "Another packing for this quotation already exist",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    packingData.customer = quotation.customer;
   }
 }
 

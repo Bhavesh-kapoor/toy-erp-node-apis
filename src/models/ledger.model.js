@@ -22,7 +22,7 @@ const ledgerSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: User,
   },
-  address1: {
+  address: {
     type: addressSchema,
   },
   gstNo: {
