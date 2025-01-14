@@ -17,6 +17,14 @@ class PackingService extends Service {
       },
       {
         $lookup: {
+          localField: "packedBy",
+          foreignField: "_id",
+          from: "users",
+          as: "packedByData",
+        },
+      },
+      {
+        $lookup: {
           localField: "quotationId",
           foreignField: "_id",
           from: "quotations",
@@ -24,11 +32,9 @@ class PackingService extends Service {
         },
       },
       {
-        $lookup: {
-          localField: "packedBy",
-          foreignField: "_id",
-          from: "users",
-          as: "packedByData",
+        $unwind: {
+          path: "$quotationData",
+          preserveNullAndEmptyArrays: true,
         },
       },
     ];
@@ -38,16 +44,16 @@ class PackingService extends Service {
       {
         $project: {
           packingNo: 1,
-          quotationNo: { $arrayElemAt: ["$quotationData.quotationNo", 0] },
+          quotationNo: "$quotationData.quotationNo",
           customer: { $arrayElemAt: ["$customerData.companyName", 0] },
-          netAmount: { $arrayElemAt: ["$quotationData.netAmount", 0] },
+          netAmount: "$quotationData.netAmount",
           packedBy: { $arrayElemAt: ["$packedByData.name", 0] },
           packingDate: 1,
           enquiryDate: 1,
           nagPacking: 1,
           totalQuantity: 1,
           netPackedQuantity: 1,
-          quotation: { $arrayElemAt: ["$quotationData._id", 0] },
+          quotation: "$quotationData._id",
         },
       },
     ];
@@ -73,7 +79,7 @@ class PackingService extends Service {
                 as: "uom",
               },
             },
-            { $unwind: { path: "$uom" } },
+            { $unwind: { path: "$uom", preserveNullAndEmptyArrays: true } },
             {
               $project: {
                 _id: 1,
@@ -89,8 +95,6 @@ class PackingService extends Service {
       },
       {
         $addFields: {
-          packedByName: "$packedByData.name",
-          packedById: "$packedByData._id",
           quotationNo: "$quotationData.quotationNo",
           quotationId: "$quotationData._id",
           products: {
@@ -120,10 +124,10 @@ class PackingService extends Service {
       },
       {
         $project: {
+          customerData: 0,
+          quotationData: 0,
           productDetails: 0,
-          invoiceToDetails: 0,
-          shipToDetails: 0,
-          preparedByDetails: 0,
+          packedByData: 0,
           quotationDetails: 0,
         },
       },
