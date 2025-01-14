@@ -62,4 +62,6 @@ packingSchema.post("save", async function (doc, next) {
   next();
 });
 
-export default mongoose.model("Packing", packingSchema);
+const Packing = mongoose.model("Packing", packingSchema);
+
+export default Packing;

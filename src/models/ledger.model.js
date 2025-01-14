@@ -25,10 +25,6 @@ const ledgerSchema = new BaseSchema({
   address1: {
     type: addressSchema,
   },
-  address2: {
-    type: addressSchema,
-  },
-
   gstNo: {
     type: String,
   },
