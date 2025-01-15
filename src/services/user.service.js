@@ -84,6 +84,7 @@ class UserService extends Service {
       {
         $project: {
           name: 1,
+          email: 1,
         },
       },
     ];

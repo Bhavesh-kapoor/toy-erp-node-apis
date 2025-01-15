@@ -44,7 +44,7 @@ class WarehouseService extends Service {
       },
     ];
 
-    return this.Model.aggregate(pipeline);
+    return await this.Model.aggregate(pipeline)[0];
   }
 
   static async getLimitedFields(filters = {}) {
