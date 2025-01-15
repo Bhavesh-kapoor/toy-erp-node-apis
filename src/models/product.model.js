@@ -114,6 +114,11 @@ const productSchema = new BaseSchema(
       type: Number,
       min: 0,
     },
+    status: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
     sku: {
       type: String,
       required: true,

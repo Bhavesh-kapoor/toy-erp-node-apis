@@ -1,17 +1,13 @@
+import mongoose from "mongoose";
 import Lead from "#models/lead";
-import httpStatus from "#utils/httpStatus";
 import Service from "#services/base";
+import httpStatus from "#utils/httpStatus";
 import ActivityLogService from "#services/activitylog";
-import LedgerService from "#services/ledger";
 
 class LeadService extends Service {
   static Model = Lead;
 
   static async get(id, filter) {
-    if (id) {
-      return this.Model.findById(id);
-    }
-
     const initialStage = [
       {
         $lookup: {
@@ -50,14 +46,24 @@ class LeadService extends Service {
       },
     ];
 
-    const leadData = this.Model.findAll(filter, initialStage, extraStage);
-    return leadData;
+    if (!id) {
+      const leadData = this.Model.findAll(filter, initialStage, extraStage);
+      return leadData;
+    }
+
+    const leadData = await this.Model.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id),
+        },
+      },
+    ]);
+
+    return leadData[0];
   }
 
   static async create(leadData) {
     delete leadData.statusUpdate;
-
-    const { companyAddress } = leadData;
 
     const lead = new this.Model(leadData);
     await lead.save();
@@ -81,17 +87,6 @@ class LeadService extends Service {
     const existingStatusUpdates = lead.statusUpdate;
     delete updates.statusUpdate;
 
-    const { companyAddress } = updates;
-
-    const keys = Object.keys(companyAddress);
-    for (let i of keys) {
-      const key = i.replace("EMP", "");
-      companyAddress[key] = companyAddress[i];
-      delete companyAddress[i];
-    }
-    for (const key in updates) {
-      lead[key] = updates[key] ?? lead[key];
-    }
     await lead.validate();
     if (updates.status && existingStatus !== updates.status) {
       if (

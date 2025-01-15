@@ -10,6 +10,11 @@ export const get = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getBaseFields = asyncHandler(async (req, res, next) => {
+  const data = await PackingService.getBaseFields();
+  sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
+});
+
 export const create = asyncHandler(async (req, res, next) => {
   const data = req.body;
   const createdData = await PackingService.create(data);

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Product from "#models/product";
 import BaseSchema from "#models/base";
+import { addressSchema } from "#models/user";
 
 const stockSchema = new BaseSchema({
   productId: {
@@ -19,6 +20,7 @@ const warehouseSchema = new BaseSchema({
     type: String,
     required: true,
   },
+  address: addressSchema,
   stock: {
     type: [stockSchema],
   },

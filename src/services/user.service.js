@@ -79,6 +79,18 @@ class UserService extends Service {
     return salesPersonData;
   }
 
+  static async getLimitedFields() {
+    const pipeline = [
+      {
+        $project: {
+          name: 1,
+        },
+      },
+    ];
+
+    return await this.Model.aggregate(pipeline);
+  }
+
   static async loginUser(userData) {
     const { email, password, otp } = userData;
 

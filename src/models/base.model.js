@@ -149,7 +149,10 @@ class BaseSchema extends Schema {
           locale: "en",
           strength: 2, // Case-insensitive collation
         }),
-        this.aggregate(countPipeline),
+        this.aggregate(countPipeline).collation({
+          locale: "en",
+          strength: 2, // Case-insensitive collation
+        }),
       ]);
       const totalItems = countResult.length > 0 ? countResult[0].totalCount : 0;
       const totalPages = Math.ceil(totalItems / limitNumber);
@@ -166,6 +169,7 @@ class BaseSchema extends Schema {
     };
 
     this.methods.update = function (updates) {
+      delete updates.updatedAt;
       for (let i in updates) {
         this[i] = updates[i];
       }

@@ -61,6 +61,17 @@ export const itemSchema = new BaseSchema(
       required: true,
       min: 0,
     },
+    packedQuantity: {
+      type: Number,
+      min: 0,
+      default: 0,
+      validate: {
+        validator: function (value) {
+          return value <= this.quantity;
+        },
+        message: "Packed quantity ({VALUE}) cannot exceed total quantity.",
+      },
+    },
   },
   { timestamps: false, _id: false },
 );

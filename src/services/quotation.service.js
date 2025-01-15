@@ -60,11 +60,16 @@ class QuotationService extends Service {
     ];
 
     if (!id) {
-      const leadData = this.Model.findAll(filter, initialStage, extraStage);
-      return leadData;
+      const quotationData = this.Model.findAll(
+        filter,
+        initialStage,
+        extraStage,
+      );
+      return quotationData;
     }
 
-    const leadData = await this.Model.aggregate([
+    //WARN: Fix the case when the data isn't there
+    const quotationData = await this.Model.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       ...initialStage,
       {
@@ -140,17 +145,23 @@ class QuotationService extends Service {
         },
       },
     ]);
-    return leadData;
+    return quotationData[0];
   }
 
-  static async getLimitedFields(fields = {}) {
-    const data = await this.Model.aggregate([
+  static async getLimitedFields(filters = {}) {
+    const pipeline = [
       {
         $project: {
-          quotationNo: 1,
+          name: "$quotationNo",
         },
       },
-    ]);
+    ];
+
+    pipeline.unshift({
+      $match: filters,
+    });
+
+    const data = await this.Model.aggregate(pipeline);
     return data;
   }
 
@@ -179,6 +190,19 @@ class QuotationService extends Service {
     }
 
     if (lead) {
+      const existingLead = await LeadService.get(lead);
+      const existingCustomer = await LedgerService.getSafe(null, {
+        email: existingLead.email,
+      });
+
+      if (existingCustomer) {
+        throw {
+          status: false,
+          message: `A customer with email ${existingCustomer.email} already exist.`,
+          httpStatus: httpStatus.CONFLICT,
+        };
+      }
+
       const existingQuotation = await this.Model.findOne({ lead });
       if (existingQuotation) {
         throw {
@@ -211,6 +235,14 @@ class QuotationService extends Service {
     }
 
     if (quotation.status !== "Pending") {
+      if (quotation.packingId) {
+        throw {
+          status: false,
+          message: "Can't update, this quotation has an active packing",
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+
       switch (quotation.status) {
         case "Approved":
           throw {
@@ -229,6 +261,12 @@ class QuotationService extends Service {
     }
     quotation.update(updates);
     await quotation.save();
+    await ActivityLogService.create({
+      quotationId: id,
+      action: "QUOTATION_UPDATED",
+      description: `Quotation updated for the customer ${quotation.customer}`,
+    });
+
     return quotation;
   }
 
@@ -268,6 +306,10 @@ class QuotationService extends Service {
 
     if (quotation.lead && !quotation.customer) {
       const lead = await LeadService.get(quotation.lead);
+      const existingCustomer = await LedgerService.getSafe(null, {
+        email: lead.email,
+      });
+
       const customer = await LedgerService.create({
         companyName: lead.companyName,
         contactPerson: lead.firstName,

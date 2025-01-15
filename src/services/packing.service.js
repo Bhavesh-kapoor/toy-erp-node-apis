@@ -1,7 +1,10 @@
+import mongoose from "mongoose";
 import Service from "#services/base";
 import Packing from "#models/packing";
-import mongoose from "mongoose";
+import httpStatus from "#utils/httpStatus";
 import QuotationService from "#services/quotation";
+import WarehouseService from "#services/warehouse";
+import UserService from "#services/user";
 
 class PackingService extends Service {
   static Model = Packing;
@@ -134,9 +137,30 @@ class PackingService extends Service {
     ]);
   }
 
+  static async getBaseFields() {
+    const warehouseData = WarehouseService.getLimitedFields();
+    const quotationData = QuotationService.getLimitedFields({
+      status: "Approved",
+    });
+    const packedByData = UserService.getLimitedFields();
+
+    const [warehouse, quotation, packedBy] = await Promise.all([
+      warehouseData,
+      quotationData,
+      packedByData,
+    ]);
+
+    return {
+      packedBy,
+      quotation,
+      warehouse,
+    };
+  }
+
   static async create(packingData) {
-    const { quotationId } = packingData;
+    const { quotationId, warehouseId } = packingData;
     const quotation = await QuotationService.get(quotationId);
+    console.log(quotation);
     if (quotation.status !== "Approved") {
       throw {
         status: false,
@@ -153,6 +177,11 @@ class PackingService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+
+    const warehouse = await WarehouseService.get(warehouseId);
+
+    const { products } = quotation;
+    const productIds = products.map((product) => product.product);
 
     packingData.customer = quotation.customer;
   }

@@ -22,10 +22,12 @@ const leadSchema = new BaseSchema({
   phone: {
     type: String,
     required: true,
+    unique: true,
   },
   email: {
     type: String,
     required: true,
+    unique: true,
   },
   dateOfBirth: {
     type: Date,
@@ -52,6 +54,7 @@ const leadSchema = new BaseSchema({
   },
   companyAddress: {
     type: addressSchema,
+    required: false,
   },
   source: {
     type: String,

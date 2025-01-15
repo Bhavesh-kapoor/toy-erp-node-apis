@@ -2,9 +2,15 @@ import User from "#models/user";
 import Ledger from "#models/ledger";
 import BaseSchema from "#models/base";
 import Quotation from "#models/quotation";
+import Warehouse from "#models/warehouse";
 import mongoose, { Schema } from "mongoose";
 
 const packingSchema = new BaseSchema({
+  warehouseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Warehouse,
+    required: true,
+  },
   packingNo: {
     type: String,
   },
