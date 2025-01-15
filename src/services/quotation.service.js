@@ -190,19 +190,6 @@ class QuotationService extends Service {
     }
 
     if (lead) {
-      const existingLead = await LeadService.get(lead);
-      const existingCustomer = await LedgerService.getSafe(null, {
-        email: existingLead.email,
-      });
-
-      if (existingCustomer) {
-        throw {
-          status: false,
-          message: `A customer with email ${existingCustomer.email} already exist.`,
-          httpStatus: httpStatus.CONFLICT,
-        };
-      }
-
       const existingQuotation = await this.Model.findOne({ lead });
       if (existingQuotation) {
         throw {
@@ -248,7 +235,7 @@ class QuotationService extends Service {
           throw {
             status: false,
             message:
-              "Cannot update a approved quotation, please create a new one",
+              "Cannot update approved quotation, please set it to pending",
             httpStatus: httpStatus.BAD_REQUEST,
           };
         case "Cancelled":
@@ -294,8 +281,6 @@ class QuotationService extends Service {
             httpStatus: httpStatus.BAD_REQUEST,
           };
         }
-
-        return;
     }
 
     if (status === "Cancelled") {
@@ -310,6 +295,14 @@ class QuotationService extends Service {
         email: lead.email,
       });
 
+      if (existingCustomer) {
+        throw {
+          status: false,
+          message: "A ledger entry with this email is already present",
+          httpStatus: httpStatus.CONFLICT,
+        };
+      }
+
       const customer = await LedgerService.create({
         companyName: lead.companyName,
         contactPerson: lead.firstName,
@@ -322,6 +315,7 @@ class QuotationService extends Service {
       const customerId = customer.id;
       quotation.customer = customerId;
     }
+
     quotation.status = "Approved";
     await quotation.save();
     await ActivityLogService.create({

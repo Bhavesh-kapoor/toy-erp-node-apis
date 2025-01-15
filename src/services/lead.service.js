@@ -3,6 +3,7 @@ import Lead from "#models/lead";
 import Service from "#services/base";
 import httpStatus from "#utils/httpStatus";
 import ActivityLogService from "#services/activitylog";
+import LedgerService from "#services/ledger";
 
 class LeadService extends Service {
   static Model = Lead;
@@ -65,6 +66,18 @@ class LeadService extends Service {
   static async create(leadData) {
     delete leadData.statusUpdate;
 
+    const existingLedger = await LedgerService.getSafe(null, {
+      email: leadData.email,
+    });
+
+    if (existingLedger) {
+      throw {
+        status: false,
+        message: "A ledger entry is already present for this lead",
+        httpStatus: httpStatus.CONFLICT,
+      };
+    }
+
     const lead = new this.Model(leadData);
     await lead.save();
 
@@ -86,6 +99,14 @@ class LeadService extends Service {
     const existingStatus = lead.status;
     const existingStatusUpdates = lead.statusUpdate;
     delete updates.statusUpdate;
+
+    if (updates.email && lead.email !== updates.email) {
+      throw {
+        status: false,
+        message: "A Ledger entry with this email is already present",
+        httpStatus: httpStatus.CONFLICT,
+      };
+    }
 
     await lead.validate();
     if (updates.status && existingStatus !== updates.status) {

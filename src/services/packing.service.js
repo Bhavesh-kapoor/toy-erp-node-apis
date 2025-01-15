@@ -160,12 +160,20 @@ class PackingService extends Service {
   static async create(packingData) {
     const { quotationId, warehouseId } = packingData;
     const quotation = await QuotationService.get(quotationId);
-    console.log(quotation);
+
     if (quotation.status !== "Approved") {
       throw {
         status: false,
         message: `Can't create packing for ${quotation.status} quotation`,
         httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (quotation.packingId) {
+      throw {
+        status: false,
+        message: "Another packing for this quotation is already present",
+        httpStatus: httpStatus.CONFLICT,
       };
     }
 
@@ -181,8 +189,21 @@ class PackingService extends Service {
     const warehouse = await WarehouseService.get(warehouseId);
 
     const { products } = quotation;
-    const productIds = products.map((product) => product.product);
+    const { stock } = warehouse;
 
+    products.forEach((ele) => {
+      const id = ele.product;
+      const availableStock = stock[id];
+
+      if (!availableStock || availableStock < ele.quantity) {
+        throw {
+          status: false,
+          message: `Stock not available for product with id ${id}`,
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+      stock[id] -= ele.quantity;
+    });
     packingData.customer = quotation.customer;
   }
 }

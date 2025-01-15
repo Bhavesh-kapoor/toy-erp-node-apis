@@ -15,6 +15,7 @@ class WarehouseService extends Service {
           name: 1,
           state: "$address.state",
           city: "$address.city",
+          createdAt: 1,
           updatedAt: 1,
         },
       },
