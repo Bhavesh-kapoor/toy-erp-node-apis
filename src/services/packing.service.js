@@ -158,9 +158,8 @@ class PackingService extends Service {
   }
 
   static async create(packingData) {
-    const { quotationId, warehouseId } = packingData;
+    const { quotationId, warehouseId, products: newProductData } = packingData;
     const quotation = await QuotationService.get(quotationId);
-
     if (quotation.status !== "Approved") {
       throw {
         status: false,
@@ -191,7 +190,7 @@ class PackingService extends Service {
     const { products } = quotation;
     const { stock } = warehouse;
 
-    products.forEach((ele) => {
+    products.forEach((ele, index) => {
       const id = ele.product;
       const availableStock = stock[id];
 
@@ -202,9 +201,16 @@ class PackingService extends Service {
           httpStatus: httpStatus.BAD_REQUEST,
         };
       }
+      ele.packedQuantity = newProductData[id];
       stock[id] -= ele.quantity;
     });
     packingData.customer = quotation.customer;
+
+    const createdPacking = await this.Model.create(packingData);
+    quotation.packingId = createdPacking.id;
+    await warehouse.save();
+    await quotation.save();
+    return createdPacking;
   }
 }
 
