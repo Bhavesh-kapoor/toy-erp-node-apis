@@ -1,13 +1,11 @@
 import Warehouse from "#models/warehouse";
 import Service from "#services/base";
+import mongoose from "mongoose";
 
 class WarehouseService extends Service {
   static Model = Warehouse;
 
   static async get(id, filter) {
-    if (id) {
-      return this.Model.findDocById(id);
-    }
     const initialStage = [];
     const extraStage = [
       {
@@ -20,8 +18,33 @@ class WarehouseService extends Service {
         },
       },
     ];
+    if (!id) {
+      return this.Model.findAll(filter, initialStage, extraStage);
+    }
 
-    return this.Model.findAll(filter, initialStage, extraStage);
+    const pipeline = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          state: "$address.state",
+          city: "$address.city",
+          line1: "$address.line1",
+          pinCode: "$address.pinCode",
+          country: "$address.country",
+          street: "$address.street",
+          stock: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ];
+
+    return this.Model.aggregate(pipeline);
   }
 
   static async getLimitedFields(filters = {}) {
