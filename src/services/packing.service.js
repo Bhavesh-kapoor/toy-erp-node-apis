@@ -65,7 +65,7 @@ class PackingService extends Service {
       return this.Model.findAll(filter, initialStage, extraStage);
     }
 
-    const data = this.Model.aggregate([
+    const data = await this.Model.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       ...initialStage,
       {
@@ -173,7 +173,7 @@ class PackingService extends Service {
     ];
 
     const data = await this.Model.aggregate(pipeline);
-    return data[0];
+    return data;
   }
 
   static async create(packingData) {
