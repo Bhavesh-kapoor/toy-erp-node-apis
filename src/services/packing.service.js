@@ -97,9 +97,19 @@ class PackingService extends Service {
         },
       },
       {
+        $lookup: {
+          from: "warehouses",
+          localField: "warehouseId",
+          foreignField: "_id",
+          as: "warehouseData",
+        },
+      },
+      {
         $addFields: {
           quotationNo: "$quotationData.quotationNo",
           quotationId: "$quotationData._id",
+          packedByName: { $arrayElemAt: ["$packedByData.name", 0] },
+          warehouseName: { $arrayElemAt: ["$warehouseData.name", 0] },
           products: {
             $map: {
               input: "$quotationData.products",
@@ -131,7 +141,7 @@ class PackingService extends Service {
           quotationData: 0,
           productDetails: 0,
           packedByData: 0,
-          quotationDetails: 0,
+          warehouseData: 0,
         },
       },
     ]);
