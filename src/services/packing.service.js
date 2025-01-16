@@ -65,7 +65,7 @@ class PackingService extends Service {
       return this.Model.findAll(filter, initialStage, extraStage);
     }
 
-    return this.Model.aggregate([
+    const data = this.Model.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       ...initialStage,
       {
@@ -135,6 +135,8 @@ class PackingService extends Service {
         },
       },
     ]);
+
+    return data[0];
   }
 
   static async getBaseFields() {
