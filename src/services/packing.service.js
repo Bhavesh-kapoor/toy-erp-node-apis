@@ -171,7 +171,7 @@ class PackingService extends Service {
     ];
 
     const data = await this.Model.aggregate(pipeline);
-    return data;
+    return data[0];
   }
 
   static async create(packingData) {

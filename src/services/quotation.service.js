@@ -165,6 +165,10 @@ class QuotationService extends Service {
     return data;
   }
 
+  static async getBaseFields() {
+    const customers = LedgerService;
+  }
+
   static async create(quotationData) {
     const { customer, lead } = quotationData;
     if (!customer && !lead) {
