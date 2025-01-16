@@ -10,9 +10,9 @@ export const get = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
-export const getLimitedFields = asyncHandler(async (req, res, next) => {
+export const getBaseFields = asyncHandler(async (req, res, next) => {
   const fields = req.query;
-  const data = await InvoiceService.getSelectedInvoices(fields);
+  const data = await InvoiceService.getBaseFields();
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
@@ -23,7 +23,7 @@ export const create = asyncHandler(async (req, res, next) => {
     httpStatus.CREATED,
     res,
     createdData,
-    "Record created successfully"
+    "Record created successfully",
   );
 });
 

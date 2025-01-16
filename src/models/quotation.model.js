@@ -4,6 +4,7 @@ import Lead from "#models/lead";
 import Ledger from "#models/ledger";
 import Product from "#models/product";
 import BaseSchema from "#models/base";
+import Invoice from "#models/invoice";
 
 const quotationStatusArr = ["Approved", "Cancelled", "Pending"];
 
@@ -133,9 +134,14 @@ const quotationSchema = new BaseSchema({
     trim: true,
   },
 
+  invoiceId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Invoice,
+  },
+
   // Transport details
   transport: {
-    type: Number,
+    type: String,
     min: 1,
   },
 

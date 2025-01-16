@@ -10,6 +10,12 @@ export const get = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getLimitedFields = asyncHandler(async (req, res, next) => {
+  const filter = req.query;
+  const data = await PackingService.getLimitedFields(filter);
+  sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
+});
+
 export const getBaseFields = asyncHandler(async (req, res, next) => {
   const data = await PackingService.getBaseFields();
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");

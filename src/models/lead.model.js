@@ -10,6 +10,7 @@ const leadSchema = new BaseSchema({
   },
   address: {
     type: addressSchema,
+    required: false,
   },
   firstName: {
     type: String,

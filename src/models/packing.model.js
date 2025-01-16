@@ -1,5 +1,6 @@
 import User from "#models/user";
 import Ledger from "#models/ledger";
+import Invoice from "#models/invoice";
 import BaseSchema from "#models/base";
 import Quotation from "#models/quotation";
 import Warehouse from "#models/warehouse";
@@ -27,6 +28,10 @@ const packingSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: Quotation,
     required: true,
+  },
+  invoiceId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Invoice,
   },
   enquiryDate: {
     type: Date,

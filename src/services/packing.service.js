@@ -143,7 +143,7 @@ class PackingService extends Service {
       status: "Approved",
       packingId: null,
     });
-    const packedByData = UserService.getLimitedFields();
+    const packedByData = UserService.getUserByRole("Warehouse");
 
     const [warehouse, quotation, packedBy] = await Promise.all([
       warehouseData,
@@ -158,15 +158,30 @@ class PackingService extends Service {
     };
   }
 
+  static async getLimitedFields(filter) {
+    const pipeline = [
+      {
+        $match: filter,
+      },
+      {
+        $project: {
+          packingNo: 1,
+        },
+      },
+    ];
+
+    const data = await this.Model.aggregate(pipeline);
+    return data;
+  }
+
   static async create(packingData) {
     const { quotationId, warehouseId, products: newProductData } = packingData;
-    const quotationData = QuotationService.get(quotationId);
+    const quotationData = QuotationService.getDocById(quotationId);
     const existingPackingData = this.Model.findOne({ quotationId });
     const [quotation, existingPacking] = await Promise.all([
       quotationData,
       existingPackingData,
     ]);
-
     if (quotation.status !== "Approved") {
       throw {
         status: false,
@@ -196,9 +211,9 @@ class PackingService extends Service {
     const { products } = quotation;
     const { stock } = warehouse;
 
-    products.forEach((ele, index) => {
+    products.forEach((ele) => {
       const id = ele.product;
-      const availableStock = stock[id];
+      const availableStock = stock.get(id);
 
       if (!availableStock || availableStock < ele.quantity) {
         throw {
@@ -208,7 +223,7 @@ class PackingService extends Service {
         };
       }
       ele.packedQuantity = newProductData[id];
-      stock[id] -= ele.quantity;
+      stock.set(id, stock.get(id) - ele.quantity);
     });
     packingData.customer = quotation.customer;
 
@@ -217,6 +232,42 @@ class PackingService extends Service {
     await warehouse.save();
     await quotation.save();
     return createdPacking;
+  }
+
+  static async update(id, updates) {
+    const packing = await this.Model.findDocById(id);
+
+    if (packing.invoiceId) {
+      throw {
+        status: false,
+        message: "Cannot update a packing which has an active invoice",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (packing.packed) {
+      throw {
+        status: false,
+        message: "Updating a completed packing isn't allowed",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    const { warehouseId } = updates;
+
+    if (warehouseId && warehouseId !== packing.warehouseId) {
+      throw {
+        status: false,
+        message: "Cannot change warehouse of the packing",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    const dbCalls = [
+      WarehouseService.getDocById(packing.warehouseId),
+      QuotationService.getDocById(packing.quotationId),
+    ];
+    const { products } = quotation;
   }
 }
 

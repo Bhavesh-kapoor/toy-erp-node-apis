@@ -1,6 +1,11 @@
+import mongoose from "mongoose";
 import Service from "#services/base";
 import Invoice from "#models/invoice";
-import mongoose from "mongoose";
+import UserService from "#services/user";
+import httpStatus from "#utils/httpStatus";
+import PackingService from "#services/packing";
+import QuotationService from "#services/quotation";
+
 class InvoiceService extends Service {
   static Model = Invoice;
 
@@ -51,7 +56,7 @@ class InvoiceService extends Service {
       {
         $lookup: {
           from: "quotations",
-          localField: "quotation",
+          localField: "quotationId",
           foreignField: "_id",
           as: "quotationDetails",
         },
@@ -140,7 +145,7 @@ class InvoiceService extends Service {
           preparedByName: "$preparedByDetails.name",
           preparedById: "$preparedByDetails._id",
           quotationNo: "$quotationDetails.quotationNo",
-          quotationId: "$quotationDetails._id",
+          quotationId: "$quotationId",
           products: {
             $map: {
               input: "$quotationDetails.products",
@@ -178,6 +183,69 @@ class InvoiceService extends Service {
     ]);
     //FIX: solve this using aggregation
     return invoiceData[0];
+  }
+
+  static async getBaseFields() {
+    const userData = UserService.getUserByRole("Accountant");
+    const packingData = PackingService.getLimitedFields({
+      packed: false,
+    });
+
+    const [users, packing] = await Promise.all([userData, packingData]);
+    return {
+      users,
+      packing,
+    };
+  }
+
+  static async create(invoiceData) {
+    const { quotationId } = invoiceData;
+    const existingQuotation = await this.Model.findOne({ quotationId });
+
+    if (existingQuotation) {
+      throw {
+        status: false,
+        message: "Another invoice for this quotation already exist",
+        httpStatus: httpStatus.CONFLICT,
+      };
+    }
+
+    const quotation = await QuotationService.getDocById(quotationId);
+
+    if (quotation.status !== "Approved") {
+      throw {
+        status: false,
+        message: `Cannot create quotation for a ${quotation.status} quotation`,
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    const { packingId } = quotation;
+
+    if (!packingId) {
+      throw {
+        status: false,
+        message: "Cannot create invoice without packing",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    const packing = await PackingService.getDocById(packingId);
+
+    if (!packing.packed) {
+      throw {
+        status: false,
+        message: "Cannot create invoice for incomplete packing",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    const createdInvoice = await this.Model.create(invoiceData);
+    quotation.invoiceId = createdInvoice.id;
+    packing.invoiceId = createdInvoice.id;
+    await Promise.all([quotation.save(), packing.save()]);
+
+    return createdInvoice;
   }
 }
 

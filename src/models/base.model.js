@@ -51,7 +51,7 @@ class BaseSchema extends Schema {
       };
     };
 
-    this.statics.findDocById = async function (id) {
+    this.statics.findDocById = async function (id, allowNull) {
       //const fields = Object.keys(this.schema.tree);
       //const populateFieldsArr = fields
       //  .filter((field) => this.schema.tree[field].ref)
@@ -62,7 +62,7 @@ class BaseSchema extends Schema {
       //
       const doc = await this.findById(id); /**.populate(populateFieldsArr);***/
 
-      if (!doc) {
+      if (!doc && !allowNull) {
         throw {
           status: false,
           message: `${this.modelName} with id ${id} doesn't exist`,
@@ -73,7 +73,7 @@ class BaseSchema extends Schema {
     };
 
     this.statics.findAll = async function (
-      filters,
+      filters = {},
       initialStage = [],
       extraStages = [],
     ) {

@@ -26,6 +26,7 @@ const productSchema = new BaseSchema(
     productCode: {
       type: String,
       required: true,
+		unique:true
     },
     type: {
       type: String,
@@ -127,7 +128,6 @@ const productSchema = new BaseSchema(
     coverImage: {
       type: String,
       file: true,
-      required: true,
     },
     images: {
       type: [imagesSchema],
