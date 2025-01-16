@@ -141,6 +141,7 @@ class PackingService extends Service {
     const warehouseData = WarehouseService.getLimitedFields();
     const quotationData = QuotationService.getLimitedFields({
       status: "Approved",
+      packingId: null,
     });
     const packedByData = UserService.getLimitedFields();
 
@@ -159,7 +160,13 @@ class PackingService extends Service {
 
   static async create(packingData) {
     const { quotationId, warehouseId, products: newProductData } = packingData;
-    const quotation = await QuotationService.get(quotationId);
+    const quotationData = QuotationService.get(quotationId);
+    const existingPackingData = this.Model.findOne({ quotationId });
+    const [quotation, existingPacking] = await Promise.all([
+      quotationData,
+      existingPackingData,
+    ]);
+
     if (quotation.status !== "Approved") {
       throw {
         status: false,
@@ -176,7 +183,6 @@ class PackingService extends Service {
       };
     }
 
-    const existingPacking = await this.Model.findOne({ quotationId });
     if (existingPacking) {
       throw {
         status: false,
@@ -185,7 +191,7 @@ class PackingService extends Service {
       };
     }
 
-    const warehouse = await WarehouseService.get(warehouseId);
+    const warehouse = await WarehouseService.getDocById(warehouseId);
 
     const { products } = quotation;
     const { stock } = warehouse;

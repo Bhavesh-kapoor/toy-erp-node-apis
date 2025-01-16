@@ -20,6 +20,10 @@ class Service {
     return await this.Model.findDocById(id);
   }
 
+  static async getDocById(id) {
+    return await this.Model.findDocById(id);
+  }
+
   static async getSafe(id, filter = {}) {
     if (!id) {
       return await this.Model.findOne(filter);

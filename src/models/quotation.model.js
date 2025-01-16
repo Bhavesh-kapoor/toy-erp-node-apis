@@ -118,6 +118,7 @@ const quotationSchema = new BaseSchema({
   packingId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Packing",
+    default: null,
   },
 
   // Products
