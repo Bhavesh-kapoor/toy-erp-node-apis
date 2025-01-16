@@ -58,6 +58,27 @@ class LeadService extends Service {
           _id: new mongoose.Types.ObjectId(id),
         },
       },
+      {
+        $set: {
+          line1: "$address.line1",
+          city: "$address.city",
+          street: "$address.street",
+          state: "$address.state",
+          pinCode: "$address.pinCode",
+          country: "$address.country",
+          landmark: "$address.landmark",
+          line1Company: "$companyAddress.line1",
+          cityCompany: "$companyAddress.city",
+          streetCompany: "$companyAddress.street",
+          stateCompany: "$companyAddress.state",
+          pinCodeCompany: "$companyAddress.pinCode",
+          countryCompany: "$companyAddress.country",
+          landmarkCompany: "$companyAddress.landmark",
+        },
+      },
+      {
+        $unset: ["address", "companyAddress"],
+      },
     ]);
 
     return leadData[0];

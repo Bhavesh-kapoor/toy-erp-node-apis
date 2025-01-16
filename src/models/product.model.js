@@ -8,25 +8,25 @@ import ProductCategory from "#models/productCategory";
 export const productTypeArr = ["Finished", "Raw Material"];
 
 // FIX: Has to be addressed to function properly
-const imagesSchema = new BaseSchema(
-  {
-    name: {
-      type: String,
-    },
-    image: {
-      type: String,
-      file: true,
-    },
-  },
-  { timestamps: false },
-);
-
+//const imagesSchema = new BaseSchema(
+//  {
+//    name: {
+//      type: String,
+//    },
+//    image: {
+//      type: String,
+//      file: true,
+//    },
+//  },
+//  { timestamps: false },
+//);
+//
 const productSchema = new BaseSchema(
   {
     productCode: {
       type: String,
       required: true,
-		unique:true
+      unique: true,
     },
     type: {
       type: String,
@@ -130,12 +130,14 @@ const productSchema = new BaseSchema(
       file: true,
     },
     images: {
-      type: [imagesSchema],
+      type: [String],
     },
   },
   { timestamps: true },
 );
 
-imagesSchema.pre("save", uploadFile);
+productSchema.pre("save", uploadFile);
+
+//imagesSchema.pre("save", uploadFile);
 
 export default mongoose.model("Product", productSchema);

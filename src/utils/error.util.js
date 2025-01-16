@@ -10,7 +10,7 @@ export default async function globalErrorHandler(err, req, res, next) {
     const transactionSession = session.get("transaction");
     await transactionSession.abortTransaction();
   }*/
-  console.log(req.body, req.files);
+  console.log(err);
   if (err instanceof mongoose.Error) {
     switch (true) {
       case err instanceof mongoose.Error.ValidationError:

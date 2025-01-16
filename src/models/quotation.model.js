@@ -176,11 +176,6 @@ const quotationSchema = new BaseSchema({
     min: 0,
     default: 0,
   },
-  packingCount: {
-    type: Number,
-    min: 0,
-    default: 0,
-  },
   taxableAmount: {
     type: Number,
     min: 0,

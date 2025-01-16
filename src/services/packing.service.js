@@ -253,6 +253,14 @@ class PackingService extends Service {
       };
     }
 
+    if (updates.packed && updates.packed !== packing.packed) {
+      throw {
+        status: false,
+        message: "Cannot change packing status from here",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
     const { warehouseId } = updates;
 
     if (warehouseId && warehouseId !== packing.warehouseId) {
@@ -267,7 +275,41 @@ class PackingService extends Service {
       WarehouseService.getDocById(packing.warehouseId),
       QuotationService.getDocById(packing.quotationId),
     ];
+
+    const [warehouse, quotation] = await Promise.all(dbCalls);
     const { products } = quotation;
+
+    const { stock } = warehouse;
+
+    for (let ele of products) {
+      stock.set(
+        ele.product,
+        (stock.get(ele.product) ?? 0) + ele.packedQuantity,
+      );
+    }
+
+    for (let ele of updates.products) {
+      const availableStock = stock.get(ele.product) ?? 0;
+      if (availableStock < ele.packedQuantity) {
+        throw {
+          status: false,
+          message: `Stock not available for the product with id ${ele.product}`,
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+      stock.set(ele.product, availableStock - ele.packedQuantity);
+    }
+
+    delete updates.customer;
+    delete updates.quotationId;
+    delete updates.packingNo;
+
+    packing.update(updates);
+    await packing.save();
+    await warehouse.save();
+    await quotation.save();
+
+    return packing;
   }
 }
 

@@ -69,3 +69,19 @@ export default async function uploadFile(next) {
     next(err);
   }
 }
+
+export async function uploadFileToS3(files) {
+  if (!Array.isArray(files) || !files.length) {
+    throw {
+      status: false,
+      message: "Please provide valid files to upload",
+      httpStatus: httpStatus.BAD_REQUEST,
+    };
+  }
+
+  const paths = {};
+
+  for (let i of files) {
+    const filePath = `${i.fieldname}-${new Date()}`.toLowerCase();
+  }
+}

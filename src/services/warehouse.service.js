@@ -34,6 +34,7 @@ class WarehouseService extends Service {
           state: "$address.state",
           city: "$address.city",
           line1: "$address.line1",
+          landmark: "$address.landmark",
           pinCode: "$address.pinCode",
           country: "$address.country",
           street: "$address.street",

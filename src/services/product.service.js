@@ -127,6 +127,29 @@ class ProductService extends Service {
       uoms,
     };
   }
+
+  static async create(productData) {
+    const { igst, cgst, sgst } = productData;
+
+    if (igst !== cgst + sgst) {
+      throw {
+        status: false,
+        message: "Invalid tax values",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (igst > 50) {
+      throw {
+        status: false,
+        message: "Please reduce the tax rate",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    const product = await this.Model.create(productData);
+    return product;
+  }
 }
 
 export default ProductService;
