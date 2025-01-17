@@ -108,8 +108,10 @@ class PackingService extends Service {
         $addFields: {
           quotationNo: "$quotationData.quotationNo",
           quotationId: "$quotationData._id",
+          customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
           packedByName: { $arrayElemAt: ["$packedByData.name", 0] },
           warehouseName: { $arrayElemAt: ["$warehouseData.name", 0] },
+          customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
           products: {
             $map: {
               input: "$quotationData.products",
@@ -322,6 +324,24 @@ class PackingService extends Service {
     await quotation.save();
 
     return packing;
+  }
+
+  static async updatePackedStatus(id, packingData) {
+    const packing = await this.Model.findDocById(id);
+
+    const { packed } = packing;
+    const { packed: newStatus } = packingData;
+
+    if (packed === newStatus) {
+      return;
+    }
+
+    if (packed === true) {
+      throw {
+        status: false,
+        message: "",
+      };
+    }
   }
 }
 

@@ -83,6 +83,11 @@ const purchaseOrderSchema = new BaseSchema({
   netAmount: {
     type: Number,
   },
+  stockAdded: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
 });
 
 purchaseOrderSchema.post("save", async function (doc, next) {
