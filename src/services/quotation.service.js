@@ -267,7 +267,7 @@ class QuotationService extends Service {
 
     const quotation = await this.Model.findDocById(id);
 
-    if (status !== quotation.status) {
+    if (status && status !== quotation.status) {
       throw {
         status: false,
         message: "Updating status via this route ain't allowed",
