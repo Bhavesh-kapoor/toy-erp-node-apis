@@ -38,7 +38,7 @@ class PurchaseService extends Service {
     if (!id) {
       return await this.Model.findAll(filter, initialStage, extraStage);
     }
-    return await this.Model.aggregate([
+    const purchaseData = await this.Model.aggregate([
       {
         $match: {
           _id: new mongoose.Types.ObjectId(id),
@@ -108,6 +108,8 @@ class PurchaseService extends Service {
         },
       },
     ]);
+
+    return purchaseData[0];
   }
 
   static async getBaseFields() {
