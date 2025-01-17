@@ -114,7 +114,7 @@ const quotationSchema = new BaseSchema({
   },
   isTaxed: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   packingId: {
     type: mongoose.Schema.Types.ObjectId,

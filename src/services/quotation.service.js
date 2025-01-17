@@ -167,39 +167,28 @@ class QuotationService extends Service {
   }
 
   static async getBaseFields() {
-    const customerData = LedgerService.get(
-      null,
-      {},
-      [
-        {
-          $match: {
-            ledgerType: { $in: ["Customer", "Both"] },
-          },
+    const customerData = LedgerService.getWithAggregate([
+      {
+        $match: {
+          ledgerType: { $in: ["Customer", "Both"] },
         },
-      ],
-      [
-        {
-          $project: {
-            name: "$companyName",
-          },
+      },
+      {
+        $project: {
+          name: "$companyName",
         },
-      ],
-    );
+      },
+    ]);
 
-    const leadData = LeadService.get(
-      null,
-      {},
-      [],
-      [
-        {
-          $project: {
-            name: {
-              $concat: ["$firstName", " ", "$lastName"],
-            },
+    const leadData = LeadService.get([
+      {
+        $project: {
+          name: {
+            $concat: ["$firstName", " ", "$lastName"],
           },
         },
-      ],
-    );
+      },
+    ]);
 
     const preparedByData = UserService.getUserByRole("Salesperson");
 
@@ -210,9 +199,9 @@ class QuotationService extends Service {
       preparedByData,
     ]);
     return {
-      customers: customers.result,
-      leads: leads.result,
-      preparedBy: preparedBy,
+      customers,
+      leads,
+      preparedBy,
     };
   }
 
@@ -247,6 +236,20 @@ class QuotationService extends Service {
           status: false,
           message: `Another quotation for this lead already exist with the id ${existingQuotation.id}`,
           httpStatus: httpStatus.CONFLICT,
+        };
+      }
+
+      const existingLead = await LeadService.getDocById(lead);
+      const existingLedger = await LedgerService.get(null, {
+        email: existingLead.email,
+      });
+
+      if (existingLedger.result?.length) {
+        throw {
+          status: false,
+          message:
+            "A customer with this email already exists. Please select that customer",
+          httpStatus: httpStatus.BAD_REQUEST,
         };
       }
     }

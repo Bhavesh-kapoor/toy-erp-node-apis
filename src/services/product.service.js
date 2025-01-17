@@ -4,6 +4,7 @@ import Service from "#services/base";
 import BrandService from "#services/brand";
 import ProductCategoryService from "#services/productCategory";
 import ProductUomService from "#services/productUom";
+import WarehouseService from "#services/warehouse";
 
 class ProductService extends Service {
   static Model = Product;
@@ -107,8 +108,48 @@ class ProductService extends Service {
       },
     ];
 
-    const data = await this.Model.aggregate(pipeline);
-    return data;
+    const stockData = WarehouseService.getWithAggregate([
+      {
+        $project: {
+          name: 1,
+          stock: { $objectToArray: "$stock" },
+        },
+      },
+      {
+        $unwind: "$stock",
+      },
+      {
+        $group: {
+          _id: "$stock.k",
+          stock: { $sum: "$stock.v" },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          stockObject: {
+            $push: { k: "$_id", v: "$stock" },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0, // Remove `_id`
+          stock: { $arrayToObject: "$stockObject" }, // Convert array to object
+        },
+      },
+    ]);
+
+    const productData = this.Model.aggregate(pipeline);
+    const [stocks, products] = await Promise.all([stockData, productData]);
+    const stockAmount = stocks[0].stock;
+
+    for (let i of products) {
+      const id = i._id;
+      i.stockInHand = stockAmount[id];
+    }
+
+    return products;
   }
 
   static async getBaseFields() {

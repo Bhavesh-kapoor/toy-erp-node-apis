@@ -31,6 +31,10 @@ class Service {
     return await this.Model.findById(id);
   }
 
+  static async getWithAggregate(pipeline = []) {
+    return await this.Model.aggregate(pipeline);
+  }
+
   /**
    * Update an doc by ID.
    * @param {string} id- ID of the doc to update.
