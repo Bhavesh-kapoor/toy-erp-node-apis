@@ -276,8 +276,7 @@ class PackingService extends Service {
     }
 
     const { warehouseId } = updates;
-
-    if (warehouseId && warehouseId !== packing.warehouseId) {
+    if (warehouseId && warehouseId !== packing.warehouseId.toString()) {
       throw {
         status: false,
         message: "Cannot change warehouse of the packing",
