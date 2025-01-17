@@ -5,8 +5,8 @@ import Service from "#services/base";
 class LedgerService extends Service {
   static Model = Ledger;
 
-  static async get(id, filter, incomingInitialStage, incomingExtraStage) {
-    const initialStage = incomingInitialStage ?? [
+  static async get(id, filter) {
+    const initialStage = [
       {
         $lookup: {
           localField: "groupBy",
@@ -17,7 +17,7 @@ class LedgerService extends Service {
       },
     ];
 
-    const extraStage = incomingExtraStage ?? [
+    const extraStage = [
       {
         $project: {
           companyName: 1,

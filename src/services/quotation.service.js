@@ -180,7 +180,7 @@ class QuotationService extends Service {
       },
     ]);
 
-    const leadData = LeadService.get([
+    const leadData = LeadService.getWithAggregate([
       {
         $project: {
           name: {
