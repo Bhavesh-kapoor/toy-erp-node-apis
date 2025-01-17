@@ -152,7 +152,7 @@ class PurchaseService extends Service {
   }
 
   static async update(id, updates) {
-    const purchase = await this.Model.getDocById(id);
+    const purchase = await this.Model.findDocById(id);
 
     const { stockAdded } = updates;
 
@@ -163,6 +163,10 @@ class PurchaseService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+
+    purchase.update(updates);
+    await purchase.save();
+    return purchase;
   }
 }
 
