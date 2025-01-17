@@ -249,6 +249,8 @@ class PackingService extends Service {
   }
 
   static async update(id, updates) {
+    const existingProducts = updates.products;
+
     const packing = await this.Model.findDocById(id);
 
     if (packing.invoiceId) {
@@ -292,6 +294,14 @@ class PackingService extends Service {
     const [warehouse, quotation] = await Promise.all(dbCalls);
     const { products } = quotation;
 
+    if (Object.keys(existingProducts).length !== products.length) {
+      throw {
+        status: false,
+        message: "Invalid update operation",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
     const { stock } = warehouse;
 
     for (let ele of products) {
@@ -301,21 +311,27 @@ class PackingService extends Service {
       );
     }
 
-    for (let ele of updates.products) {
-      const availableStock = stock.get(ele.product) ?? 0;
-      if (availableStock < ele.packedQuantity) {
+    for (let ele in existingProducts) {
+      const availableStock = stock.get(ele) ?? 0;
+      if (availableStock < existingProducts[ele]) {
         throw {
           status: false,
           message: `Stock not available for the product with id ${ele.product}`,
           httpStatus: httpStatus.BAD_REQUEST,
         };
       }
-      stock.set(ele.product, availableStock - ele.packedQuantity);
+      stock.set(ele, availableStock - existingProducts[ele]);
+    }
+
+    for (let ele of products) {
+      ele.packedQuantity = existingProducts[ele.product];
     }
 
     delete updates.customer;
     delete updates.quotationId;
     delete updates.packingNo;
+
+    delete updates.products;
 
     packing.update(updates);
     await packing.save();
