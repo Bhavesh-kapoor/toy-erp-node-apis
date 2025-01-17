@@ -5,6 +5,7 @@ import ActivityLogService from "#services/activitylog";
 import mongoose from "mongoose";
 import LeadService from "#services/lead";
 import LedgerService from "#services/ledger";
+import UserService from "#services/user";
 
 class QuotationService extends Service {
   static Model = Quotation;
@@ -166,7 +167,53 @@ class QuotationService extends Service {
   }
 
   static async getBaseFields() {
-    const customers = LedgerService;
+    const customerData = LedgerService.get(
+      null,
+      {},
+      [
+        {
+          $match: {
+            ledgerType: { $in: ["Customer", "Both"] },
+          },
+        },
+      ],
+      [
+        {
+          $project: {
+            name: "$companyName",
+          },
+        },
+      ],
+    );
+
+    const leadData = LeadService.get(
+      null,
+      {},
+      [],
+      [
+        {
+          $project: {
+            name: {
+              $concat: ["$firstName", " ", "$lastName"],
+            },
+          },
+        },
+      ],
+    );
+
+    const preparedByData = UserService.getUserByRole("Salesperson");
+
+    // FIX: this should be changes to a generic function to handle all this
+    const [customers, leads, preparedBy] = await Promise.all([
+      customerData,
+      leadData,
+      preparedByData,
+    ]);
+    return {
+      customers: customers.result,
+      leads: leads.result,
+      preparedBy: preparedBy,
+    };
   }
 
   static async create(quotationData) {

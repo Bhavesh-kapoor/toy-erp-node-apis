@@ -60,8 +60,12 @@ const InvoiceSchema = new BaseSchema(
       ref: "Quotation",
       required: true,
     },
+    parentInvoice: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Invoice",
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 InvoiceSchema.post("save", async function (doc, next) {

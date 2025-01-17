@@ -8,8 +8,8 @@ import LedgerService from "#services/ledger";
 class LeadService extends Service {
   static Model = Lead;
 
-  static async get(id, filter) {
-    const initialStage = [
+  static async get(id, filter, incomingInitialStage, incomingExtraStage) {
+    const initialStage = incomingInitialStage ?? [
       {
         $lookup: {
           from: "users",
@@ -20,7 +20,7 @@ class LeadService extends Service {
       },
     ];
 
-    const extraStage = [
+    const extraStage = incomingExtraStage ?? [
       {
         $project: {
           salesPersonName: { $arrayElemAt: ["$assignedSalesPerson.name", 0] },

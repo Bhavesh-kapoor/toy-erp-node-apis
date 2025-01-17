@@ -13,9 +13,9 @@ class Service {
    * @param {Object} filters - Query parameters for filtering and pagination.
    * @returns {Promise<Object>} - Paginated list of docs.
    */
-  static async get(id, filters = {}) {
+  static async get(id, filters = {}, initialStage, extraStage) {
     if (!id) {
-      return await this.Model.findAll(filters);
+      return await this.Model.findAll(filters, initialStage, extraStage);
     }
     return await this.Model.findDocById(id);
   }
