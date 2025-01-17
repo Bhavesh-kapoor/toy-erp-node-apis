@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Ledger from "#models/ledger";
 import BaseSchema from "#models/base";
 import Warehouse from "#models/warehouse";
+import User from "#models/user";
 import { itemSchema } from "#models/quotation";
 
 const purchaseOrderSchema = new BaseSchema({
@@ -86,6 +87,11 @@ const purchaseOrderSchema = new BaseSchema({
   stockAdded: {
     type: Boolean,
     default: false,
+    required: true,
+  },
+  preparedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: User,
     required: true,
   },
 });
