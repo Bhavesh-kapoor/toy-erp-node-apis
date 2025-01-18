@@ -3,10 +3,8 @@ import Ledger from "#models/ledger";
 import BaseSchema, { counter } from "#models/base";
 
 const PaymentType = {
-  PERSONAL_EXPENSE: "Personal Expense",
-  LEDGER_BALANCING: "Ledger Balancing",
-  SUPPLIER_PAYMENT: "Supplier Payment",
-  EMPLOYEE_PAYMENT: "Employee Payment",
+  LEDGER_PAYMENT: "Ledger Payment",
+  EMPLOYEE_EXPENSE: "Employee Expense",
 };
 
 const PaymentStatus = {
@@ -36,11 +34,14 @@ const transactionSchema = new BaseSchema({
   transactionDate: {
     type: Date,
     required: true,
+    default: new Date(),
   },
   ledgerId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
     ref: Ledger,
+    required: function () {
+      return this.paymentType === PaymentType.LEDGER_PAYMENT;
+    },
   },
   amount: {
     min: 1,
@@ -78,12 +79,13 @@ const transactionSchema = new BaseSchema({
     type: String,
     enum: Object.values(PaymentStatus),
     default: PaymentStatus.PENDING,
+    required: true,
   },
   employee: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: function () {
-      return this.paymentType === PaymentType.EMPLOYEE_PAYMENT;
+      return this.paymentType === PaymentType.EMPLOYEE_EXPENSE;
     },
   },
   remarks: {

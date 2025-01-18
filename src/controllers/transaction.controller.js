@@ -10,6 +10,11 @@ export const get = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getBaseFields = asyncHandler(async (req, res, next) => {
+  const data = await TransactionService.getBaseFields();
+  sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
+});
+
 export const getLimitedFields = asyncHandler(async (req, res, next) => {
   const fields = req.params;
   const data = await TransactionService.getLimitedTransactionFields(fields);
