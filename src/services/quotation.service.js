@@ -370,7 +370,7 @@ class QuotationService extends Service {
       quotation.customer = customerId;
     }
 
-    quotation.status = "Approved";
+    quotation.status = status;
     await quotation.save();
     await ActivityLogService.create({
       quotationId: id,

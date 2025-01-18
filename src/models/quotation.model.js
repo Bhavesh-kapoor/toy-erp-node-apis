@@ -214,7 +214,7 @@ quotationSchema.post("save", async function (doc, next) {
   const countData = await counter;
   countData.quotation += 1;
   doc.quotationNo = `Q-NO-${countData.quotation + 1100}`;
-  await counter.save();
+  await countData.save();
   await doc.save();
   next();
 });
