@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import BaseSchema from "#models/base";
 
 const PaymentType = {
@@ -27,18 +28,44 @@ const PaymentMethod = {
 };
 
 const TransactionSchema = new BaseSchema({
+  receiptNo: {
+    type: String,
+    required: true,
+  },
+  receiptDate: {
+    type: Date,
+    required: true,
+  },
+  ledgerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: Ledger,
+  },
   amount: {
-    min: 0,
+    min: 1,
     type: Number,
     required: true,
   },
-  balancedAmount: {
+  deduction: {
     min: 0,
     type: Number,
+  },
+  tdsAmount: {
+    type: Number,
+    min: 0,
+  },
+  netAmount: {
+    type: Number,
+    min: 1,
   },
   paymentType: {
     type: String,
     enum: Object.values(PaymentType),
+    required: true,
+  },
+  paymentMethod: {
+    type: String,
+    enum: Object.values(PaymentMethod),
     required: true,
   },
   paymentDirection: {
@@ -50,11 +77,6 @@ const TransactionSchema = new BaseSchema({
     type: String,
     enum: Object.values(PaymentStatus),
     default: PaymentStatus.PENDING,
-  },
-  paymentMethod: {
-    type: String,
-    enum: Object.values(PaymentMethod),
-    required: true,
   },
   transactionDate: {
     type: Date,

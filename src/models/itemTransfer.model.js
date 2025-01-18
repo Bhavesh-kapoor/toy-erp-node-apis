@@ -6,7 +6,6 @@ const ItemTransferSchema = new BaseSchema(
   {
     issueNumber: {
       type: String,
-      required: true,
       unique: true,
     },
     issueDate: {
@@ -32,19 +31,13 @@ const ItemTransferSchema = new BaseSchema(
       type: String,
       default: "",
     },
-    items: [
-      {
-        productId: {
-          type: String,
-          required: true,
-        },
-
-        quantity: {
-          type: Number,
-          required: true,
-        },
+    stock: {
+      type: Map,
+      of: {
+        type: Number,
+        min: 1,
       },
-    ],
+    },
     totalQuantity: {
       type: Number,
       default: 0,
@@ -64,7 +57,7 @@ const ItemTransferSchema = new BaseSchema(
       },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 ItemTransferSchema.post("save", async function (doc, next) {
