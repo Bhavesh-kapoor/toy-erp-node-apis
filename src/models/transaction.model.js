@@ -90,6 +90,7 @@ const transactionSchema = new BaseSchema({
   },
   remarks: {
     type: String,
+    required: true,
     trim: true,
   },
 });

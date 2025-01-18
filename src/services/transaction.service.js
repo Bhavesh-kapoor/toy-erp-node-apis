@@ -2,6 +2,7 @@ import Transaction from "#models/transaction";
 import Service from "#services/base";
 import LedgerService from "#services/ledger";
 import UserService from "#services/user";
+import httpStatus from "#utils/httpStatus";
 
 class TransactionService extends Service {
   static Model = Transaction;
@@ -77,6 +78,69 @@ class TransactionService extends Service {
       },
     ]);
     return transactionData;
+  }
+
+  static async create(transactionData) {
+    this.validate(transactionData);
+    return await this.Model.create(transactionData);
+  }
+
+  static async update(id, updates) {
+    const transaction = await this.Model.findDocById(id);
+    this.validate(updates);
+
+    transaction.update(updates);
+    await transaction.save();
+    return transaction;
+  }
+
+  static validate(transactionData) {
+    const { employee, ledgerId } = transactionData;
+
+    if (!employee && !ledgerId) {
+      throw {
+        status: false,
+        message:
+          "Either employee or ledger is mandotory is required to create payment",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (employee && ledgerId) {
+      throw {
+        status: false,
+        message: "Only one field among employee or ledger is allowed, not both",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (employee) {
+      delete transactionData.ledgerId;
+      if (transactionData.paymentType) {
+        if (transactionData.paymentType !== "Employee Expense") {
+          throw {
+            status: false,
+            message: "Please choose a valid payment type",
+            httpStatus: httpStatus.BAD_REQUEST,
+          };
+        }
+      } else {
+        transactionData.paymentType = "Employee Expense";
+      }
+    } else {
+      delete transactionData.employee;
+      if (transactionData.paymentType) {
+        if (transactionData.paymentType !== "Ledger Payment") {
+          throw {
+            status: false,
+            message: "Please choose a valid payment type",
+            httpStatus: httpStatus.BAD_REQUEST,
+          };
+        }
+      } else {
+        transactionData.paymentType = "Ledger Payment";
+      }
+    }
   }
 }
 
