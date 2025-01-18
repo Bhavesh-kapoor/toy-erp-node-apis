@@ -162,7 +162,7 @@ class LeadService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
-
+    lead.update(updates);
     await lead.save();
     return lead;
   }
