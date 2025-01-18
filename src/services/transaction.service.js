@@ -45,6 +45,8 @@ class TransactionService extends Service {
     if (!id) {
       return await this.Model.findAll(filter, initialStage, extraStage);
     }
+
+    return await this.Model.findDocById(id);
   }
 
   static async getBaseFields() {
