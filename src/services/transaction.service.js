@@ -35,7 +35,7 @@ class TransactionService extends Service {
           employeeName: { $arrayElemAt: ["$employeeData.name", 0] },
           netAmount: 1,
           paymentType: 1,
-          paymentMode: 1,
+          paymentMethod: 1,
           paymentStatus: 1,
           paymentDirection: 1,
         },
