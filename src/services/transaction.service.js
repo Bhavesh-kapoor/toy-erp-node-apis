@@ -34,6 +34,9 @@ class TransactionService extends Service {
           ledgerName: { $arrayElemAt: ["$ledgerData.companyName", 0] },
           employeeName: { $arrayElemAt: ["$employeeData.name", 0] },
           netAmount: 1,
+          paymentType: 1,
+          paymentStatus: 1,
+          paymentDirection: 1,
         },
       },
     ];
