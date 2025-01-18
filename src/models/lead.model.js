@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
-import BaseSchema from "#models/base";
+import BaseSchema, { counter } from "#models/base";
 import User, { addressSchema } from "#models/user";
-
-let leadCount = 0;
 
 const leadSchema = new BaseSchema({
   leadId: {
@@ -94,16 +92,14 @@ const leadSchema = new BaseSchema({
 
 leadSchema.post("save", async function (doc, next) {
   if (doc.leadId) return next();
-  leadCount += 1;
-  doc.leadId = `L-NO-${leadCount + 1000}`;
+  const countData = await counter;
+  countData.lead += 1;
+  doc.leadId = `L-NO-${countData.lead + 1100}`;
   await doc.save();
+  await countData.save();
   next();
 });
 
 const Lead = mongoose.model("Lead", leadSchema);
-
-Lead.countDocuments().then((count) => {
-  leadCount = count;
-});
 
 export default Lead;

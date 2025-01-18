@@ -8,6 +8,8 @@
   },
   "type": "module",
   "imports": {
+    "#root/*": "./*.js",
+    "#libs/*": "./src/libs/*.lib.js",
     "#utils/*": "./src/utils/*.util.js",
     "#routes/*": "./src/routes/*.route.js",
     "#controllers/*": "./src/controllers/*.controller.js",

@@ -1,8 +1,8 @@
-import BaseSchema from "#models/base";
+import BaseSchema, { counter } from "#models/base";
 import Warehouse from "#models/warehouse";
 import mongoose from "mongoose";
 
-const ItemTransferSchema = new BaseSchema(
+const itemTransferSchema = new BaseSchema(
   {
     issueNumber: {
       type: String,
@@ -60,13 +60,14 @@ const ItemTransferSchema = new BaseSchema(
   { timestamps: true },
 );
 
-ItemTransferSchema.post("save", async function (doc, next) {
+itemTransferSchema.post("save", async function (doc, next) {
   if (doc.issueNumber) return next();
-  const itemTransferCount = await ItemTransfer.countDocuments();
-  doc.issueNumber = `I-NO-${itemTransferCount + 1000}`;
+  const countData = await counter;
+  countData.itemTransfer += 1;
+  doc.issueNumber = `I-NO-${countData.itemTransfer + 1100}`;
   await doc.save();
   next();
 });
 
-const ItemTransfer = mongoose.model("ItemTransfer", ItemTransferSchema);
+const ItemTransfer = mongoose.model("ItemTransfer", itemTransferSchema);
 export default ItemTransfer;

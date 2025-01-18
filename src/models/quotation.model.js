@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import Lead from "#models/lead";
 import Ledger from "#models/ledger";
 import Product from "#models/product";
-import BaseSchema from "#models/base";
+import BaseSchema, { counter } from "#models/base";
 import Invoice from "#models/invoice";
 
 const quotationStatusArr = ["Approved", "Cancelled", "Pending"];
@@ -211,8 +211,10 @@ const quotationSchema = new BaseSchema({
 
 quotationSchema.post("save", async function (doc, next) {
   if (doc.quotationNo) return next();
-  const quotationCount = await Quotation.countDocuments();
-  doc.quotationNo = `Q-NO-${quotationCount + 1000}`;
+  const countData = await counter;
+  countData.quotation += 1;
+  doc.quotationNo = `Q-NO-${countData.quotation + 1100}`;
+  await counter.save();
   await doc.save();
   next();
 });

@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import Ledger from "#models/ledger";
-import BaseSchema from "#models/base";
-import Warehouse from "#models/warehouse";
 import User from "#models/user";
+import Ledger from "#models/ledger";
+import Warehouse from "#models/warehouse";
 import { itemSchema } from "#models/quotation";
+import BaseSchema, { counter } from "#models/base";
 
 const purchaseOrderSchema = new BaseSchema({
   purchaseNo: {
@@ -98,8 +98,10 @@ const purchaseOrderSchema = new BaseSchema({
 
 purchaseOrderSchema.post("save", async function (doc, next) {
   if (doc.purchaseNo) return next();
-  const purchaseCount = await Purchase.countDocuments();
-  doc.purchaseNo = `PU-NO-${purchaseCount + 1000}`;
+  const countData = await counter;
+  countData.purchase += 1;
+  doc.purchaseNo = `PU-NO-${countData.purchase + 1100}`;
+  await countData.save();
   await doc.save();
   next();
 });

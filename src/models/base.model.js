@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import httpStatus from "#utils/httpStatus";
+import { setUpCounter } from "#libs/default";
 
 class BaseSchema extends Schema {
   constructor(schemaDefinition, options = {}) {
@@ -20,14 +21,12 @@ class BaseSchema extends Schema {
             ? modelKeys[key].ref
             : mongoose.model(modelKeys[key].ref);
 
-        if (modelKeys[key].required) {
-          const check = model.findDocById(this[key]);
+        if (modelKeys[key].required === true) {
+          const check = model.findDocById(this[key], false, { name: key });
           idChecks.push(check);
-        } else {
-          if (this[key]) {
-            const check = model.findDocById(this[key]);
-            idChecks.push(check);
-          }
+        } else if (this[key]) {
+          const check = model.findDocById(this[key], false, { name: key });
+          idChecks.push(check);
         }
       }
       await Promise.all(idChecks);
@@ -51,7 +50,7 @@ class BaseSchema extends Schema {
       };
     };
 
-    this.statics.findDocById = async function (id, allowNull) {
+    this.statics.findDocById = async function (id, allowNull, options = {}) {
       //const fields = Object.keys(this.schema.tree);
       //const populateFieldsArr = fields
       //  .filter((field) => this.schema.tree[field].ref)
@@ -65,7 +64,7 @@ class BaseSchema extends Schema {
       if (!doc && !allowNull) {
         throw {
           status: false,
-          message: `${this.modelName} with id ${id} doesn't exist`,
+          message: `${options?.name ?? this.modelName} with id ${id} doesn't exist`,
           httpStatus: httpStatus.BAD_REQUEST,
         };
       }
@@ -178,3 +177,4 @@ class BaseSchema extends Schema {
 }
 
 export default BaseSchema;
+export const counter = setUpCounter();

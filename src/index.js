@@ -1,7 +1,7 @@
 import env from "#configs/env";
+import logger from "#configs/logger";
 import server from "#configs/server";
 import connectDB from "#configs/database";
-import logger from "#configs/logger";
 
 await connectDB(env.DB_URI);
 

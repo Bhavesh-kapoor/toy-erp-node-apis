@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import BaseSchema from "#models/base";
+import Ledger from "#models/ledger";
+import BaseSchema, { counter } from "#models/base";
 
 const PaymentType = {
   PERSONAL_EXPENSE: "Personal Expense",
@@ -27,12 +28,12 @@ const PaymentMethod = {
   ONLINE_PAYMENT: "Online Payment",
 };
 
-const TransactionSchema = new BaseSchema({
-  receiptNo: {
+const transactionSchema = new BaseSchema({
+  transactionNo: {
     type: String,
-    required: true,
+    unique: true,
   },
-  receiptDate: {
+  transactionDate: {
     type: Date,
     required: true,
   },
@@ -78,29 +79,11 @@ const TransactionSchema = new BaseSchema({
     enum: Object.values(PaymentStatus),
     default: PaymentStatus.PENDING,
   },
-  transactionDate: {
-    type: Date,
-    default: Date.now,
-  },
   employee: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: function () {
       return this.paymentType === PaymentType.EMPLOYEE_PAYMENT;
-    },
-  },
-  supplier: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Ledger",
-    required: function () {
-      return this.paymentType === PaymentType.SUPPLIER_PAYMENT;
-    },
-  },
-  ledgerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Ledger",
-    required: function () {
-      return this.paymentType === PaymentType.LEDGER_BALANCING;
     },
   },
   remarks: {
@@ -109,6 +92,16 @@ const TransactionSchema = new BaseSchema({
   },
 });
 
-const Transaction = mongoose.model("Transaction", TransactionSchema);
+transactionSchema.post("save", async function (doc, next) {
+  if (doc.transactionNo) return next();
+  const countData = await counter;
+  countData.transaction += 1;
+  doc.transactionNo = `T-NO-${countData.transaction + 1100}`;
+  await countData.save();
+  await doc.save();
+  next();
+});
+
+const Transaction = mongoose.model("Transaction", transactionSchema);
 
 export default Transaction;

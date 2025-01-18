@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import BaseSchema from "#models/base";
+import BaseSchema, { counter } from "#models/base";
 
-const InvoiceSchema = new BaseSchema(
+const invoiceSchema = new BaseSchema(
   {
     billNumber: {
       type: String,
@@ -68,13 +68,14 @@ const InvoiceSchema = new BaseSchema(
   { timestamps: true },
 );
 
-InvoiceSchema.post("save", async function (doc, next) {
+invoiceSchema.post("save", async function (doc, next) {
   if (doc.billNumber) return next();
-  const invoiceCount = await Quotation.countDocuments();
-  doc.billNumber = `I-NO-${invoiceCount + 1000}`;
+  const countData = await counter;
+  countData.invoice += 1;
+  doc.billNumber = `I-NO-${countData.invoice + 1000}`;
   await doc.save();
   next();
 });
 
-const Invoice = mongoose.model("Invoice", InvoiceSchema);
+const Invoice = mongoose.model("Invoice", invoiceSchema);
 export default Invoice;
