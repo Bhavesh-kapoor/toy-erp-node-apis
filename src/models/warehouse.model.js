@@ -16,6 +16,7 @@ const warehouseSchema = new BaseSchema({
       type: Number,
       min: 0,
     },
+    default: new Map(),
   },
 });
 

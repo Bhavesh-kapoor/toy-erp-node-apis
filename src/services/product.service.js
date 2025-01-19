@@ -142,11 +142,14 @@ class ProductService extends Service {
 
     const productData = this.Model.aggregate(pipeline);
     const [stocks, products] = await Promise.all([stockData, productData]);
-    const stockAmount = stocks[0].stock;
 
-    for (let i of products) {
-      const id = i._id;
-      i.stockInHand = stockAmount[id];
+    const stockAmount = stocks[0]?.stock;
+
+    if (stockAmount) {
+      for (let i of products) {
+        const id = i._id;
+        i.stockInHand = stockAmount[id];
+      }
     }
 
     return products;
