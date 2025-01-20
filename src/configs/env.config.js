@@ -12,5 +12,8 @@ const env = cleanEnv(process.env, {
   AWS_ACCESS_KEY_ID: str(),
   AWS_SECRET_ACCESS_KEY: str(),
   AWS_BUCKET_NAME: str(),
+  SMTP_HOST: str(),
+  SMTP_USER: str(),
+  SMTP_PASS: str(),
 });
 export default env;

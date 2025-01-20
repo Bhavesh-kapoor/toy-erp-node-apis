@@ -10,6 +10,8 @@ import {
   generateToken,
   generateSecret,
 } from "#utils/twoFactorAuth";
+import { sendEmail } from "#configs/nodeMailer";
+import templates from "#libs/emailTemplate";
 
 class UserService extends Service {
   static Model = User;
@@ -185,6 +187,16 @@ class UserService extends Service {
     userData.password = password;
 
     const user = await this.Model.create(userData);
+
+    // Email options
+    const mailOptions = {
+      from: '"Volvrit" <deepak.singh@volvrit.com>', // Sender's email
+      to: userData.email, // Receiver's email
+      subject: "Test Email with Nodemailer", // Email subject
+      text: "Hello, this is a test email sent using Nodemailer!", // Plain text body
+      html: templates.userCreation(userData.name, userData.email, password),
+    };
+    await sendEmail(mailOptions);
     return user;
   }
 
