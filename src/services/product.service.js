@@ -145,11 +145,9 @@ class ProductService extends Service {
 
     const stockAmount = stocks[0]?.stock;
 
-    if (stockAmount) {
-      for (let i of products) {
-        const id = i._id;
-        i.stockInHand = stockAmount[id];
-      }
+    for (let i of products) {
+      const id = i._id;
+      i.stockInHand = stockAmount?.[id] ?? 0;
     }
 
     return products;
