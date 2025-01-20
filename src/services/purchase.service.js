@@ -154,6 +154,17 @@ class PurchaseService extends Service {
   static async update(id, updates) {
     const purchase = await this.Model.findDocById(id);
 
+    if (
+      updates.warehouseId &&
+      purchase.warehouseId.toString() !== updates.warehouseId
+    ) {
+      throw {
+        status: false,
+        message: "Changing warehouse for purchase isn't allowed",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
     const { stockAdded } = updates;
 
     if (stockAdded && stockAdded !== purchase.stockAdded) {
@@ -163,6 +174,25 @@ class PurchaseService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+
+    purchase.update(updates);
+    await purchase.save();
+    return purchase;
+  }
+
+  static async updateStock(id, updates) {
+    const purchase = await this.Model.findDocById(id);
+    const warehouse = await WarehouseService.getDocById(purchase.warehouseId);
+
+    const { stock } = warehouse;
+    const { products } = purchase;
+
+    for (let i of products) {
+      const { productId: product } = i;
+      stock.set(product, (stock.get(product) ?? 0) + i.quantity);
+    }
+
+    await warehouse.save();
 
     purchase.update(updates);
     await purchase.save();
