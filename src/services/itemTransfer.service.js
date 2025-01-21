@@ -41,6 +41,20 @@ class ItemTransferService extends Service {
     return itemTransferEntry;
   }
 
+  static async getBaseFields() {
+    const warehouses = await WarehouseService.getWithAggregate([
+      {
+        $project: {
+          name: 1,
+        },
+      },
+    ]);
+
+    return {
+      warehouses,
+    };
+  }
+
   static async update(id, updates) {}
 }
 

@@ -16,6 +16,12 @@ export const getLimitedFields = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getBaseFields = asyncHandler(async (req, res, next) => {
+  const fields = req.query;
+  const data = await ItemTransferService.getBaseFields();
+  sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
+});
+
 export const create = asyncHandler(async (req, res, next) => {
   const data = req.body;
   const createdData = await ItemTransferService.create(data);
@@ -37,7 +43,10 @@ export const update = asyncHandler(async (req, res, next) => {
 export const updateStatus = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const data = req.body;
-  const updatedData = await ItemTransferService.changeItemTransferStatus(id, data);
+  const updatedData = await ItemTransferService.changeItemTransferStatus(
+    id,
+    data,
+  );
   sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
 });
 
