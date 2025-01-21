@@ -59,10 +59,6 @@ const packingSchema = new BaseSchema({
     type: Number,
     min: 1,
   },
-  packed: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 packingSchema.post("save", async function (doc, next) {

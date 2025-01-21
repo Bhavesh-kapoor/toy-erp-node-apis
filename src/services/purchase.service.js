@@ -188,7 +188,7 @@ class PurchaseService extends Service {
     const { products } = purchase;
 
     for (let i of products) {
-      const { productId: product } = i;
+      const { product } = i;
       stock.set(product, (stock.get(product) ?? 0) + i.quantity);
     }
 

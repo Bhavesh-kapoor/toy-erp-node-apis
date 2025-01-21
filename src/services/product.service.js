@@ -179,12 +179,10 @@ class ProductService extends Service {
   static async create(productData) {
     const { igst, cgst, sgst } = productData;
 
-    if (igst !== cgst + sgst) {
-      throw {
-        status: false,
-        message: "Invalid tax values",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
+    if (parseInt(igst) === igst && igst !== cgst + sgst) {
+      const individualTax = igst / 2;
+      cgst = individualTax;
+      sgst = individualTax;
     }
 
     if (igst > 50) {

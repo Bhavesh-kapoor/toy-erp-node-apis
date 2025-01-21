@@ -71,7 +71,7 @@ class PackingService extends Service {
       {
         $lookup: {
           from: "products",
-          localField: "quotationData.products.product",
+          localField: "quotationData.latestData.product",
           foreignField: "_id",
           pipeline: [
             {
@@ -114,7 +114,7 @@ class PackingService extends Service {
           customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
           products: {
             $map: {
-              input: "$quotationData.products",
+              input: "$quotationData.latestData",
               as: "product",
               in: {
                 $mergeObjects: [
@@ -153,21 +153,60 @@ class PackingService extends Service {
 
   static async getBaseFields() {
     const warehouseData = WarehouseService.getLimitedFields();
-    const quotationData = QuotationService.getLimitedFields({
-      status: "Approved",
-      packingId: null,
-    });
+    const quotationData = QuotationService.getWithAggregate([
+      {
+        $match: {
+          status: "Approved",
+          delivered: { $ne: true },
+        },
+      },
+      {
+        $project: {
+          name: "$quotationNo",
+        },
+      },
+    ]);
+    const packingData = this.Model.aggregate([
+      {
+        $match: {
+          invoiceId: null,
+        },
+      },
+      {
+        $lookup: {
+          from: "quotations",
+          localField: "quotationId",
+          foreignField: "_id",
+          as: "quotationData",
+        },
+      },
+      {
+        $project: {
+          name: { $arrayElemAt: ["$quotationData.quotationNo", 0] },
+        },
+      },
+    ]);
     const packedByData = UserService.getUserByRole("Warehouse");
 
-    const [warehouse, quotation, packedBy] = await Promise.all([
+    const [warehouse, quotation, packedBy, packing] = await Promise.all([
       warehouseData,
       quotationData,
       packedByData,
+      packingData,
     ]);
+
+    const excludedQuotations = {};
+    for (let key of packing) {
+      excludedQuotations[key["name"]] = true;
+    }
+
+    const modifiedQuotations = quotation.filter((ele) => {
+      if (!excludedQuotations[ele["name"]]) return true;
+    });
 
     return {
       packedBy,
-      quotation,
+      quotation: modifiedQuotations,
       warehouse,
     };
   }
@@ -190,12 +229,7 @@ class PackingService extends Service {
 
   static async create(packingData) {
     const { quotationId, warehouseId, products: newProductData } = packingData;
-    const quotationData = QuotationService.getDocById(quotationId);
-    const existingPackingData = this.Model.findOne({ quotationId });
-    const [quotation, existingPacking] = await Promise.all([
-      quotationData,
-      existingPackingData,
-    ]);
+    const quotation = await QuotationService.getDocById(quotationId);
     if (quotation.status !== "Approved") {
       throw {
         status: false,
@@ -204,28 +238,28 @@ class PackingService extends Service {
       };
     }
 
-    if (quotation.packingId) {
+    if (quotation.delivered) {
       throw {
         status: false,
-        message: "Another packing for this quotation is already present",
+        message: "Cannot create packing for completed sale",
         httpStatus: httpStatus.CONFLICT,
       };
     }
 
-    if (existingPacking) {
+    if (!quotation.latestData.length) {
       throw {
         status: false,
-        message: "Another packing for this quotation already exist",
+        message: "All the products of this quotation has been packed",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
 
     const warehouse = await WarehouseService.getDocById(warehouseId);
 
-    const { products } = quotation;
+    let { latestData } = quotation;
     const { stock } = warehouse;
 
-    products.forEach((ele) => {
+    latestData.forEach((ele) => {
       const id = ele.product;
       const availableStock = stock.get(id);
 
@@ -292,7 +326,7 @@ class PackingService extends Service {
     ];
 
     const [warehouse, quotation] = await Promise.all(dbCalls);
-    const { products } = quotation;
+    const { latestData: products } = quotation;
 
     if (Object.keys(existingProducts).length !== products.length) {
       throw {
@@ -354,9 +388,39 @@ class PackingService extends Service {
     if (packed === true) {
       throw {
         status: false,
-        message: "",
+        message: "cannot update a packed package",
+        httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+
+    if (packing.invoiceId) {
+      throw {
+        status: false,
+        message: "cannot update a packing which has an active invoice",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    const quotation = await QuotationService.getDocById(packing.quotationId);
+    const { latestData } = quotation;
+
+    const modifiedProducts = latestData.filter((ele) => {
+      if (ele.packedQuantity > ele.quantity) {
+        throw {
+          status: false,
+          message: "Invalid packing data format",
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+
+      if (ele.packedQuantity === ele.quantity) return false;
+      return true;
+    });
+
+    quotation.latestData = modifiedProducts;
+    packing.packed = true;
+    await quotation.save();
+    await packing.save();
   }
 }
 

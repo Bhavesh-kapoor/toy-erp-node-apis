@@ -116,10 +116,9 @@ const quotationSchema = new BaseSchema({
     type: Boolean,
     default: true,
   },
-  packingId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Packing",
-    default: null,
+  delivered: {
+    type: Boolean,
+    default: false,
   },
 
   // Products
@@ -206,6 +205,9 @@ const quotationSchema = new BaseSchema({
     enum: quotationStatusArr,
     required: true,
     default: "Pending",
+  },
+  latestData: {
+    type: [itemSchema],
   },
 });
 

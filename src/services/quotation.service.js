@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import LeadService from "#services/lead";
 import LedgerService from "#services/ledger";
 import UserService from "#services/user";
+import PackingService from "#services/packing";
 
 class QuotationService extends Service {
   static Model = Quotation;
@@ -215,6 +216,7 @@ class QuotationService extends Service {
       };
     }
     if (customer) delete quotationData.lead;
+    if (lead) delete quotationData.customer;
 
     const set = new Set();
     quotationData.products.forEach((ele) => {
@@ -275,11 +277,27 @@ class QuotationService extends Service {
       };
     }
 
+    if (quotation.delivered) {
+      throw {
+        status: false,
+        message: "Cannot update a completed sale",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
     if (quotation.status !== "Pending") {
-      if (quotation.packingId) {
+      const existingPacking = await PackingService.getWithAggregate([
+        {
+          $match: {
+            quotationId: id,
+          },
+        },
+      ]);
+
+      if (existingPacking.length) {
         throw {
           status: false,
-          message: "Can't update, this quotation has an active packing",
+          message: "This quotation already has an active packing",
           httpStatus: httpStatus.BAD_REQUEST,
         };
       }
@@ -320,6 +338,14 @@ class QuotationService extends Service {
       return;
     }
 
+    if (quotation.delivered) {
+      throw {
+        status: false,
+        message: "Cannot update a completed sale",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
     switch (existingStatus) {
       case "Cancelled":
         throw {
@@ -328,7 +354,14 @@ class QuotationService extends Service {
           httpStatus: httpStatus.BAD_REQUEST,
         };
       case "Approved":
-        if (quotation.packingId) {
+        const existingPacking = await PackingService.getWithAggregate([
+          {
+            $match: {
+              quotationId: id,
+            },
+          },
+        ]);
+        if (existingPacking.length) {
           throw {
             status: false,
             message: "Please delete the existing packing for this quotation",
@@ -343,7 +376,7 @@ class QuotationService extends Service {
       return true;
     }
 
-    if (quotation.lead && !quotation.customer) {
+    if (status === "Approved" && quotation.lead && !quotation.customer) {
       const lead = await LeadService.get(quotation.lead);
       const existingCustomer = await LedgerService.getSafe(null, {
         email: lead.email,
@@ -352,13 +385,13 @@ class QuotationService extends Service {
       if (existingCustomer) {
         throw {
           status: false,
-          message: "A ledger entry with this email is already present",
+          message: "Please update the lead with customer for this quotation",
           httpStatus: httpStatus.CONFLICT,
         };
       }
 
       const customer = await LedgerService.create({
-        companyName: lead.companyName,
+        companyName: lead.companyName ?? lead.firstName + lead.lastName ?? "",
         contactPerson: lead.firstName,
         ledgerType: "Customer",
         address1: lead.address,
@@ -371,10 +404,18 @@ class QuotationService extends Service {
     }
 
     quotation.status = status;
+
+    if (status === "Approved") {
+      quotation.latestData = quotation.products;
+    }
+
     await quotation.save();
     await ActivityLogService.create({
       quotationId: id,
-      action: "QUOTATION_APPROVED",
+      action:
+        quotation.status === "Approved"
+          ? "QUOTATION_APPROVED"
+          : "QUOTATION_UPDATED",
       description: `Quotation approved for the customer ${quotation.customer}`,
     });
     return quotation;

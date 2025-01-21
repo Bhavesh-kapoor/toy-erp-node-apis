@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Ledger from "#models/ledger";
 import BaseSchema, { counter } from "#models/base";
+import Quotation from "#models/quotation";
 
 const PaymentType = {
   LEDGER_PAYMENT: "Ledger Payment",
@@ -42,6 +43,10 @@ const transactionSchema = new BaseSchema({
     required: function () {
       return this.paymentType === PaymentType.LEDGER_PAYMENT;
     },
+  },
+  quotationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Quotation,
   },
   amount: {
     min: 1,
