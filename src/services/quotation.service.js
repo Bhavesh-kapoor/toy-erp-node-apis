@@ -415,6 +415,7 @@ class QuotationService extends Service {
 
     if (status === "Approved") {
       quotation.latestData = quotation.products;
+      quotation.lastData = quotation.latestData;
     }
 
     await quotation.save();

@@ -233,10 +233,35 @@ class InvoiceService extends Service {
 
     const { quotationId } = packing;
     const quotation = await QuotationService.getDocById(quotationId);
+    const { products, latestData, lastData } = quotation;
 
-    const { products, latestData } = quotation;
+    const productData = {};
+    products.forEach((ele) => {
+      productData[ele["product"]] = ele;
+    });
 
-    console.log(products, latestData);
+    const packingStoreData = [];
+
+    lastData.forEach((outer, oIndex) => {
+      latestData.forEach((inner, iIndex) => {
+        const id = inner.product;
+        const product = productData[i];
+        if (inner.product === outer.product) {
+          outer.quantity = inner.quantity - inner.packedQuantity;
+          const obj = {
+            quantity: inner.packedQuantity,
+            cgst: product.cgst,
+            sgst: product.sgst,
+            igst: product.igst,
+            listPrice: product.listPrice,
+            value: product.packedQuantity * product.listPrice,
+          };
+          obj.discountPercentage = product.discountPercentage;
+          obj.discountAmount = (obj.discountPercentage * obj.value) / 100;
+          packingStoreData.push(obj);
+        }
+      });
+    });
   }
 }
 
