@@ -23,6 +23,7 @@ class PurchaseService extends Service {
     const extraStage = [
       {
         $project: {
+          stockAdded: 1,
           purchaseNo: 1,
           vendorName: { $arrayElemAt: ["$vendorData.companyName", 0] },
           referenceNumber: 1,
