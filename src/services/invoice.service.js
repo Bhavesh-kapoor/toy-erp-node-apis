@@ -5,6 +5,7 @@ import UserService from "#services/user";
 import httpStatus from "#utils/httpStatus";
 import PackingService from "#services/packing";
 import QuotationService from "#services/quotation";
+import LedgerService from "#services/ledger";
 
 class InvoiceService extends Service {
   static Model = Invoice;
@@ -187,14 +188,42 @@ class InvoiceService extends Service {
 
   static async getBaseFields() {
     const userData = UserService.getUserByRole("Accountant");
-    const packingData = PackingService.getLimitedFields({
-      invoiceId: null,
-    });
+    const ledgerData = LedgerService.getWithAggregate([
+      {
+        $match: {
+          ledgerType: {
+            $in: ["Customer", "Both"],
+          },
+        },
+      },
+      {
+        $project: {
+          name: "$companyName",
+        },
+      },
+    ]);
+    const packingData = PackingService.getWithAggregate([
+      {
+        $match: {
+          invoiceId: null,
+        },
+      },
+      {
+        $project: {
+          name: "$packingNo",
+        },
+      },
+    ]);
 
-    const [users, packing] = await Promise.all([userData, packingData]);
+    const [users, packings, ledgers] = await Promise.all([
+      userData,
+      packingData,
+      ledgerData,
+    ]);
     return {
       users,
-      packing,
+      packings,
+      ledgers,
     };
   }
 
@@ -205,7 +234,9 @@ class InvoiceService extends Service {
     const { quotationId } = packing;
     const quotation = await QuotationService.getDocById(quotationId);
 
-    const { products } = quotation;
+    const { products, latestData } = quotation;
+
+    console.log(products, latestData);
   }
 }
 
