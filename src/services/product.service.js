@@ -156,7 +156,13 @@ class ProductService extends Service {
   static async getBaseFields() {
     const brandData = BrandService.getSelectedBrands();
     const categoryData = ProductCategoryService.getSelectedCategories();
-    const uomData = ProductUomService.getSelectedFields();
+    const uomData = ProductUomService.getWithAggregate([
+      {
+        $project: {
+          name: "$shortName",
+        },
+      },
+    ]);
 
     const [brands, categories, uoms] = await Promise.all([
       brandData,
