@@ -10,6 +10,11 @@ const productCategorySchema = new BaseSchema({
   description: {
     type: String,
   },
+  hsnCode: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   parentCategory: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "ProductCategory",
