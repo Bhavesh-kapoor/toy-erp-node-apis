@@ -41,6 +41,8 @@ const leadSchema = new BaseSchema({
   },
   source: {
     type: String,
+    default: "Manual",
+    required: true,
   },
   priorityLevel: {
     type: String,
