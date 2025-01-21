@@ -100,6 +100,13 @@ class LeadService extends Service {
     }
 
     const lead = new this.Model(leadData);
+    if (lead.leadType === "Company" && !lead.companyName) {
+      throw {
+        status: false,
+        message: "Company name is required",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
     await lead.save();
 
     const activityLogData = {
@@ -117,6 +124,14 @@ class LeadService extends Service {
   }
   static async update(id, updates) {
     const lead = await this.Model.findDocById(id);
+    if (lead.converted) {
+      throw {
+        status: false,
+        message:
+          "Cannot update this lead, please update the ledger entry for this",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
     const existingStatus = lead.status;
     const existingStatusUpdates = lead.statusUpdate;
     delete updates.statusUpdate;
@@ -126,6 +141,14 @@ class LeadService extends Service {
         status: false,
         message: "A Ledger entry with this email is already present",
         httpStatus: httpStatus.CONFLICT,
+      };
+    }
+
+    if (updates.leadType === "Company" && !updates.companyName) {
+      throw {
+        status: false,
+        message: "Company name is required",
+        httpStatus: httpStatus.BAD_REQUEST,
       };
     }
 

@@ -28,9 +28,6 @@ const leadSchema = new BaseSchema({
     required: true,
     unique: true,
   },
-  dateOfBirth: {
-    type: Date,
-  },
   gender: {
     type: String,
     enum: ["Male", "Female", "Other"],
@@ -39,29 +36,11 @@ const leadSchema = new BaseSchema({
     type: String,
     required: true,
   },
-  designation: {
-    type: String,
-  },
-  industry: {
-    type: String,
-  },
-  website: {
-    type: String,
-  },
   companyPhoneNo: {
     type: String,
   },
-  companyAddress: {
-    type: addressSchema,
-    required: false,
-  },
   source: {
     type: String,
-  },
-  status: {
-    type: String,
-    enum: ["Pending", "Contacted", "Qualified", "Converted", "Closed"],
-    default: "Pending",
   },
   priorityLevel: {
     type: String,
@@ -72,13 +51,19 @@ const leadSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: User,
   },
-  statusUpdate: {
-    type: [
-      {
-        update: String,
-        message: String,
-      },
-    ],
+  followUp: {
+    type: Date,
+    required: true,
+    default: new Date(),
+  },
+  leadType: {
+    type: String,
+    enum: ["Individual", "Company"],
+  },
+  converted: {
+    type: Boolean,
+    default: false,
+    required: true,
   },
   metaData: {
     query: {
