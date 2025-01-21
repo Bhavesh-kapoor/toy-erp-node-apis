@@ -228,7 +228,7 @@ class InvoiceService extends Service {
   }
 
   static async create(invoiceData) {
-    const { packingId } = invoiceData;
+    const { packing: packingId } = invoiceData;
     const packing = await PackingService.getDocById(packingId);
 
     const { quotationId } = packing;
