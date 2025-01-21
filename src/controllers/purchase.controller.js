@@ -33,6 +33,13 @@ export const update = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
 });
 
+export const updateStock = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const data = req.body;
+  const updatedData = await PurchaseService.updateStock(id, data);
+  sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
+});
+
 export const deleteData = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   await PurchaseService.deleteDoc(id);

@@ -174,6 +174,13 @@ class PurchaseService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+    if (purchase.stockAdded) {
+      throw {
+        status: false,
+        message: "Cannot update the stock values of added purchase",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
 
     purchase.update(updates);
     await purchase.save();
@@ -183,6 +190,14 @@ class PurchaseService extends Service {
   static async updateStock(id, updates) {
     const purchase = await this.Model.findDocById(id);
     const warehouse = await WarehouseService.getDocById(purchase.warehouseId);
+
+    if (purchase.stockAdded) {
+      throw {
+        status: false,
+        message: "Cannot update the stock values of added purchase",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
 
     const { stock } = warehouse;
     const { products } = purchase;
