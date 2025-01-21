@@ -98,14 +98,10 @@ const purchaseOrderSchema = new BaseSchema({
   },
 });
 
-purchaseOrderSchema.post("save", async function (doc, next) {
-  if (doc.purchaseNo) return next();
-
-  const countData = await Counter.findOne();
-  countData.purchase += 1;
-  doc.purchaseNo = `PU-NO-${countData.purchase + 2000}`;
-  await countData.save();
-  await doc.save();
+purchaseOrderSchema.pre("save", async function (next) {
+  if (this.purchaseNo) return next();
+  const timestamp = Math.floor(Date.now() / 10);
+  this.purchaseNo = `PU-NO-${timestamp}`;
   next();
 });
 

@@ -101,13 +101,10 @@ const transactionSchema = new BaseSchema({
   },
 });
 
-transactionSchema.post("save", async function (doc, next) {
-  if (doc.transactionNo) return next();
-  const countData = await Counter.findOne();
-  countData.transaction += 1;
-  doc.transactionNo = `T-NO-${countData.transaction + 2000}`;
-  await countData.save();
-  await doc.save();
+transactionSchema.pre("save", async function (next) {
+  if (this.transactionNo) return next();
+  const timestamp = Math.floor(Date.now() / 10);
+  this.transactionNo = `T-NO-${timestamp}`;
   next();
 });
 

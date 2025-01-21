@@ -62,13 +62,10 @@ const packingSchema = new BaseSchema({
   },
 });
 
-packingSchema.post("save", async function (doc, next) {
-  if (doc.packingNo) return next();
-  const countData = await Counter.findOne();
-  countData.packing += 1;
-  doc.packingNo = `P-NO-${countData.packing + 2000}`;
-  await countData.save();
-  await doc.save();
+packingSchema.pre("save", async function (next) {
+  if (this.packingNo) return next();
+  const timestamp = Math.floor(Date.now() / 10);
+  this.packingNo = `P-NO-${timestamp}`;
   next();
 });
 

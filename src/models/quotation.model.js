@@ -213,13 +213,10 @@ const quotationSchema = new BaseSchema({
   },
 });
 
-quotationSchema.post("save", async function (doc, next) {
+quotationSchema.post("pre", async function (next) {
   if (doc.quotationNo) return next();
-  const countData = await Counter.findOne();
-  countData.quotation += 1;
-  doc.quotationNo = `Q-NO-${countData.quotation + 2000}`;
-  await countData.save();
-  await doc.save();
+  const timestamp = Math.floor(Date.now() / 10);
+  this.quotationNo = `Q-NO-${timestamp}`;
   next();
 });
 

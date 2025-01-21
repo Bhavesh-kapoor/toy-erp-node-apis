@@ -58,12 +58,10 @@ const itemTransferSchema = new BaseSchema(
   { timestamps: true },
 );
 
-itemTransferSchema.post("save", async function (doc, next) {
-  if (doc.issueNumber) return next();
-  const countData = await Counter.findOne();
-  countData.itemTransfer += 1;
-  doc.issueNumber = `I-NO-${countData.itemTransfer + 2000}`;
-  await doc.save();
+itemTransferSchema.pre("save", async function (next) {
+  if (this.issueNumber) return next();
+  const timestamp = Math.floor(Date.now() / 10);
+  this.issueNumber = `IT-NO-${timestamp}`;
   next();
 });
 

@@ -79,13 +79,10 @@ const leadSchema = new BaseSchema({
 
 leadSchema.pre("save", uploadFile);
 
-leadSchema.post("save", async function (doc, next) {
-  if (doc.leadId) return next();
-  const countData = await Counter.findOne();
-  countData.lead += 1;
-  doc.leadId = `L-NO-${countData.lead + 2000}`;
-  await doc.save();
-  await countData.save();
+leadSchema.pre("save", async function (next) {
+  if (this.leadId) return next();
+  const timestamp = Math.floor(Date.now() / 10);
+  this.leadId = `L-NO-${timestamp}`;
   next();
 });
 

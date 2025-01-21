@@ -69,12 +69,10 @@ const invoiceSchema = new BaseSchema(
   { timestamps: true },
 );
 
-invoiceSchema.post("save", async function (doc, next) {
-  if (doc.billNumber) return next();
-  const countData = await Counter.findOne();
-  countData.invoice += 1;
-  doc.billNumber = `I-NO-${countData.invoice + 1000}`;
-  await doc.save();
+invoiceSchema.pre("save", async function (next) {
+  if (this.billNumber) return next();
+  const timestamp = Math.floor(Date.now() / 1000); // Current UNIX timestamp
+  this.billNumber = `INV-NO-${timestamp}`;
   next();
 });
 
