@@ -66,7 +66,7 @@ class WarehouseService extends Service {
   }
 
   static async getStockWithWarehouseId(id) {
-    const productData = await ProductService.getWithAggregate([
+    const productData = ProductService.getWithAggregate([
       {
         $project: {
           name: 1,

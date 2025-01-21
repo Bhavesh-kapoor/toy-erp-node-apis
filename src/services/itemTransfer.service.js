@@ -23,7 +23,8 @@ class ItemTransferService extends Service {
 
     for (let id in stock) {
       const existingStock = oldStock.get(id);
-      if (!existingStock || !existingStock < stock[id]) {
+
+      if (!existingStock || existingStock < stock[id]) {
         throw {
           status: false,
           message: `Insufficient stock for product with the id ${id}`,

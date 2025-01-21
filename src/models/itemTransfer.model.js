@@ -7,6 +7,7 @@ const itemTransferSchema = new BaseSchema(
     issueNumber: {
       type: String,
       unique: true,
+      sparse: true,
     },
     issueDate: {
       type: Date,
