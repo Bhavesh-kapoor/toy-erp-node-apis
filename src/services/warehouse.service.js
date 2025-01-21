@@ -1,6 +1,7 @@
 import Warehouse from "#models/warehouse";
 import Service from "#services/base";
 import mongoose from "mongoose";
+import ProductService from "#services/product";
 
 class WarehouseService extends Service {
   static Model = Warehouse;
@@ -62,6 +63,35 @@ class WarehouseService extends Service {
     ];
 
     return await this.Model.aggregate(pipeline);
+  }
+
+  static async getStockWithWarehouseId(id) {
+    const productData = await ProductService.getWithAggregate([
+      {
+        $project: {
+          name: 1,
+          sku: 1,
+          mrp: 1,
+          productCode: 1,
+        },
+      },
+    ]);
+
+    const warehouseData = this.Model.findDocById(id);
+    const [warehouse, product] = await Promise.all([
+      warehouseData,
+      productData,
+    ]);
+
+    const { stock } = warehouse;
+
+    product.forEach((ele) => {
+      ele.stockInHand = stock.get(ele._id) ?? 0;
+    });
+
+    return {
+      product,
+    };
   }
 }
 
