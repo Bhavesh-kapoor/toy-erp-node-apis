@@ -3,12 +3,14 @@ import User from "#models/user";
 import Ledger from "#models/ledger";
 import Warehouse from "#models/warehouse";
 import { itemSchema } from "#models/quotation";
-import BaseSchema, { counter } from "#models/base";
+import BaseSchema from "#models/base";
+import Counter from "#models/counter";
 
 const purchaseOrderSchema = new BaseSchema({
   purchaseNo: {
     type: String,
     unique: true,
+    sparse: true,
   },
   purchaseDate: {
     type: Date,
@@ -98,7 +100,8 @@ const purchaseOrderSchema = new BaseSchema({
 
 purchaseOrderSchema.post("save", async function (doc, next) {
   if (doc.purchaseNo) return next();
-  const countData = await counter;
+
+  const countData = await Counter.findOne();
   countData.purchase += 1;
   doc.purchaseNo = `PU-NO-${countData.purchase + 1100}`;
   await countData.save();

@@ -1,6 +1,7 @@
-import BaseSchema, { counter } from "#models/base";
+import BaseSchema from "#models/base";
 import Warehouse from "#models/warehouse";
 import mongoose from "mongoose";
+import Counter from "#models/counter";
 
 const itemTransferSchema = new BaseSchema(
   {
@@ -59,7 +60,7 @@ const itemTransferSchema = new BaseSchema(
 
 itemTransferSchema.post("save", async function (doc, next) {
   if (doc.issueNumber) return next();
-  const countData = await counter;
+  const countData = await Counter.findOne();
   countData.itemTransfer += 1;
   doc.issueNumber = `I-NO-${countData.itemTransfer + 1100}`;
   await doc.save();

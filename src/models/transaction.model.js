@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import Ledger from "#models/ledger";
-import BaseSchema, { counter } from "#models/base";
+import BaseSchema from "#models/base";
 import Quotation from "#models/quotation";
+import Counter from "#models/counter";
 
 const PaymentType = {
   LEDGER_PAYMENT: "Ledger Payment",
@@ -102,7 +103,7 @@ const transactionSchema = new BaseSchema({
 
 transactionSchema.post("save", async function (doc, next) {
   if (doc.transactionNo) return next();
-  const countData = await counter;
+  const countData = await Counter.findOne();
   countData.transaction += 1;
   doc.transactionNo = `T-NO-${countData.transaction + 1100}`;
   await countData.save();

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import BaseSchema, { counter } from "#models/base";
+import BaseSchema from "#models/base";
+import Counter from "#models/counter";
 
 const invoiceSchema = new BaseSchema(
   {
@@ -70,7 +71,7 @@ const invoiceSchema = new BaseSchema(
 
 invoiceSchema.post("save", async function (doc, next) {
   if (doc.billNumber) return next();
-  const countData = await counter;
+  const countData = await Counter.findOne();
   countData.invoice += 1;
   doc.billNumber = `I-NO-${countData.invoice + 1000}`;
   await doc.save();
@@ -78,4 +79,5 @@ invoiceSchema.post("save", async function (doc, next) {
 });
 
 const Invoice = mongoose.model("Invoice", invoiceSchema);
+
 export default Invoice;

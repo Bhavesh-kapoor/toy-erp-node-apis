@@ -16,6 +16,10 @@ export const getStockByWarehouse = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getStockWithPagination = asyncHandler(async (req,res,next) => {
+
+})
+
 export const create = asyncHandler(async (req, res, next) => {
   const data = req.body;
   const createdData = await WarehouseService.create(data);

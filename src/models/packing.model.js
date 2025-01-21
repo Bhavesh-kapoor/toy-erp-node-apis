@@ -1,10 +1,11 @@
 import User from "#models/user";
 import Ledger from "#models/ledger";
 import Invoice from "#models/invoice";
-import BaseSchema, { counter } from "#models/base";
+import BaseSchema from "#models/base";
 import Quotation from "#models/quotation";
 import Warehouse from "#models/warehouse";
-import mongoose, { Schema } from "mongoose";
+import Counter from "#models/counter";
+import mongoose from "mongoose";
 
 const packingSchema = new BaseSchema({
   warehouseId: {
@@ -63,7 +64,7 @@ const packingSchema = new BaseSchema({
 
 packingSchema.post("save", async function (doc, next) {
   if (doc.packingNo) return next();
-  const countData = await counter;
+  const countData = await Counter.findOne();
   countData.packing += 1;
   doc.packingNo = `P-NO-${countData.packing + 1100}`;
   await countData.save();

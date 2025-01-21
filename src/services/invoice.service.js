@@ -188,7 +188,7 @@ class InvoiceService extends Service {
   static async getBaseFields() {
     const userData = UserService.getUserByRole("Accountant");
     const packingData = PackingService.getLimitedFields({
-      packed: false,
+      invoiceId: null,
     });
 
     const [users, packing] = await Promise.all([userData, packingData]);

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import BaseSchema, { counter } from "#models/base";
+import BaseSchema from "#models/base";
+import Counter from "#models/counter";
 import User, { addressSchema } from "#models/user";
 import uploadFile from "#utils/uploadFile";
 
@@ -80,7 +81,7 @@ leadSchema.pre("save", uploadFile);
 
 leadSchema.post("save", async function (doc, next) {
   if (doc.leadId) return next();
-  const countData = await counter;
+  const countData = await Counter.findOne();
   countData.lead += 1;
   doc.leadId = `L-NO-${countData.lead + 1100}`;
   await doc.save();

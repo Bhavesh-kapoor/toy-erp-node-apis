@@ -93,6 +93,21 @@ class WarehouseService extends Service {
       product,
     };
   }
+
+  static async getStockWithPagination(id) {
+    const initialStage = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id),
+        },
+      },
+    ];
+
+    const extraStage = [];
+
+    const data = await this.Model.findAll(fiter, initialStage, extraStage);
+    return data;
+  }
 }
 
 export default WarehouseService;
