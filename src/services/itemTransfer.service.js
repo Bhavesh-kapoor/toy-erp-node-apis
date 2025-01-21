@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Service from "#services/base";
 import ItemTransfer from "#models/itemTransfer";
 import WarehouseService from "#services/warehouse";
+import httpStatus from "#utils/httpStatus";
 
 class ItemTransferService extends Service {
   static Model = ItemTransfer;
