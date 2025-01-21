@@ -83,6 +83,7 @@ const quotationSchema = new BaseSchema({
   quotationNo: {
     type: String,
     unique: true,
+    sparse: true,
     trim: true,
   },
   quotationDate: {
@@ -216,7 +217,7 @@ quotationSchema.post("save", async function (doc, next) {
   if (doc.quotationNo) return next();
   const countData = await Counter.findOne();
   countData.quotation += 1;
-  doc.quotationNo = `Q-NO-${countData.quotation + 1100}`;
+  doc.quotationNo = `Q-NO-${countData.quotation + 2000}`;
   await countData.save();
   await doc.save();
   next();

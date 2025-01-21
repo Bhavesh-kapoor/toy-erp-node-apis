@@ -105,7 +105,7 @@ transactionSchema.post("save", async function (doc, next) {
   if (doc.transactionNo) return next();
   const countData = await Counter.findOne();
   countData.transaction += 1;
-  doc.transactionNo = `T-NO-${countData.transaction + 1100}`;
+  doc.transactionNo = `T-NO-${countData.transaction + 2000}`;
   await countData.save();
   await doc.save();
   next();

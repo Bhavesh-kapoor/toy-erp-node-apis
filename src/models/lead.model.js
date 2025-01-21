@@ -83,7 +83,7 @@ leadSchema.post("save", async function (doc, next) {
   if (doc.leadId) return next();
   const countData = await Counter.findOne();
   countData.lead += 1;
-  doc.leadId = `L-NO-${countData.lead + 1100}`;
+  doc.leadId = `L-NO-${countData.lead + 2000}`;
   await doc.save();
   await countData.save();
   next();

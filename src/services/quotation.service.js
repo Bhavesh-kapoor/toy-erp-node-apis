@@ -215,6 +215,14 @@ class QuotationService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+    if (customer && lead) {
+      throw {
+        status: false,
+        message: "Both customer and lead ain't allowed",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
     if (customer) delete quotationData.lead;
     if (lead) delete quotationData.customer;
 

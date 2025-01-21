@@ -56,6 +56,7 @@ class PackingService extends Service {
           nagPacking: 1,
           totalQuantity: 1,
           netPackedQuantity: 1,
+          invoiceId: 1,
           quotation: "$quotationData._id",
         },
       },

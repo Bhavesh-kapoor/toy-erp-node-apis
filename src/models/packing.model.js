@@ -66,7 +66,7 @@ packingSchema.post("save", async function (doc, next) {
   if (doc.packingNo) return next();
   const countData = await Counter.findOne();
   countData.packing += 1;
-  doc.packingNo = `P-NO-${countData.packing + 1100}`;
+  doc.packingNo = `P-NO-${countData.packing + 2000}`;
   await countData.save();
   await doc.save();
   next();

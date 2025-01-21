@@ -199,53 +199,13 @@ class InvoiceService extends Service {
   }
 
   static async create(invoiceData) {
-    const { quotationId } = invoiceData;
-    const existingQuotation = await this.Model.findOne({ quotationId });
-
-    if (existingQuotation) {
-      throw {
-        status: false,
-        message: "Another invoice for this quotation already exist",
-        httpStatus: httpStatus.CONFLICT,
-      };
-    }
-
-    const quotation = await QuotationService.getDocById(quotationId);
-
-    if (quotation.status !== "Approved") {
-      throw {
-        status: false,
-        message: `Cannot create quotation for a ${quotation.status} quotation`,
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
-    const { packingId } = quotation;
-
-    if (!packingId) {
-      throw {
-        status: false,
-        message: "Cannot create invoice without packing",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
+    const { packingId } = invoiceData;
     const packing = await PackingService.getDocById(packingId);
 
-    if (!packing.packed) {
-      throw {
-        status: false,
-        message: "Cannot create invoice for incomplete packing",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
+    const { quotationId } = packing;
+    const quotation = await QuotationService.getDocById(quotationId);
 
-    const createdInvoice = await this.Model.create(invoiceData);
-    quotation.invoiceId = createdInvoice.id;
-    packing.invoiceId = createdInvoice.id;
-    await Promise.all([quotation.save(), packing.save()]);
-
-    return createdInvoice;
+    const { products } = quotation;
   }
 }
 

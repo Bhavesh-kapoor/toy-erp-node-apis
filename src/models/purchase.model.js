@@ -103,7 +103,7 @@ purchaseOrderSchema.post("save", async function (doc, next) {
 
   const countData = await Counter.findOne();
   countData.purchase += 1;
-  doc.purchaseNo = `PU-NO-${countData.purchase + 1100}`;
+  doc.purchaseNo = `PU-NO-${countData.purchase + 2000}`;
   await countData.save();
   await doc.save();
   next();

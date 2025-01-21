@@ -62,7 +62,7 @@ itemTransferSchema.post("save", async function (doc, next) {
   if (doc.issueNumber) return next();
   const countData = await Counter.findOne();
   countData.itemTransfer += 1;
-  doc.issueNumber = `I-NO-${countData.itemTransfer + 1100}`;
+  doc.issueNumber = `I-NO-${countData.itemTransfer + 2000}`;
   await doc.save();
   next();
 });
