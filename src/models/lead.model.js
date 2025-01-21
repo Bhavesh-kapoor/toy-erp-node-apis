@@ -35,7 +35,6 @@ const leadSchema = new BaseSchema({
   },
   companyName: {
     type: String,
-    required: true,
   },
   companyPhoneNo: {
     type: String,
