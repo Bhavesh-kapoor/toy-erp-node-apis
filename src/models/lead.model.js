@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import BaseSchema, { counter } from "#models/base";
 import User, { addressSchema } from "#models/user";
+import uploadFile from "#utils/uploadFile";
 
 const leadSchema = new BaseSchema({
   leadId: {
@@ -67,15 +68,16 @@ const leadSchema = new BaseSchema({
     default: false,
     required: true,
   },
-  metaData: {
-    query: {
-      type: String,
-    },
-    tags: {
-      type: [String],
-    },
+  description: {
+    type: String,
+  },
+  document: {
+    type: String,
+    file: true,
   },
 });
+
+leadSchema.pre("save", uploadFile);
 
 leadSchema.post("save", async function (doc, next) {
   if (doc.leadId) return next();
