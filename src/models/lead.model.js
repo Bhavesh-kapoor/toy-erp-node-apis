@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import BaseSchema from "#models/base";
-import Counter from "#models/counter";
 import User, { addressSchema } from "#models/user";
 import uploadFile from "#utils/uploadFile";
 

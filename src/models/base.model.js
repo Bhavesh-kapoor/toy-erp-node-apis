@@ -1,6 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 import httpStatus from "#utils/httpStatus";
-import { setUpCounter } from "#libs/default";
 
 class BaseSchema extends Schema {
   constructor(schemaDefinition, options = {}) {
@@ -177,4 +176,3 @@ class BaseSchema extends Schema {
 }
 
 export default BaseSchema;
-export const counter = setUpCounter();

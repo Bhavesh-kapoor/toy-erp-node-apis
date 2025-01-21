@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import Ledger from "#models/ledger";
 import BaseSchema from "#models/base";
 import Quotation from "#models/quotation";
-import Counter from "#models/counter";
 
 const PaymentType = {
   LEDGER_PAYMENT: "Ledger Payment",

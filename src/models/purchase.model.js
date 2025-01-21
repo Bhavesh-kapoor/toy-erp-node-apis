@@ -4,7 +4,6 @@ import Ledger from "#models/ledger";
 import Warehouse from "#models/warehouse";
 import { itemSchema } from "#models/quotation";
 import BaseSchema from "#models/base";
-import Counter from "#models/counter";
 
 const purchaseOrderSchema = new BaseSchema({
   purchaseNo: {

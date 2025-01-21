@@ -1,7 +1,6 @@
 import BaseSchema from "#models/base";
 import Warehouse from "#models/warehouse";
 import mongoose from "mongoose";
-import Counter from "#models/counter";
 
 const itemTransferSchema = new BaseSchema(
   {

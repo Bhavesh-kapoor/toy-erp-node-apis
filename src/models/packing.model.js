@@ -4,7 +4,6 @@ import Invoice from "#models/invoice";
 import BaseSchema from "#models/base";
 import Quotation from "#models/quotation";
 import Warehouse from "#models/warehouse";
-import Counter from "#models/counter";
 import mongoose from "mongoose";
 
 const packingSchema = new BaseSchema({

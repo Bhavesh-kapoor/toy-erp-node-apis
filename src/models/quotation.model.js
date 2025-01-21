@@ -4,7 +4,6 @@ import Lead from "#models/lead";
 import Ledger from "#models/ledger";
 import Product from "#models/product";
 import BaseSchema from "#models/base";
-import Counter from "#models/counter";
 import Invoice from "#models/invoice";
 
 const quotationStatusArr = ["Approved", "Cancelled", "Pending"];
@@ -209,6 +208,9 @@ const quotationSchema = new BaseSchema({
     default: "Pending",
   },
   latestData: {
+    type: [itemSchema],
+  },
+  lastData: {
     type: [itemSchema],
   },
 });
