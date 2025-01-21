@@ -177,7 +177,7 @@ class ProductService extends Service {
   }
 
   static async create(productData) {
-    const { igst, cgst, sgst } = productData;
+    let { igst, cgst, sgst } = productData;
 
     if (parseInt(igst) === igst && igst !== cgst + sgst) {
       const individualTax = igst / 2;
