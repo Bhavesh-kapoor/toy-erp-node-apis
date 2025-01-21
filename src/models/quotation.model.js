@@ -213,7 +213,7 @@ const quotationSchema = new BaseSchema({
   },
 });
 
-quotationSchema.post("pre", async function (next) {
+quotationSchema.pre("save", async function (next) {
   if (this.quotationNo) return next();
   const timestamp = Math.floor(Date.now() / 10);
   this.quotationNo = `Q-NO-${timestamp}`;
