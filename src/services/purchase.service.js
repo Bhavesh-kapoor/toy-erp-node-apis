@@ -4,6 +4,7 @@ import Service from "#services/base";
 import LedgerService from "#services/ledger";
 import WarehouseService from "#services/warehouse";
 import UserService from "#services/user";
+import httpStatus from "#utils/httpStatus";
 
 class PurchaseService extends Service {
   static Model = Purchase;
