@@ -46,11 +46,7 @@ const itemTransferSchema = new BaseSchema(
       type: Number,
       default: 0,
     },
-    otherCharges: {
-      type: Number,
-      default: 0,
-    },
-    netValue: {
+    netAmount: {
       type: Number,
       default: function () {
         return this.totalValue + this.otherCharges;
