@@ -7,6 +7,46 @@ import httpStatus from "#utils/httpStatus";
 class ItemTransferService extends Service {
   static Model = ItemTransfer;
 
+  static async get(id, filter) {
+    if (id) {
+      return await this.Model.findDocById(id);
+    }
+
+    const initialStage = [
+      {
+        $lookup: {
+          from: "warehouses",
+          localField: "issueFrom",
+          foreignField: "_id",
+          as: "oldWarehouse",
+        },
+      },
+      {
+        $lookup: {
+          from: "warehouses",
+          localField: "issueTo",
+          foreignField: "_id",
+          as: "newWarehouse",
+        },
+      },
+    ];
+
+    const extraStage = [
+      {
+        $project: {
+          from: { $arrayElemAt: ["$oldWarehouse.name", 0] },
+          to: { $arrayElemAt: ["$newWarehouse.name", 0] },
+          netAmount: 1,
+          issueDate: 1,
+          issueNumber: 1,
+          totalQuantity: 1,
+        },
+      },
+    ];
+
+    return await this.Model.findAll(filter, initialStage, extraStage);
+  }
+
   static async create(itemTransferData) {
     const { issueFrom, issueTo, stock } = itemTransferData;
 
