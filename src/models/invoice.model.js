@@ -5,7 +5,6 @@ const invoiceSchema = new BaseSchema(
   {
     billNumber: {
       type: String,
-      required: true,
     },
     billDate: {
       type: Date,
