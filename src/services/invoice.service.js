@@ -248,6 +248,8 @@ class InvoiceService extends Service {
     }
 
     const invoice = await this.Model.create(invoiceData);
+    quotation.invoiceId = invoice._id;
+    await quotation.save();
     return invoice;
   }
 }
