@@ -330,11 +330,10 @@ class PackingService extends Service {
     delete updates.customer;
     delete updates.quotationId;
     delete updates.packingNo;
-
     delete updates.products;
 
     packing.update(updates);
-    console.log(quotation.products);
+
     await packing.save();
     await warehouse.save();
     await quotation.save();

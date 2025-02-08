@@ -231,8 +231,21 @@ class InvoiceService extends Service {
   static async create(invoiceData) {
     const { quotationId } = invoiceData;
     const quotation = await QuotationService.getDocById(quotationId);
+    if (quotation.invoiceId) {
+      throw {
+        status: false,
+        message: "Another bill for this quotation already exists",
+        httpStatus: httpStatus.CONFLICT,
+      };
+    }
 
-    const { products } = quotation;
+    if (quotation.status !== "Approved") {
+      throw {
+        status: false,
+        message: `Cannot create invoice for ${quotation.status} quotation`,
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
   }
 }
 
