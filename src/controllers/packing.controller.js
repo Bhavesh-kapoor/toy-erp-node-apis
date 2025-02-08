@@ -39,6 +39,12 @@ export const update = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
 });
 
+export const updatePackedStatus = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const data = await PackingService.updatePackedStatus(id, req.body);
+  sendResponse(httpStatus.OK, res, data, "Status updated successfully");
+});
+
 export const deleteData = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   await PackingService.deleteData(id);
