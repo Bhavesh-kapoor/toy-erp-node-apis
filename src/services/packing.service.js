@@ -58,6 +58,7 @@ class PackingService extends Service {
           netPackedQuantity: 1,
           invoiceId: 1,
           quotation: "$quotationData._id",
+          packed: 1,
         },
       },
     ];
@@ -228,10 +229,10 @@ class PackingService extends Service {
 
     const warehouse = await WarehouseService.getDocById(warehouseId);
 
-    let { products: latestData } = quotation;
+    let { products } = quotation;
     const { stock } = warehouse;
 
-    latestData.forEach((ele) => {
+    products.forEach((ele) => {
       const id = ele.product;
       const availableStock = stock.get(id);
 
@@ -359,31 +360,19 @@ class PackingService extends Service {
       };
     }
 
-    if (packing.invoiceId) {
-      throw {
-        status: false,
-        message: "cannot update a packing which has an active invoice",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
     const quotation = await QuotationService.getDocById(packing.quotationId);
-    const { latestData } = quotation;
+    const { products } = quotation;
 
-    const modifiedProducts = latestData.filter((ele) => {
-      if (ele.packedQuantity > ele.quantity) {
+    for (let i of products) {
+      if (i.quantity !== i.packedQuantity) {
         throw {
           status: false,
-          message: "Invalid packing data format",
+          message: "Invalid stock values",
           httpStatus: httpStatus.BAD_REQUEST,
         };
       }
+    }
 
-      if (ele.packedQuantity === ele.quantity) return false;
-      return true;
-    });
-
-    quotation.latestData = modifiedProducts;
     packing.packed = true;
     await quotation.save();
     await packing.save();

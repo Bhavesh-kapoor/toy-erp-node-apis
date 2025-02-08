@@ -189,12 +189,6 @@ const quotationSchema = new BaseSchema({
     required: true,
     default: "Pending",
   },
-  latestData: {
-    type: [itemSchema],
-  },
-  lastData: {
-    type: [itemSchema],
-  },
   packingId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Packing",
