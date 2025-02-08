@@ -246,6 +246,9 @@ class InvoiceService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+
+    const invoice = await this.Model.create(invoiceData);
+    return invoice;
   }
 }
 
