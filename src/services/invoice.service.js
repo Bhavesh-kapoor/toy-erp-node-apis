@@ -202,66 +202,37 @@ class InvoiceService extends Service {
         },
       },
     ]);
-    const packingData = PackingService.getWithAggregate([
+    const quotationData = QuotationService.getWithAggregate([
       {
         $match: {
+          status: "Approved",
           invoiceId: null,
         },
       },
       {
         $project: {
-          name: "$packingNo",
+          name: "$quotationNo",
         },
       },
     ]);
 
-    const [users, packings, ledgers] = await Promise.all([
+    const [users, quotations, ledgers] = await Promise.all([
       userData,
-      packingData,
+      quotationData,
       ledgerData,
     ]);
     return {
       users,
-      packings,
+      quotations,
       ledgers,
     };
   }
 
   static async create(invoiceData) {
-    const { packing: packingId } = invoiceData;
-    const packing = await PackingService.getDocById(packingId);
-
-    const { quotationId } = packing;
+    const { quotationId } = invoiceData;
     const quotation = await QuotationService.getDocById(quotationId);
-    const { products, latestData, lastData } = quotation;
 
-    const productData = {};
-    products.forEach((ele) => {
-      productData[ele["product"]] = ele;
-    });
-
-    const packingStoreData = [];
-
-    lastData.forEach((outer, oIndex) => {
-      latestData.forEach((inner, iIndex) => {
-        const id = inner.product;
-        const product = productData[i];
-        if (inner.product === outer.product) {
-          outer.quantity = inner.quantity - inner.packedQuantity;
-          const obj = {
-            quantity: inner.packedQuantity,
-            cgst: product.cgst,
-            sgst: product.sgst,
-            igst: product.igst,
-            listPrice: product.listPrice,
-            value: product.packedQuantity * product.listPrice,
-          };
-          obj.discountPercentage = product.discountPercentage;
-          obj.discountAmount = (obj.discountPercentage * obj.value) / 100;
-          packingStoreData.push(obj);
-        }
-      });
-    });
+    const { products } = quotation;
   }
 }
 

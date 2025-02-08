@@ -321,6 +321,7 @@ class QuotationService extends Service {
       }
     }
     quotation.update(updates);
+    quotation.invoiceId = null;
     await quotation.save();
     await ActivityLogService.create({
       quotationId: id,
@@ -344,6 +345,14 @@ class QuotationService extends Service {
       throw {
         status: false,
         message: "Cannot update a completed sale",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (quotation.invoiceId) {
+      throw {
+        status: false,
+        message: "Cannot update a quotation with active billing",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }

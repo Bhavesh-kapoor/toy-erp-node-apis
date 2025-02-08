@@ -55,14 +55,10 @@ const invoiceSchema = new BaseSchema(
     grOrLrNumber: {
       type: String,
     },
-    quotation: {
+    quotationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Quotation",
       required: true,
-    },
-    parentInvoice: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Invoice",
     },
   },
   { timestamps: true },
