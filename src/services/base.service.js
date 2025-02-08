@@ -24,6 +24,11 @@ class Service {
     return await this.Model.findDocById(id, allowNull);
   }
 
+  static async getDoc(filter = {}, allowNull = false) {
+    const data = await this.Model.findDoc(filter, allowNull);
+    return data;
+  }
+
   static async getSafe(id, filter = {}) {
     if (!id) {
       return await this.Model.findOne(filter);

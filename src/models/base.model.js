@@ -38,15 +38,18 @@ class BaseSchema extends Schema {
     //  next();
     //});
 
-    this.statics.findDoc = async function (filters = {}) {
+    this.statics.findDoc = async function (filters = {}, allowNull = false) {
       const doc = await this.findOne(filters);
-      if (doc) return doc;
 
-      throw {
-        status: false,
-        message: `${this.modelName} doesn't exist`,
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
+      if (!doc && !allowNull) {
+        throw {
+          status: false,
+          message: `${this.modelName} doesn't exist`,
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+
+      return doc;
     };
 
     this.statics.findDocById = async function (id, allowNull, options = {}) {

@@ -21,6 +21,7 @@ export const productTypeArr = ["Finished", "Raw Material"];
 //  { timestamps: false },
 //);
 //
+
 const productSchema = new BaseSchema(
   {
     productCode: {
@@ -103,15 +104,7 @@ const productSchema = new BaseSchema(
     buyerRefNo: {
       type: String,
     },
-    sgst: {
-      type: Number,
-      min: 0,
-    },
-    cgst: {
-      type: Number,
-      min: 0,
-    },
-    igst: {
+    gst: {
       type: Number,
       min: 0,
     },
@@ -131,6 +124,11 @@ const productSchema = new BaseSchema(
     },
     images: {
       type: [String],
+    },
+    paymentReceived: {
+      type: Number,
+      min: 0,
+      default: 0,
     },
   },
   { timestamps: true },

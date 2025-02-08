@@ -29,10 +29,6 @@ const packingSchema = new BaseSchema({
     ref: Quotation,
     required: true,
   },
-  invoiceId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: Invoice,
-  },
   enquiryDate: {
     type: Date,
   },
@@ -58,6 +54,11 @@ const packingSchema = new BaseSchema({
   netPackedQuantity: {
     type: Number,
     min: 1,
+  },
+  packed: {
+    type: Boolean,
+    default: false,
+    required: true,
   },
 });
 

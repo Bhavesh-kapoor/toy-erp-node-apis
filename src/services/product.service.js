@@ -177,22 +177,6 @@ class ProductService extends Service {
   }
 
   static async create(productData) {
-    let { igst, cgst, sgst } = productData;
-
-    if (parseInt(igst) === igst && igst !== cgst + sgst) {
-      const individualTax = igst / 2;
-      cgst = individualTax;
-      sgst = individualTax;
-    }
-
-    if (igst > 50) {
-      throw {
-        status: false,
-        message: "Please reduce the tax rate",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
     const product = await this.Model.create(productData);
     return product;
   }

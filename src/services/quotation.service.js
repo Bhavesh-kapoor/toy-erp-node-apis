@@ -241,20 +241,30 @@ class QuotationService extends Service {
 
     if (lead) {
       const existingQuotation = await this.Model.findOne({ lead });
-      if (existingQuotation) {
+
+      if (existingQuotation && existingQuotation.status === "Approved") {
         throw {
           status: false,
-          message: `Another quotation for this lead already exist with the id ${existingQuotation.id}`,
+          message:
+            "A ledger entry has been created for this lead already, please create quotation using that",
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+
+      if (existingQuotation && existingQuotation.status === "Pending") {
+        throw {
+          status: false,
+          message: "Another pending quotation for this lead already exists",
           httpStatus: httpStatus.CONFLICT,
         };
       }
 
       const existingLead = await LeadService.getDocById(lead);
-      const existingLedger = await LedgerService.get(null, {
-        email: existingLead.email,
-      });
-
-      if (existingLedger.result?.length) {
+      const existingLedger = await LedgerService.getDoc(
+        { email: existingLead.email },
+        true,
+      );
+      if (existingLedger) {
         throw {
           status: false,
           message:
@@ -285,7 +295,7 @@ class QuotationService extends Service {
       };
     }
 
-    if (quotation.delivered) {
+    if (quotation.paid) {
       throw {
         status: false,
         message: "Cannot update a completed sale",
@@ -294,22 +304,6 @@ class QuotationService extends Service {
     }
 
     if (quotation.status !== "Pending") {
-      const existingPacking = await PackingService.getWithAggregate([
-        {
-          $match: {
-            quotationId: id,
-          },
-        },
-      ]);
-
-      if (existingPacking.length) {
-        throw {
-          status: false,
-          message: "This quotation already has an active packing",
-          httpStatus: httpStatus.BAD_REQUEST,
-        };
-      }
-
       switch (quotation.status) {
         case "Approved":
           throw {
@@ -346,10 +340,18 @@ class QuotationService extends Service {
       return;
     }
 
-    if (quotation.delivered) {
+    if (quotation.paid) {
       throw {
         status: false,
         message: "Cannot update a completed sale",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (quotation.packingId) {
+      throw {
+        status: false,
+        message: "Quotation already has an active packing",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
@@ -386,29 +388,28 @@ class QuotationService extends Service {
 
     if (status === "Approved" && quotation.lead && !quotation.customer) {
       const lead = await LeadService.get(quotation.lead);
-      const existingCustomer = await LedgerService.getSafe(null, {
-        email: lead.email,
-      });
+      const existingCustomer = await LedgerService.getDoc(
+        {
+          email: lead.email,
+        },
+        true,
+      );
 
       if (existingCustomer) {
-        throw {
-          status: false,
-          message: "Please update the lead with customer for this quotation",
-          httpStatus: httpStatus.CONFLICT,
-        };
+        quotation.customer = existingCustomer._id;
+      } else {
+        const customer = await LedgerService.create({
+          companyName: lead.companyName ?? lead.firstName + lead.lastName ?? "",
+          contactPerson: lead.firstName,
+          ledgerType: "Customer",
+          address1: lead.address,
+          mobileNo: lead.phone,
+          email: lead.email,
+        });
+
+        const customerId = customer.id;
+        quotation.customer = customerId;
       }
-
-      const customer = await LedgerService.create({
-        companyName: lead.companyName ?? lead.firstName + lead.lastName ?? "",
-        contactPerson: lead.firstName,
-        ledgerType: "Customer",
-        address1: lead.address,
-        mobileNo: lead.phone,
-        email: lead.email,
-      });
-
-      const customerId = customer.id;
-      quotation.customer = customerId;
     }
 
     quotation.status = status;

@@ -41,15 +41,7 @@ export const itemSchema = new BaseSchema(
       type: Number,
       min: 0,
     },
-    cgst: {
-      type: Number,
-      min: 0,
-    },
-    sgst: {
-      type: Number,
-      min: 0,
-    },
-    igst: {
+    gst: {
       type: Number,
       min: 0,
     },
@@ -117,7 +109,7 @@ const quotationSchema = new BaseSchema({
     type: Boolean,
     default: true,
   },
-  delivered: {
+  paid: {
     type: Boolean,
     default: false,
   },
@@ -181,17 +173,7 @@ const quotationSchema = new BaseSchema({
     min: 0,
     default: 0,
   },
-  cgstAmount: {
-    type: Number,
-    min: 0,
-    default: 0,
-  },
-  sgstAmount: {
-    type: Number,
-    min: 0,
-    default: 0,
-  },
-  igstAmount: {
+  gstAmount: {
     type: Number,
     min: 0,
     default: 0,
@@ -212,6 +194,10 @@ const quotationSchema = new BaseSchema({
   },
   lastData: {
     type: [itemSchema],
+  },
+  packingId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Packing",
   },
 });
 

@@ -70,15 +70,7 @@ const purchaseOrderSchema = new BaseSchema({
   freight: {
     type: Number,
   },
-  cgstAmount: {
-    type: Number,
-    min: 0,
-  },
-  sgstAmount: {
-    type: Number,
-    min: 0,
-  },
-  igstAmount: {
+  gstAmount: {
     type: Number,
     min: 0,
   },
