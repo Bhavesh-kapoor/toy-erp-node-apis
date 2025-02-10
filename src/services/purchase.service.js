@@ -19,6 +19,14 @@ class PurchaseService extends Service {
           as: "vendorData",
         },
       },
+      {
+        $lookup: {
+          from: "warehouses",
+          localField: "warehouseId",
+          foreignField: "_id",
+          as: "warehouseData",
+        },
+      },
     ];
 
     const extraStage = [
@@ -27,6 +35,7 @@ class PurchaseService extends Service {
           stockAdded: 1,
           purchaseNo: 1,
           vendorName: { $arrayElemAt: ["$vendorData.companyName", 0] },
+          warehouseName: { $arrayElemAt: ["$warehouseData.name", 0] },
           referenceNumber: 1,
           totalQuantity: 1,
           totalValue: 1,
