@@ -79,8 +79,6 @@ class InvoiceService extends Service {
           invoiceTo: 1,
           referenceNo: 1,
           shipTo: 1,
-          invoiceTo: { $arrayElemAt: ["$invoiceToDetails.companyName", 0] },
-          shipTo: { $arrayElemAt: ["$shipToDetails.companyName", 0] },
           preparedBy: { $arrayElemAt: ["$preparedByDetails.name", 0] },
           quotationNo: { $arrayElemAt: ["$quotationDetails.quotationNo", 0] },
           quotationId: 1,
