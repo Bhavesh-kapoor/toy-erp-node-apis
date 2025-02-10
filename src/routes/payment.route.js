@@ -5,7 +5,7 @@ import {
   update,
   deleteData,
   getBaseFields,
-} from "#controllers/transaction";
+} from "#controllers/payment";
 
 const router = express.Router();
 

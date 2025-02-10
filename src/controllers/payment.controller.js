@@ -1,29 +1,29 @@
 import { sendResponse } from "#utils/response";
-import TransactionService from "#services/transaction";
+import PaymentService from "#services/payment";
 import httpStatus from "#utils/httpStatus";
 import asyncHandler from "#utils/asyncHandler";
 
 export const get = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const filter = req.query;
-  const data = await TransactionService.get(id, filter);
+  const data = await PaymentService.get(id, filter);
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
 export const getBaseFields = asyncHandler(async (req, res, next) => {
-  const data = await TransactionService.getBaseFields();
+  const data = await PaymentService.getBaseFields();
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
 export const getLimitedFields = asyncHandler(async (req, res, next) => {
   const fields = req.params;
-  const data = await TransactionService.getLimitedTransactionFields(fields);
+  const data = await PaymentService.getLimitedPaymentFields(fields);
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
 export const create = asyncHandler(async (req, res, next) => {
   const data = req.body;
-  const createdData = await TransactionService.create(data);
+  const createdData = await PaymentService.create(data);
   sendResponse(
     httpStatus.CREATED,
     res,
@@ -35,12 +35,12 @@ export const create = asyncHandler(async (req, res, next) => {
 export const update = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const data = req.body;
-  const updatedData = await TransactionService.update(id, data);
+  const updatedData = await PaymentService.update(id, data);
   sendResponse(httpStatus.OK, res, updatedData, "Record updated successfully");
 });
 
 export const deleteData = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  await TransactionService.deleteDoc(id);
+  await PaymentService.deleteDoc(id);
   sendResponse(httpStatus.NO_CONTENT, res, null, "Record deleted successfully");
 });

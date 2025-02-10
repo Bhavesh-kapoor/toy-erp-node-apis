@@ -1,11 +1,11 @@
-import Transaction from "#models/transaction";
+import Payment from "#models/payment";
 import Service from "#services/base";
 import LedgerService from "#services/ledger";
 import UserService from "#services/user";
 import httpStatus from "#utils/httpStatus";
 
-class TransactionService extends Service {
-  static Model = Transaction;
+class PaymentService extends Service {
+  static Model = Payment;
 
   static async get(id, filter) {
     const initialStage = [
@@ -29,8 +29,8 @@ class TransactionService extends Service {
     const extraStage = [
       {
         $project: {
-          transactionNo: 1,
-          transactionDate: 1,
+          paymentNo: 1,
+          paymentDate: 1,
           ledgerName: { $arrayElemAt: ["$ledgerData.companyName", 0] },
           employeeName: { $arrayElemAt: ["$employeeData.name", 0] },
           netAmount: 1,
@@ -75,33 +75,33 @@ class TransactionService extends Service {
     };
   }
 
-  static async getLimitedTransactionFields() {
-    const transactionData = await this.getWithAggregate([
+  static async getLimitedPaymentFields() {
+    const paymentData = await this.getWithAggregate([
       {
         $project: {
-          transactionNo: 1,
+          paymentNo: 1,
         },
       },
     ]);
-    return transactionData;
+    return paymentData;
   }
 
-  static async create(transactionData) {
-    this.validate(transactionData);
-    return await this.Model.create(transactionData);
+  static async create(paymentData) {
+    this.validate(paymentData);
+    return await this.Model.create(paymentData);
   }
 
   static async update(id, updates) {
-    const transaction = await this.Model.findDocById(id);
+    const payment = await this.Model.findDocById(id);
     this.validate(updates);
 
-    transaction.update(updates);
-    await transaction.save();
-    return transaction;
+    payment.update(updates);
+    await payment.save();
+    return payment;
   }
 
-  static validate(transactionData) {
-    const { employee, ledgerId } = transactionData;
+  static validate(paymentData) {
+    const { employee, ledgerId } = paymentData;
 
     if (!employee && !ledgerId) {
       throw {
@@ -121,22 +121,22 @@ class TransactionService extends Service {
     }
 
     if (employee) {
-      delete transactionData.ledgerId;
-      if (transactionData.paymentType) {
-        if (transactionData.paymentType !== "Employee Expense") {
+      delete paymentData.ledgerId;
+      if (paymentData.paymentType) {
+        if (paymentData.paymentType !== "Employee Expense") {
           throw {
             status: false,
-            message: "Please choose a valid payment type",
+            message: "Please choose a vlid payment type",
             httpStatus: httpStatus.BAD_REQUEST,
           };
         }
       } else {
-        transactionData.paymentType = "Employee Expense";
+        paymentData.paymentType = "Employee Expense";
       }
     } else {
-      delete transactionData.employee;
-      if (transactionData.paymentType) {
-        if (transactionData.paymentType !== "Ledger Payment") {
+      delete paymentData.employee;
+      if (paymentData.paymentType) {
+        if (paymentData.paymentType !== "Ledger Payment") {
           throw {
             status: false,
             message: "Please choose a valid payment type",
@@ -144,10 +144,10 @@ class TransactionService extends Service {
           };
         }
       } else {
-        transactionData.paymentType = "Ledger Payment";
+        paymentData.paymentType = "Ledger Payment";
       }
     }
   }
 }
 
-export default TransactionService;
+export default PaymentService;

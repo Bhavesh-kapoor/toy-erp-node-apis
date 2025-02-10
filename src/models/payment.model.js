@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Ledger from "#models/ledger";
 import BaseSchema from "#models/base";
+import Invoice from "#models/invoice";
 import Quotation from "#models/quotation";
 
 const PaymentType = {
@@ -27,12 +28,12 @@ const PaymentMethod = {
   ONLINE_PAYMENT: "Online Payment",
 };
 
-const transactionSchema = new BaseSchema({
-  transactionNo: {
+const paymentSchema = new BaseSchema({
+  paymentNo: {
     type: String,
     unique: true,
   },
-  transactionDate: {
+  paymentDate: {
     type: Date,
     required: true,
     default: new Date(),
@@ -100,13 +101,13 @@ const transactionSchema = new BaseSchema({
   },
 });
 
-transactionSchema.pre("save", async function (next) {
-  if (this.transactionNo) return next();
+paymentSchema.pre("save", async function (next) {
+  if (this.paymentNo) return next();
   const timestamp = Math.floor(Date.now() / 10);
-  this.transactionNo = `T-NO-${timestamp}`;
+  this.paymentNo = `T-NO-${timestamp}`;
   next();
 });
 
-const Transaction = mongoose.model("Transaction", transactionSchema);
+const Payment = mongoose.model("Payment", paymentSchema);
 
-export default Transaction;
+export default Payment;
