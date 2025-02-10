@@ -253,7 +253,7 @@ class UserService extends Service {
 
   static async deleteData(id) {
     const user = await User.findDocById(id);
-    //const addresses = user.addresses.map((id) => Address.findDocById(id));
+    const addresses = user.addresses.map((id) => Address.findDocById(id));
   }
 }
 

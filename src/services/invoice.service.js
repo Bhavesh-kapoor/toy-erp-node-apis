@@ -21,23 +21,11 @@ class InvoiceService extends Service {
         },
       },
       {
-        $unwind: {
-          path: "$invoiceToDetails",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
         $lookup: {
           from: "ledgers",
           localField: "shipTo",
           foreignField: "_id",
           as: "shipToDetails",
-        },
-      },
-      {
-        $unwind: {
-          path: "$shipToDetails",
-          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -49,23 +37,11 @@ class InvoiceService extends Service {
         },
       },
       {
-        $unwind: {
-          path: "$preparedByDetails",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
         $lookup: {
           from: "quotations",
           localField: "quotationId",
           foreignField: "_id",
           as: "quotationDetails",
-        },
-      },
-      {
-        $unwind: {
-          path: "$quotationDetails",
-          preserveNullAndEmptyArrays: true,
         },
       },
     ];
@@ -79,10 +55,11 @@ class InvoiceService extends Service {
           invoiceTo: 1,
           referenceNo: 1,
           shipTo: 1,
-          invoiceTo: "$invoiceToDetails.companyName",
-          shipTo: "$shipToDetails.companyName",
-          preparedBy: "$preparedByDetails.name",
-          quotationNo: "$quotationDetails.quotationNo",
+          invoiceTo: { $arrayElemAt: ["$invoiceToDetails.companyName", 0] },
+          shipTo: { $arrayElemAt: ["$shipToDetails.companyName", 0] },
+          preparedBy: { $arrayElemAt: ["$preparedByDetails.name", 0] },
+          quotationNo: { $arrayElemAt: ["$quotationDetails.quotationNo", 0] },
+          netAmount: { $arrayElemAt: ["$quotationDetails.netAmount", 0] },
         },
       },
     ];
