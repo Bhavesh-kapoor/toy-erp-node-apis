@@ -41,7 +41,7 @@ const purchaseOrderSchema = new BaseSchema({
   products: [itemSchema],
   paymentMode: {
     type: String,
-    enum: ["Cash", "Cheuqe", "NEFT"],
+    enum: ["Cash", "Cheque", "NEFT"],
     required: true,
   },
   totalQuantity: {

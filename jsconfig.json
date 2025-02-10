@@ -2,8 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".", // Root of your project
     "paths": {
-	  "#root/*": "./*.js",
-      "#libs/*": "./src/libs/*.lib.js",
+      "#root/*": ["./*.js"],
+      "#libs/*": ["./src/libs/*.lib.js"],
       "#utils/*": ["src/utils/*.util.js"],
       "#routes/*": ["src/routes/*.route.js"],
       "#controllers/*": ["src/controllers/*.controller.js"],

@@ -5,7 +5,7 @@ import Service from "#services/base";
 class RoleService extends Service {
   static Model = Role;
 
-  static defaultRoles = ["Admin", "Salesperson", "Accountant", "Warehouse"];
+  static defaultRoles = ["Admin"];
 
   static async getLimitedRoleFields(fields) {
     const roleData = await Role.find().select("id name");
