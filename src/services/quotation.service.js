@@ -54,7 +54,7 @@ class QuotationService extends Service {
           preparedByName: { $arrayElemAt: ["$preparedByData.name", 0] },
           preparedByEmail: { $arrayElemAt: ["$preparedByData.email", 0] },
           customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
-          packed: { $arrayelemat: ["$packingdata.packed", 0] },
+          packed: { $arrayElemAt: ["$packingdata.packed", 0] },
           leadName: {
             $concat: [
               { $arrayElemAt: ["$leadData.firstName", 0] },
@@ -145,7 +145,7 @@ class QuotationService extends Service {
           preparedByName: { $arrayElemAt: ["$preparedByData.name", 0] },
           preparedByEmail: { $arrayElemAt: ["$preparedByData.email", 0] },
           customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
-          packed: { $arrayelemat: ["$packingdata.packed", 0] },
+          packed: { $arrayElemAt: ["$packingdata.packed", 0] },
         },
       },
       {
