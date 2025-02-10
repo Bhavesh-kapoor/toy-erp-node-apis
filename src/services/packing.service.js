@@ -245,7 +245,7 @@ class PackingService extends Service {
       }
 
       ele.packedQuantity = newProductData[id];
-      stock.set(id, stock.get(id) - ele.quantity);
+      stock.set(id, stock.get(id) - ele.packedQuantity);
     });
     packingData.customer = quotation.customer;
 

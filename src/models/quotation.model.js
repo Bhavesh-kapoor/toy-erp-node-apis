@@ -41,6 +41,10 @@ export const itemSchema = new BaseSchema(
       type: Number,
       min: 0,
     },
+    taxableAmount: {
+      type: Number,
+      min: 0,
+    },
     gst: {
       type: Number,
       min: 0,

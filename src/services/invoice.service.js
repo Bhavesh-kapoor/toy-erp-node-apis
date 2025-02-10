@@ -5,6 +5,7 @@ import UserService from "#services/user";
 import httpStatus from "#utils/httpStatus";
 import LedgerService from "#services/ledger";
 import QuotationService from "#services/quotation";
+import PaymentService from "#services/payment";
 
 class InvoiceService extends Service {
   static Model = Invoice;
@@ -176,6 +177,32 @@ class InvoiceService extends Service {
     quotation.invoiceId = invoice._id;
     await quotation.save();
     return invoice;
+  }
+
+  static async update(id) {
+    throw {
+      status: false,
+      message: "Updating an invoice is not allowed",
+      httpStatus: httpStatus.BAD_REQUEST,
+    };
+  }
+
+  static async deleteDoc(id) {
+    const payments = await PaymentService.getWithAggregate([
+      {
+        $match: {
+          invoiceId: new mongoose.Types.ObjectId(id),
+        },
+      },
+    ]);
+
+    if (payments.length) {
+      throw {
+        status: false,
+        message: "Please delete the payment related to this invoice",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
   }
 }
 
