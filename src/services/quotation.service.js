@@ -64,6 +64,14 @@ class QuotationService extends Service {
           },
           quotationNo: 1,
           netAmount: 1,
+          invoiceId: 1,
+          invoiceGenerated: {
+            $cond: {
+              if: { $eq: [{ $type: "$invoiceId" }, "objectId"] }, // Correct way to check ObjectId type
+              then: true,
+              else: false,
+            },
+          },
           status: 1,
           _id: 1,
         },
