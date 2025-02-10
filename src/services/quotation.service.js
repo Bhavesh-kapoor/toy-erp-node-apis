@@ -46,6 +46,14 @@ class QuotationService extends Service {
           as: "packingData",
         },
       },
+      {
+        $lookup: {
+          from: "invoices",
+          localField: "invoiceId",
+          foreignField: "_id",
+          as: "invoiceData",
+        },
+      },
     ];
 
     const extraStage = [
@@ -64,7 +72,7 @@ class QuotationService extends Service {
           },
           quotationNo: 1,
           netAmount: 1,
-          invoiceId: 1,
+          billNumber: { $arrayElemAt: ["$invoiceData.billNumber", 0] },
           invoiceGenerated: {
             $cond: {
               if: { $eq: [{ $type: "$invoiceId" }, "objectId"] }, // Correct way to check ObjectId type
