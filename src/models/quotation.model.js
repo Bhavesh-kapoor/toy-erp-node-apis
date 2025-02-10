@@ -197,6 +197,20 @@ const quotationSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Packing",
   },
+  amountPending: {
+    type: Number,
+    min: 0,
+    validate: function validator(value) {
+      return value + this.amountPending === this.netAmount;
+    },
+  },
+  amountPaid: {
+    type: Number,
+    min: 0,
+    validate: function validator(value) {
+      return value + this.amountPending === this.netAmount;
+    },
+  },
 });
 
 quotationSchema.pre("save", async function (next) {

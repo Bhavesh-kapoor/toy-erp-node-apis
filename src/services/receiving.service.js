@@ -10,6 +10,11 @@ class ReceivingService extends Service {
   static async get(id, filter) {
     const initialStage = [
       {
+        $match: {
+          paymentType: { $in: ["Invoice, Purchase Return"] },
+        },
+      },
+      {
         $lookup: {
           from: "ledgers",
           localField: "ledgerId",
@@ -50,28 +55,17 @@ class ReceivingService extends Service {
   }
 
   static async getBaseFields() {
-    const ledgerData = LedgerService.getWithAggregate([
+    const ledger = await LedgerService.getWithAggregate([
       {
         $project: {
           name: "$companyName",
+          ledgerType: 1,
         },
       },
     ]);
-
-    const employeeData = UserService.getWithAggregate([
-      {
-        $project: {
-          name: 1,
-          email: 1,
-        },
-      },
-    ]);
-
-    const [ledgers, employees] = await Promise.all([ledgerData, employeeData]);
 
     return {
-      ledgers,
-      employees,
+      ledger,
     };
   }
 
@@ -88,7 +82,26 @@ class ReceivingService extends Service {
 
   static async create(receivingData) {
     this.validate(receivingData);
-    return await this.Model.create(receivingData);
+    const existingReceiving = await this.Model.findDoc(
+      { invoiceId: receivingData.invoiceId, status: "Pending" },
+      true,
+    );
+
+    if (existingReceiving) {
+      throw {
+        status: false,
+        message: "Please approve the existing receiving first",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+    const quotation = await QuotationService.getDoc({
+      invoiceId: paymentData.invoiceId,
+    });
+    quotation.amountPaid += receivingData.amount;
+    quotation.amountPending = quotation.netAmount - quotation.amountPaid;
+    const receiving = await this.Model.create(receivingData);
+    await quotation.save();
+    return receiving;
   }
 
   static async update(id, updates) {
@@ -96,12 +109,65 @@ class ReceivingService extends Service {
     this.validate(updates);
 
     receiving.update(updates);
-    await receiving.save();
+    awaitreceiving.save();
     return receiving;
   }
 
   static validate(receivingData) {
-    const { ledgerId, invoiceId, purchaseReturnId } = receivingData;
+    const {
+      ledgerId,
+      invoiceId,
+      purchaseReturnId,
+      paymentType,
+      purchaseId,
+      invoiceReturnId,
+    } = receivingData;
+
+    if (!paymentType) {
+      throw {
+        status: false,
+        message: "Payment type is required",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (paymentType === "Invoice") {
+      if (!invoiceId) {
+        throw {
+          status: false,
+          message: "Invoice Id is required",
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+      if (purchaseReturnId || purchaseId || invoiceReturnId) {
+        throw {
+          status: false,
+          message: "Invalid receiving",
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+    } else if (paymentType === "Purchase Return") {
+      if (!purchaseReturnId) {
+        throw {
+          status: false,
+          message: "PurchaseReturn Id is required",
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+      if (purchaseId || invoiceReturnId || invoiceId) {
+        throw {
+          status: false,
+          message: "Invalid receiving",
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+    } else {
+      throw {
+        status: false,
+        message: "Invalid receiving",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
 
     if (!ledgerId) {
       throw {
@@ -109,25 +175,6 @@ class ReceivingService extends Service {
         message: "Ledger id is required to create a receiving",
         httpStatus: httpStatus.BAD_REQUEST,
       };
-    }
-
-    if (!invoiceId && !purchaseReturnId) {
-      throw {
-        status: false,
-        message: "Cannot create receiving without invoice or purchaseReturn id",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
-    if (invoiceId && purchaseReturnId) {
-      throw {
-        status: false,
-        message: "Cannot create receiving for both invoice and purchaseReturn",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
-    if (invoiceId) {
     }
   }
 }

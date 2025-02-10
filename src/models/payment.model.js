@@ -24,10 +24,22 @@ const PaymentMethod = {
   ONLINE_PAYMENT: "Online Payment",
 };
 
+const PaymentType = {
+  PURCHASE_RETURN: "Purchase Return",
+  PURCHASE: "Purchase",
+  INVOICE: "Invoice",
+  INVOICE_RETURN: "Invoice_Return",
+};
+
 const paymentSchema = new BaseSchema({
   paymentNo: {
     type: String,
     unique: true,
+  },
+  paymentType: {
+    type: String,
+    enum: Object.values(PaymentType),
+    required: true,
   },
   paymentDate: {
     type: Date,
@@ -60,18 +72,6 @@ const paymentSchema = new BaseSchema({
     min: 1,
     type: Number,
     required: true,
-  },
-  deduction: {
-    min: 0,
-    type: Number,
-  },
-  tdsAmount: {
-    type: Number,
-    min: 0,
-  },
-  netAmount: {
-    type: Number,
-    min: 1,
   },
   paymentMethod: {
     type: String,

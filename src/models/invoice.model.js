@@ -59,10 +59,6 @@ const invoiceSchema = new BaseSchema(
       ref: "Quotation",
       required: true,
     },
-    amountPaid: {
-      type: Number,
-      min: 0,
-    },
   },
   { timestamps: true },
 );
