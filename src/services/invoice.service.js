@@ -3,9 +3,8 @@ import Service from "#services/base";
 import Invoice from "#models/invoice";
 import UserService from "#services/user";
 import httpStatus from "#utils/httpStatus";
-import PackingService from "#services/packing";
-import QuotationService from "#services/quotation";
 import LedgerService from "#services/ledger";
+import QuotationService from "#services/quotation";
 
 class InvoiceService extends Service {
   static Model = Invoice;
@@ -68,99 +67,42 @@ class InvoiceService extends Service {
       const invoiceData = this.Model.findAll(filter, initialStage, extraStage);
       return invoiceData;
     }
+
     const invoiceData = await this.Model.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       ...initialStage,
       {
-        $lookup: {
-          from: "products",
-          localField: "quotationDetails.products.product",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $lookup: {
-                from: "productuoms",
-                localField: "uom",
-                foreignField: "_id",
-                as: "uom",
-              },
-            },
-            { $unwind: { path: "$uom", preserveNullAndEmptyArrays: true } },
-            {
-              $lookup: {
-                from: "productcategories",
-                localField: "productCategory",
-                foreignField: "_id",
-                as: "productcategories",
-              },
-            },
-            {
-              $unwind: {
-                path: "$productcategories",
-                preserveNullAndEmptyArrays: true,
-              },
-            },
-            {
-              $project: {
-                _id: 1,
-                name: 1,
-                description: 1,
-                productCode: 1,
-                uom: "$uom.shortName",
-                hsnCode: "$productcategories.hsnCode",
-              },
-            },
-          ],
-          as: "productDetails",
-        },
-      },
-      {
         $project: {
+          _id: 1,
+          billNumber: 1,
+          billDate: 1,
+          invoiceTo: 1,
+          referenceNo: 1,
           shipTo: 1,
-          invoiceToName: "$invoiceToDetails.companyName",
-          shipToName: "$shipToDetails.companyName",
-          shipToAddress: "$shipToDetails.address1",
-          preparedByName: "$preparedByDetails.name",
-          preparedById: "$preparedByDetails._id",
-          quotationNo: "$quotationDetails.quotationNo",
-          quotationId: "$quotationId",
-          products: {
-            $map: {
-              input: "$quotationDetails.products",
-              as: "product",
-              in: {
-                $mergeObjects: [
-                  "$$product",
-                  {
-                    $arrayElemAt: [
-                      {
-                        $filter: {
-                          input: "$productDetails",
-                          as: "detail",
-                          cond: { $eq: ["$$detail._id", "$$product.product"] },
-                        },
-                      },
-                      0,
-                    ],
-                  },
-                ],
-              },
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          productDetails: 0,
-          invoiceToDetails: 0,
-          shipToDetails: 0,
-          preparedByDetails: 0,
-          quotationDetails: 0,
+          invoiceTo: { $arrayElemAt: ["$invoiceToDetails.companyName", 0] },
+          shipTo: { $arrayElemAt: ["$shipToDetails.companyName", 0] },
+          preparedBy: { $arrayElemAt: ["$preparedByDetails.name", 0] },
+          quotationNo: { $arrayElemAt: ["$quotationDetails.quotationNo", 0] },
+          quotationId: 1,
+          netAmount: { $arrayElemAt: ["$quotationDetails.netAmount", 0] },
         },
       },
     ]);
-    //FIX: solve this using aggregation
-    return invoiceData[0];
+
+    if (!invoiceData.length) {
+      throw {
+        status: false,
+        message: "Invoice not found",
+        httpStatus: httpStatus.NOT_FOUND,
+      };
+    }
+
+    const invoice = invoiceData[0];
+    const quotation = await QuotationService.get(invoice.quotationId);
+
+    invoice.quotation = quotation;
+
+    return invoice;
   }
 
   static async getBaseFields() {
