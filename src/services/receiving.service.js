@@ -1,8 +1,10 @@
-import Receiving from "#models/payment";
+import mongoose from "mongoose";
 import Service from "#services/base";
-import LedgerService from "#services/ledger";
+import Receiving from "#models/payment";
 import UserService from "#services/user";
 import httpStatus from "#utils/httpStatus";
+import LedgerService from "#services/ledger";
+import InvoiceService from "#services/invoice";
 
 class ReceivingService extends Service {
   static Model = Receiving;
@@ -54,15 +56,47 @@ class ReceivingService extends Service {
     return await this.Model.findDocById(id);
   }
 
-  static async getBaseFields() {
-    const ledger = await LedgerService.getWithAggregate([
-      {
-        $project: {
-          name: "$companyName",
-          ledgerType: 1,
+  static async getBaseFields(type) {
+    if (type === "Invoice") {
+      const ledger = await LedgerService.getWithAggregate([
+        {
+          $match: { $in: ["Customer", "Both"] },
         },
-      },
-    ]);
+        {
+          $project: {
+            name: "$companyName",
+          },
+        },
+      ]);
+      const invoice = await InvoiceService.getWithAggregate([
+        {
+          $match: {
+            amountPending: { $gt: 0 },
+          },
+        },
+        {
+          $project: {
+            name: "$billNumber",
+          },
+        },
+      ]);
+
+      return {
+        ledger,
+        invoice,
+      };
+    } else {
+      const ledger = await LedgerService.getWithAggregate([
+        {
+          $match: { $in: ["Both", "Supplier"] },
+        },
+        {
+          $project: {
+            name: "$companyName",
+          },
+        },
+      ]);
+    }
 
     return {
       ledger,
