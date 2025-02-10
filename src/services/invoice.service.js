@@ -79,7 +79,7 @@ class InvoiceService extends Service {
           invoiceTo: 1,
           referenceNo: 1,
           shipTo: 1,
-          preparedBy: { $arrayElemAt: ["$preparedByDetails.name", 0] },
+          preparedBy: 1,
           quotationNo: { $arrayElemAt: ["$quotationDetails.quotationNo", 0] },
           quotationId: 1,
           netAmount: { $arrayElemAt: ["$quotationDetails.netAmount", 0] },
