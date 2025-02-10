@@ -11,7 +11,7 @@ export const get = asyncHandler(async (req, res, next) => {
 });
 
 export const getBaseFields = asyncHandler(async (req, res, next) => {
-  const data = await ReceivingService.getBaseFields();
+  const data = await ReceivingService.getBaseFields(req.query.type);
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
