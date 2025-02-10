@@ -60,7 +60,7 @@ class ReceivingService extends Service {
     if (type === "Invoice") {
       const ledger = await LedgerService.getWithAggregate([
         {
-          $match: { $in: ["Customer", "Both"] },
+          $match: { ledgerType: { $in: ["Customer", "Both"] } },
         },
         {
           $project: {
