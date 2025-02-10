@@ -1,11 +1,11 @@
-import Payment from "#models/payment";
+import Receiving from "#models/payment";
 import Service from "#services/base";
 import LedgerService from "#services/ledger";
 import UserService from "#services/user";
 import httpStatus from "#utils/httpStatus";
 
-class PaymentService extends Service {
-  static Model = Payment;
+class ReceivingService extends Service {
+  static Model = Receiving;
 
   static async get(id, filter) {
     const initialStage = [
@@ -29,15 +29,15 @@ class PaymentService extends Service {
     const extraStage = [
       {
         $project: {
-          paymentNo: 1,
-          paymentDate: 1,
+          receivingNo: 1,
+          receivingDate: 1,
           ledgerName: { $arrayElemAt: ["$ledgerData.companyName", 0] },
           employeeName: { $arrayElemAt: ["$employeeData.name", 0] },
           netAmount: 1,
-          paymentType: 1,
-          paymentMethod: 1,
-          paymentStatus: 1,
-          paymentDirection: 1,
+          receivingType: 1,
+          receivingMethod: 1,
+          receivingStatus: 1,
+          receivingDirection: 1,
         },
       },
     ];
@@ -75,38 +75,38 @@ class PaymentService extends Service {
     };
   }
 
-  static async getLimitedPaymentFields() {
-    const paymentData = await this.getWithAggregate([
+  static async getLimitedReceivingFields() {
+    const receivingData = await this.getWithAggregate([
       {
         $project: {
-          paymentNo: 1,
+          receivingNo: 1,
         },
       },
     ]);
-    return paymentData;
+    return receivingData;
   }
 
-  static async create(paymentData) {
-    this.validate(paymentData);
-    return await this.Model.create(paymentData);
+  static async create(receivingData) {
+    this.validate(receivingData);
+    return await this.Model.create(receivingData);
   }
 
   static async update(id, updates) {
-    const payment = await this.Model.findDocById(id);
+    const receiving = await this.Model.findDocById(id);
     this.validate(updates);
 
-    payment.update(updates);
-    await payment.save();
-    return payment;
+    receiving.update(updates);
+    await receiving.save();
+    return receiving;
   }
 
-  static validate(paymentData) {
-    const { ledgerId, invoiceId, purchaseReturnId } = paymentData;
+  static validate(receivingData) {
+    const { ledgerId, invoiceId, purchaseReturnId } = receivingData;
 
     if (!ledgerId) {
       throw {
         status: false,
-        message: "Ledger id is required to create a payment",
+        message: "Ledger id is required to create a receiving",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
@@ -114,7 +114,7 @@ class PaymentService extends Service {
     if (!invoiceId && !purchaseReturnId) {
       throw {
         status: false,
-        message: "Cannot create payment without invoice or purchaseReturn id",
+        message: "Cannot create receiving without invoice or purchaseReturn id",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
@@ -122,7 +122,7 @@ class PaymentService extends Service {
     if (invoiceId && purchaseReturnId) {
       throw {
         status: false,
-        message: "Cannot create payment for both invoice and purchaseReturn",
+        message: "Cannot create receiving for both invoice and purchaseReturn",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
@@ -132,4 +132,4 @@ class PaymentService extends Service {
   }
 }
 
-export default PaymentService;
+export default ReceivingService;

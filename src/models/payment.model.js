@@ -2,12 +2,8 @@ import mongoose from "mongoose";
 import Ledger from "#models/ledger";
 import BaseSchema from "#models/base";
 import Invoice from "#models/invoice";
+import Purchase from "#models/purchase";
 import Quotation from "#models/quotation";
-
-const PaymentType = {
-  LEDGER_PAYMENT: "Ledger Payment",
-  EMPLOYEE_EXPENSE: "Employee Expense",
-};
 
 const PaymentStatus = {
   FAILED: "Failed",
@@ -41,13 +37,24 @@ const paymentSchema = new BaseSchema({
   ledgerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: Ledger,
-    required: function () {
-      return this.paymentType === PaymentType.LEDGER_PAYMENT;
-    },
   },
   quotationId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: Quotation,
+  },
+  invoiceId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Invoice,
+  },
+  invoiceReturnId: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
+  purchaseReturnId: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
+  purchaseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Purchase,
   },
   amount: {
     min: 1,
@@ -66,11 +73,6 @@ const paymentSchema = new BaseSchema({
     type: Number,
     min: 1,
   },
-  paymentType: {
-    type: String,
-    enum: Object.values(PaymentType),
-    required: true,
-  },
   paymentMethod: {
     type: String,
     enum: Object.values(PaymentMethod),
@@ -86,13 +88,6 @@ const paymentSchema = new BaseSchema({
     enum: Object.values(PaymentStatus),
     default: PaymentStatus.PENDING,
     required: true,
-  },
-  employee: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: function () {
-      return this.paymentType === PaymentType.EMPLOYEE_EXPENSE;
-    },
   },
   remarks: {
     type: String,
