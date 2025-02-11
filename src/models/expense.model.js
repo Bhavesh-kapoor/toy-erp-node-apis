@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import User from "#models/user";
+import uploadFile from "#utils/uploadFile";
 import BaseSchema from "#models/base";
 
 const expenseSchema = new BaseSchema({
@@ -26,5 +27,7 @@ const expenseSchema = new BaseSchema({
     file: true,
   },
 });
+
+expenseSchema.pre("save", uploadFile);
 
 export default mongoose.model("Expense", expenseSchema);
