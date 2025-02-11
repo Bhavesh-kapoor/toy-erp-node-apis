@@ -55,7 +55,6 @@ const productSchema = new BaseSchema(
     brand: {
       type: Schema.Types.ObjectId,
       ref: Brand,
-      required: true,
     },
     uom: {
       type: Schema.Types.ObjectId,
