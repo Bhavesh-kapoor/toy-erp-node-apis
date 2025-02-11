@@ -206,6 +206,11 @@ const quotationSchema = new BaseSchema({
     type: Number,
     min: 0,
   },
+  mailed: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
 });
 
 // Schema-level validation

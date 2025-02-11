@@ -243,6 +243,10 @@ class QuotationService extends Service {
     };
   }
 
+  static async sendQuotation(id) {
+    const quotation = await this.Model.findDocById(id);
+  }
+
   static async create(quotationData) {
     const { customer, lead } = quotationData;
     if (!customer && !lead) {
