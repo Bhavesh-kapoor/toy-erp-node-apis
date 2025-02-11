@@ -62,7 +62,18 @@ class QuotationService extends Service {
           preparedByName: { $arrayElemAt: ["$preparedByData.name", 0] },
           preparedByEmail: { $arrayElemAt: ["$preparedByData.email", 0] },
           customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
-          packed: { $arrayElemAt: ["$packingData.packed", 0] },
+          packed: {
+            $cond: {
+              if: {
+                $eq: [
+                  { $type: { $arrayElemAt: ["$packingData.packed", 0] } },
+                  "bool",
+                ],
+              },
+              then: { $arrayElemAt: ["$packingData.packed", 0] },
+              else: "Not created",
+            },
+          },
           leadName: {
             $concat: [
               { $arrayElemAt: ["$leadData.firstName", 0] },

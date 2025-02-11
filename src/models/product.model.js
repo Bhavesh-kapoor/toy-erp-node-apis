@@ -106,6 +106,7 @@ const productSchema = new BaseSchema(
     gst: {
       type: Number,
       min: 0,
+      required: true,
     },
     status: {
       type: Boolean,

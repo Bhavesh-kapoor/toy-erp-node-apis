@@ -9,6 +9,7 @@ const invoiceSchema = new BaseSchema(
     billDate: {
       type: Date,
       required: true,
+      default: new Date(),
     },
     invoiceTo: {
       type: mongoose.Schema.Types.ObjectId,
