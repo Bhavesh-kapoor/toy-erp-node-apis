@@ -84,6 +84,7 @@ const quotationSchema = new BaseSchema({
   quotationDate: {
     type: Date,
     required: true,
+    default: new Date(),
   },
   customer: {
     type: mongoose.Schema.Types.ObjectId,
@@ -200,18 +201,21 @@ const quotationSchema = new BaseSchema({
   amountPending: {
     type: Number,
     min: 0,
-    validate: function validator(value) {
-      return value + this.amountPending === this.netAmount;
-    },
   },
   amountPaid: {
     type: Number,
     min: 0,
-    validate: function validator(value) {
-      return value + this.amountPending === this.netAmount;
-    },
   },
 });
+
+// Schema-level validation
+quotationSchema.path("amountPending").validate(function () {
+  return this.amountPaid + this.amountPending === this.netAmount;
+}, "amountPaid + amountPending must equal netAmount");
+
+quotationSchema.path("amountPaid").validate(function () {
+  return this.amountPaid + this.amountPending === this.netAmount;
+}, "amountPaid + amountPending must equal netAmount");
 
 quotationSchema.pre("save", async function (next) {
   if (this.quotationNo) return next();

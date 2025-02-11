@@ -173,6 +173,9 @@ class InvoiceService extends Service {
       };
     }
 
+    invoiceData.invoiceTo = quotation.customer;
+    invoiceData.shipTo = quotation.customer;
+
     const invoice = await this.Model.create(invoiceData);
     quotation.invoiceId = invoice._id;
     await quotation.save();
