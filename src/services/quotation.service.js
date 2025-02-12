@@ -124,7 +124,14 @@ class QuotationService extends Service {
                 as: "uom",
               },
             },
-            { $unwind: "$uom" },
+            {
+              $lookup: {
+                from: "productcategories",
+                localField: "productCategory",
+                foreignField: "_id",
+                as: "productCategoryData",
+              },
+            },
             {
               $project: {
                 _id: 0,
@@ -132,7 +139,8 @@ class QuotationService extends Service {
                 description: 1,
                 productCode: 1,
                 coverImage: 1,
-                uom: "$uom.shortName",
+                uom: { $arrayElemAt: ["$uom.shortName", 0] },
+                hsn: { $arrayElemAt: ["$productCategoryData.hsnCode", 0] },
               },
             },
           ],
