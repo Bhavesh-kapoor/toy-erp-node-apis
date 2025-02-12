@@ -195,11 +195,30 @@ class QuotationService extends Service {
       },
     ]);
 
-    const taxSummary = [];
+    const quotation = quotationData[0];
+    const { products } = quotation;
+    const taxSummary = {};
 
-	
-	  
-    return quotationData[0];
+    products.forEach((ele, index) => {
+      const obj = taxSummary[ele["category"]];
+      if (obj) {
+        (obj.taxableAmount += ele.taxableAmount),
+          (obj.quantity += ele.quantity),
+          (obj.taxAmount += ele.gstAmount),
+          (obj.totalAmount += ele.totalAmount);
+      } else {
+        taxSummary[ele["category"]] = {
+          taxableAmount: ele.taxableAmount,
+          quantity: ele.quantity,
+          gst: ele.gst,
+          taxAmount: ele.gstAmount,
+          totalAmount: ele.totalAmount,
+          hsn: ele.hsn,
+        };
+      }
+    });
+    quotation.taxSummary = taxSummary;
+    return quotation;
   }
 
   static async getLimitedFields(filters = {}) {
