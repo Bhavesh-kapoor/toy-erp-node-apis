@@ -133,11 +133,26 @@ class InvoiceService extends Service {
         $match: {
           status: "Approved",
           invoiceId: null,
+          packingId: { $ne: null },
+        },
+      },
+      {
+        $lookup: {
+          from: "packings",
+          localField: "packingId",
+          foreignField: "_id",
+          as: "packingData",
         },
       },
       {
         $project: {
           name: "$quotationNo",
+          packingStatus: { $arrayElemAt: ["$packingData.packed", 0] },
+        },
+      },
+      {
+        $match: {
+          packingStatus: true,
         },
       },
     ]);
