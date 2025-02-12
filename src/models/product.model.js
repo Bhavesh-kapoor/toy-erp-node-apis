@@ -45,7 +45,6 @@ const productSchema = new BaseSchema(
     },
     productSeries: {
       type: String,
-      required: true,
     },
     productCategory: {
       type: Schema.Types.ObjectId,
