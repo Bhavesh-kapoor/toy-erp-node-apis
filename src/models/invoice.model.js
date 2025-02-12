@@ -1,10 +1,15 @@
 import mongoose from "mongoose";
 import BaseSchema from "#models/base";
+import AutoIncrementFactory from "mongoose-sequence";
+
+// Initialize AutoIncrement
+const AutoIncrement = AutoIncrementFactory(mongoose);
 
 const invoiceSchema = new BaseSchema(
   {
     billNumber: {
-      type: String,
+      type: Number,
+      unique: true,
     },
     billDate: {
       type: Date,
@@ -64,11 +69,9 @@ const invoiceSchema = new BaseSchema(
   { timestamps: true },
 );
 
-invoiceSchema.pre("save", async function (next) {
-  if (this.billNumber) return next();
-  const timestamp = Math.floor(Date.now() / 1000); // Current UNIX timestamp
-  this.billNumber = `INV-NO-${timestamp}`;
-  next();
+invoiceSchema.plugin(AutoIncrement, {
+  inc_field: "billNumber",
+  start_seq: 1000,
 });
 
 const Invoice = mongoose.model("Invoice", invoiceSchema);

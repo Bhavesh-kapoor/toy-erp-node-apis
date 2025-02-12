@@ -4,6 +4,10 @@ import BaseSchema from "#models/base";
 import Invoice from "#models/invoice";
 import Purchase from "#models/purchase";
 import Quotation from "#models/quotation";
+import AutoIncrementFactory from "mongoose-sequence";
+
+// Initialize AutoIncrement
+const AutoIncrement = AutoIncrementFactory(mongoose);
 
 const PaymentStatus = {
   FAILED: "Failed",
@@ -33,7 +37,7 @@ const PaymentType = {
 
 const paymentSchema = new BaseSchema({
   paymentNo: {
-    type: String,
+    type: Number,
     unique: true,
   },
   paymentType: {
@@ -96,11 +100,9 @@ const paymentSchema = new BaseSchema({
   },
 });
 
-paymentSchema.pre("save", async function (next) {
-  if (this.paymentNo) return next();
-  const timestamp = Math.floor(Date.now() / 10);
-  this.paymentNo = `T-NO-${timestamp}`;
-  next();
+paymentSchema.plugin(AutoIncrement, {
+  inc_field: "paymentNo",
+  start_seq: 1000,
 });
 
 const Payment = mongoose.model("Payment", paymentSchema);

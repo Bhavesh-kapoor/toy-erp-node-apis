@@ -5,6 +5,9 @@ import BaseSchema from "#models/base";
 import Quotation from "#models/quotation";
 import Warehouse from "#models/warehouse";
 import mongoose from "mongoose";
+import AutoIncrementFactory from "mongoose-sequence";
+
+const AutoIncrement = AutoIncrementFactory(mongoose);
 
 const packingSchema = new BaseSchema({
   warehouseId: {
@@ -13,7 +16,8 @@ const packingSchema = new BaseSchema({
     required: true,
   },
   packingNo: {
-    type: String,
+    type: Number,
+    unique: true,
   },
   customer: {
     type: mongoose.Schema.Types.ObjectId,
@@ -62,11 +66,9 @@ const packingSchema = new BaseSchema({
   },
 });
 
-packingSchema.pre("save", async function (next) {
-  if (this.packingNo) return next();
-  const timestamp = Math.floor(Date.now() / 10);
-  this.packingNo = `P-NO-${timestamp}`;
-  next();
+packingSchema.plugin(AutoIncrement, {
+  inc_field: "packingNo",
+  start_seq: 1000,
 });
 
 const Packing = mongoose.model("Packing", packingSchema);

@@ -2,10 +2,15 @@ import mongoose from "mongoose";
 import BaseSchema from "#models/base";
 import User, { addressSchema } from "#models/user";
 import uploadFile from "#utils/uploadFile";
+import AutoIncrementFactory from "mongoose-sequence";
+
+// Initialize AutoIncrement
+const AutoIncrement = AutoIncrementFactory(mongoose);
 
 const leadSchema = new BaseSchema({
   leadId: {
-    type: String,
+    type: Number,
+    unique: true,
   },
   address: {
     type: addressSchema,
@@ -78,11 +83,9 @@ const leadSchema = new BaseSchema({
 
 leadSchema.pre("save", uploadFile);
 
-leadSchema.pre("save", async function (next) {
-  if (this.leadId) return next();
-  const timestamp = Math.floor(Date.now() / 10);
-  this.leadId = `L-NO-${timestamp}`;
-  next();
+leadSchema.plugin(AutoIncrement, {
+  inc_field: "leadId",
+  start_seq: 1000,
 });
 
 const Lead = mongoose.model("Lead", leadSchema);

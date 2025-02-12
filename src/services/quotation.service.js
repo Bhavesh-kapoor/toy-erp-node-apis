@@ -131,6 +131,7 @@ class QuotationService extends Service {
                 name: 1,
                 description: 1,
                 productCode: 1,
+                coverImage: 1,
                 uom: "$uom.shortName",
               },
             },

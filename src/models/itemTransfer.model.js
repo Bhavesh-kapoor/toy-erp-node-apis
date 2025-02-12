@@ -1,13 +1,16 @@
 import BaseSchema from "#models/base";
 import Warehouse from "#models/warehouse";
 import mongoose from "mongoose";
+import AutoIncrementFactory from "mongoose-sequence";
+
+// Initialize AutoIncrement
+const AutoIncrement = AutoIncrementFactory(mongoose);
 
 const itemTransferSchema = new BaseSchema(
   {
     issueNumber: {
-      type: String,
+      type: Number,
       unique: true,
-      sparse: true,
     },
     issueDate: {
       type: Date,
@@ -57,11 +60,9 @@ const itemTransferSchema = new BaseSchema(
   { timestamps: true },
 );
 
-itemTransferSchema.pre("save", async function (next) {
-  if (this.issueNumber) return next();
-  const timestamp = Math.floor(Date.now() / 10);
-  this.issueNumber = `IT-NO-${timestamp}`;
-  next();
+itemTransferSchema.plugin(AutoIncrement, {
+  inc_field: "issueNumber",
+  start_seq: 1000,
 });
 
 const ItemTransfer = mongoose.model("ItemTransfer", itemTransferSchema);

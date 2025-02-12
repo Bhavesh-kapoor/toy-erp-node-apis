@@ -4,12 +4,14 @@ import Ledger from "#models/ledger";
 import Warehouse from "#models/warehouse";
 import { itemSchema } from "#models/quotation";
 import BaseSchema from "#models/base";
+import AutoIncrementFactory from "mongoose-sequence";
+
+const AutoIncrement = AutoIncrementFactory(mongoose);
 
 const purchaseOrderSchema = new BaseSchema({
   purchaseNo: {
-    type: String,
+    type: Number,
     unique: true,
-    sparse: true,
   },
   purchaseDate: {
     type: Date,
@@ -89,11 +91,9 @@ const purchaseOrderSchema = new BaseSchema({
   },
 });
 
-purchaseOrderSchema.pre("save", async function (next) {
-  if (this.purchaseNo) return next();
-  const timestamp = Math.floor(Date.now() / 10);
-  this.purchaseNo = `PU-NO-${timestamp}`;
-  next();
+purchaseOrderSchema.plugin(AutoIncrement, {
+  inc_field: "purchaseNo",
+  start_seq: 1000,
 });
 
 const Purchase = mongoose.model("Purchase", purchaseOrderSchema);

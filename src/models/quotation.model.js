@@ -5,6 +5,9 @@ import Ledger from "#models/ledger";
 import Product from "#models/product";
 import BaseSchema from "#models/base";
 import Invoice from "#models/invoice";
+import AutoIncrementFactory from "mongoose-sequence";
+
+const AutoIncrement = AutoIncrementFactory(mongoose);
 
 const quotationStatusArr = ["Approved", "Cancelled", "Pending"];
 
@@ -76,10 +79,8 @@ export const itemSchema = new BaseSchema(
 // Main schema for the quotation
 const quotationSchema = new BaseSchema({
   quotationNo: {
-    type: String,
+    type: Number,
     unique: true,
-    sparse: true,
-    trim: true,
   },
   quotationDate: {
     type: Date,
@@ -198,14 +199,6 @@ const quotationSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Packing",
   },
-  amountPending: {
-    type: Number,
-    min: 0,
-  },
-  amountPaid: {
-    type: Number,
-    min: 0,
-  },
   mailed: {
     type: Boolean,
     default: false,
@@ -213,20 +206,9 @@ const quotationSchema = new BaseSchema({
   },
 });
 
-// Schema-level validation
-quotationSchema.path("amountPending").validate(function () {
-  return this.amountPaid + this.amountPending === this.netAmount;
-}, "amountPaid + amountPending must equal netAmount");
-
-quotationSchema.path("amountPaid").validate(function () {
-  return this.amountPaid + this.amountPending === this.netAmount;
-}, "amountPaid + amountPending must equal netAmount");
-
-quotationSchema.pre("save", async function (next) {
-  if (this.quotationNo) return next();
-  const timestamp = Math.floor(Date.now() / 10);
-  this.quotationNo = `Q-NO-${timestamp}`;
-  next();
+quotationSchema.plugin(AutoIncrement, {
+  inc_field: "quotationNo",
+  start_seq: 1000,
 });
 
 const Quotation = mongoose.model("Quotation", quotationSchema);
