@@ -184,7 +184,7 @@ class ProductService extends Service {
     const { productCategory } = productData;
     const category = await ProductCategoryService.getDocById(productCategory);
     if (!category.gst && category.gst !== 0) category.gst = 18;
-    product.gst = category.gst;
+    productData.gst = category.gst;
     await category.save();
     const product = await this.Model.create(productData);
     return product;
