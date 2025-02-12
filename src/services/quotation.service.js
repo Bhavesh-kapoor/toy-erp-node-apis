@@ -1,12 +1,12 @@
+import mongoose from "mongoose";
 import Service from "#services/base";
+import LeadService from "#services/lead";
+import UserService from "#services/user";
 import Quotation from "#models/quotation";
 import httpStatus from "#utils/httpStatus";
-import ActivityLogService from "#services/activitylog";
-import mongoose from "mongoose";
-import LeadService from "#services/lead";
 import LedgerService from "#services/ledger";
-import UserService from "#services/user";
 import PackingService from "#services/packing";
+import ActivityLogService from "#services/activitylog";
 
 class QuotationService extends Service {
   static Model = Quotation;
