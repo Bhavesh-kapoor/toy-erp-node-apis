@@ -115,7 +115,6 @@ const productSchema = new BaseSchema(
     },
     sku: {
       type: String,
-      required: true,
       unique: true,
     },
     coverImage: {
