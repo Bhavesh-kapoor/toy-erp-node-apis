@@ -19,6 +19,10 @@ const productCategorySchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "ProductCategory",
   },
+  gst: {
+    type: Number,
+    min: 0,
+  },
   //TODO: Has to be addressed
 
   status: {

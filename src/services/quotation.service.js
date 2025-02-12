@@ -141,6 +141,7 @@ class QuotationService extends Service {
                 coverImage: 1,
                 uom: { $arrayElemAt: ["$uom.shortName", 0] },
                 hsn: { $arrayElemAt: ["$productCategoryData.hsnCode", 0] },
+                category: { $arrayElemAt: ["$productCategoryData.name", 0] },
               },
             },
           ],
@@ -193,6 +194,11 @@ class QuotationService extends Service {
         },
       },
     ]);
+
+    const taxSummary = [];
+
+	
+	  
     return quotationData[0];
   }
 

@@ -147,13 +147,19 @@ class ProductService extends Service {
       const id = i._id;
       i.stockInHand = stockAmount?.[id] ?? 0;
     }
-
     return products;
   }
 
   static async getBaseFields() {
     const brandData = BrandService.getSelectedBrands();
-    const categoryData = ProductCategoryService.getSelectedCategories();
+    const categoryData = ProductCategoryService.getWithAggregate([
+      {
+        $project: {
+          name: 1,
+          gst: 1,
+        },
+      },
+    ]);
     const uomData = ProductUomService.getWithAggregate([
       {
         $project: {
@@ -175,7 +181,24 @@ class ProductService extends Service {
   }
 
   static async create(productData) {
+    const { productCategory } = productData;
+    const category = await ProductCategoryService.getDocById(productCategory);
+    if (!category.gst && category.gst !== 0) category.gst = 18;
+    product.gst = category.gst;
+    await category.save();
     const product = await this.Model.create(productData);
+    return product;
+  }
+
+  static async update(id, updates) {
+    const product = await this.Model.findDocById(id);
+    const { productCategory } = product;
+    const category = await ProductCategoryService.getDocById(productCategory);
+    if (!category.gst && category.gst !== 0) category.gst = 18;
+    await category.save();
+    product.update(updates);
+    product.gst = category.gst;
+    await product.save();
     return product;
   }
 }
