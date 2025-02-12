@@ -38,43 +38,143 @@ class ExpenseService extends Service {
 
     const data = this.Model.findAll(filter, initialStage, extraStage);
 
+    const now = new Date(); // Get current time
+
+    // Today and Yesterday
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
+    const startOfYesterday = new Date(startOfToday);
+    startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+
+    const endOfYesterday = new Date(startOfYesterday);
+    endOfYesterday.setHours(
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds(),
+      now.getMilliseconds(),
+    ); // Match current time
+
+    // Current Week and Last Week
+    const startOfCurrentWeek = new Date();
+    startOfCurrentWeek.setHours(0, 0, 0, 0);
+    startOfCurrentWeek.setDate(
+      startOfCurrentWeek.getDate() - startOfCurrentWeek.getDay(),
+    ); // Sunday start
+
+    const startOfLastWeek = new Date(startOfCurrentWeek);
+    startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
+
+    const endOfLastWeek = new Date(startOfLastWeek);
+    endOfLastWeek.setDate(endOfLastWeek.getDate() + 6); // Move to the last day of last week
+    endOfLastWeek.setHours(
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds(),
+      now.getMilliseconds(),
+    ); // Match current time
+
+    // Current Month and Last Month
+    const startOfCurrentMonth = new Date();
+    startOfCurrentMonth.setHours(0, 0, 0, 0);
+    startOfCurrentMonth.setDate(1); // Start of current month
+
+    const startOfLastMonth = new Date(startOfCurrentMonth);
+    startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
+
+    const endOfLastMonth = new Date(startOfLastMonth);
+    endOfLastMonth.setMonth(endOfLastMonth.getMonth() + 1, 0); // Last day of last month
+    endOfLastMonth.setHours(
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds(),
+      now.getMilliseconds(),
+    ); // Match current time
+
+    // Current Year and Last Year
+    const startOfCurrentYear = new Date();
+    startOfCurrentYear.setHours(0, 0, 0, 0);
+    startOfCurrentYear.setMonth(0, 1); // Start of the year (January 1st)
+
+    const startOfLastYear = new Date(startOfCurrentYear);
+    startOfLastYear.setFullYear(startOfLastYear.getFullYear() - 1);
+
+    const endOfLastYear = new Date(startOfLastYear);
+    endOfLastYear.setFullYear(endOfLastYear.getFullYear() + 1, 0, 0); // Last day of last year
+    endOfLastYear.setHours(
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds(),
+      now.getMilliseconds(),
+    ); // Match current time
+
+    // Expense Queries
     const todayExpense = this.getTotalExpense({ startDate: startOfToday });
-
-    const startOfLast7Days = new Date();
-    startOfLast7Days.setHours(0, 0, 0, 0);
-    startOfLast7Days.setDate(startOfLast7Days.getDate() - 7);
-
-    const last7DayExpense = this.getTotalExpense({
-      startDate: startOfLast7Days,
+    const yesterdayExpense = this.getTotalExpense({
+      startDate: startOfYesterday,
+      endDate: endOfYesterday,
     });
 
-    const startOfLast30Days = new Date();
-    startOfLast30Days.setHours(0, 0, 0, 0);
-    startOfLast30Days.setDate(startOfLast30Days.getDate() - 30);
+    const currentWeekExpense = this.getTotalExpense({
+      startDate: startOfCurrentWeek,
+    });
+    const lastWeekExpense = this.getTotalExpense({
+      startDate: startOfLastWeek,
+      endDate: endOfLastWeek,
+    });
 
-    const last30DayExpense = this.getTotalExpense({
-      startDate: startOfLast30Days,
+    const currentMonthExpense = this.getTotalExpense({
+      startDate: startOfCurrentMonth,
+    });
+    const lastMonthExpense = this.getTotalExpense({
+      startDate: startOfLastMonth,
+      endDate: endOfLastMonth,
+    });
+
+    const currentYearExpense = this.getTotalExpense({
+      startDate: startOfCurrentYear,
+    });
+    const lastYearExpense = this.getTotalExpense({
+      startDate: startOfLastYear,
+      endDate: endOfLastYear,
     });
 
     const totalExpense = this.getTotalExpense({});
 
-    const [expenseData, todayData, last7DayData, last30DayData, totalData] =
-      await Promise.all([
-        data,
-        todayExpense,
-        last7DayExpense,
-        last30DayExpense,
-        totalExpense,
-      ]);
+    const [
+      expenseData,
+      todayData,
+      yesterdayData,
+      currentWeekData,
+      lastWeekData,
+      currentMonthData,
+      lastMonthData,
+      currentYearData,
+      lastYearData,
+      totalData,
+    ] = await Promise.all([
+      data,
+      todayExpense,
+      yesterdayExpense,
+      currentWeekExpense,
+      lastWeekExpense,
+      currentMonthExpense,
+      lastMonthExpense,
+      currentYearExpense,
+      lastYearExpense,
+      totalExpense,
+    ]);
 
     return {
       ...expenseData,
       today: todayData[0]?.total ?? null,
-      last7Days: last7DayData[0]?.total ?? null,
-      last30Days: last30DayData[0]?.total ?? null,
+      yesterday: yesterdayData[0]?.total ?? null,
+      currentWeek: currentWeekData[0]?.total ?? null,
+      lastWeek: lastWeekData[0]?.total ?? null,
+      currentMonth: currentMonthData[0]?.total ?? null,
+      lastMonth: lastMonthData[0]?.total ?? null,
+      currentYear: currentYearData[0]?.total ?? null,
+      lastYear: lastYearData[0]?.total ?? null,
       total: totalData[0]?.total ?? null,
     };
   }
@@ -132,8 +232,5 @@ class ExpenseService extends Service {
     return totalAmount;
   }
 }
-ExpenseService.getTotalExpense({ userId: "678f8619a4baf2ad3fde2039" })
-  .then((x) => console.log(x))
-  .catch((e) => console.log(e));
 
 export default ExpenseService;
