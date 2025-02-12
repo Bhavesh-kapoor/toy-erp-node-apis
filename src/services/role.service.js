@@ -12,19 +12,165 @@ class RoleService extends Service {
     return roleData;
   }
 
-  static async update(id, updateData) {
+  static async update(id, updates) {
     const role = await this.Model.findDocById(id);
-    if (this.defaultRoles.includes(role.name)) {
-      throw {
-        status: false,
-        message: "Editing default roles isn't allowed",
-        httpStatus: httpStatus.FORBIDDEN,
-      };
-    }
+
     role.update(updates);
+    if (this.defaultRoles[role["name"]]) {
+      const permission = this.defaultRoles[role["name"]];
+      role.permissions.forEach((ele, index) => {
+        for (let i in permission[ele["module"]]) {
+          ele.access.set(i, permission[ele["module"]][i]);
+        }
+      });
+    }
     await role.save();
     return role;
   }
+
+  static defaultRoles = {
+    Admin: {
+      Dashboard: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Ledger": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Role Management": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Employee": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Leads": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Products": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Quotations": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Warehouse": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Purchase": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Billing": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Payment": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+    },
+    Salesperson: {
+      Dashboard: {
+        create: false,
+        read: false,
+        update: false,
+        delete: false,
+      },
+      "Manage Quotations": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Ledger": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Leads": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+    },
+    Warehouse: {
+      Dashboard: {
+        create: false,
+        read: false,
+        update: false,
+        delete: false,
+      },
+      "Manage Warehouse": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+
+      "Manage Purchase": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+    },
+    Accountant: {
+      Dashboard: {
+        create: false,
+        read: false,
+        update: false,
+        delete: false,
+      },
+      "Manage Purchase": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Billing": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+      "Manage Payment": {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+      },
+    },
+  };
 }
 
 export default RoleService;
