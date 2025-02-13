@@ -38,7 +38,6 @@ class ExpenseService extends Service {
 
     const data = this.Model.findAll(filter, initialStage, extraStage);
 
-
     // Today and Yesterday
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
