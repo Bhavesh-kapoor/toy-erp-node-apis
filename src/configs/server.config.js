@@ -53,7 +53,6 @@ server.use(multer().any());
 server.use(express.json());
 server.use(bodyParseMiddleware);
 server.use(sessionMiddleware);
-server.use(queryHandler);
 server.use("/api", routeMapper);
 server.use(globalErrorHandler);
 

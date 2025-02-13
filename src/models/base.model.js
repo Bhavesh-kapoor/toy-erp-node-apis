@@ -130,7 +130,13 @@ class BaseSchema extends Schema {
 
       // Add filters if any
       for (let filter in filters) {
+        const modelKeys = this.schema.paths;
         matchStage[filter] = filters[filter];
+        if (modelKeys?.[filter]?.instance === "ObjectId") {
+          matchStage[filter] = new mongoose.Types.ObjectId(filters[filter]);
+        } else if (modelKeys?.[filter]?.instance === "String") {
+          matchStage[filter] = filters[filter].toString();
+        }
         delete filters[filter];
       }
 
