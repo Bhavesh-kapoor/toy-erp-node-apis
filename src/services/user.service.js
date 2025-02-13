@@ -52,6 +52,18 @@ class UserService extends Service {
     return this.Model.findAll(filter, initialStage, extraStage);
   }
 
+  static async getWithoutPagination() {
+    const data = await this.Model.aggregate([
+      {
+        $project: {
+          name: 1,
+        },
+      },
+    ]);
+
+    return data;
+  }
+
   static async getUserByRole(role = "Employee") {
     const salesPersonData = await this.Model.aggregate([
       {

@@ -10,6 +10,11 @@ export const get = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getWithoutPagination = asyncHandler(async (req, res, next) => {
+  const userData = await UserService.getWithoutPagination();
+  sendResponse(httpStatus.OK, res, userData, "Record fetched successfully");
+});
+
 export const getCurrentUser = asyncHandler(async (req, res, next) => {
   const { user } = req;
   sendResponse(httpStatus.OK, res, user);
