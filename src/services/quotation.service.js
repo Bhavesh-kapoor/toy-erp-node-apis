@@ -6,6 +6,8 @@ import Quotation from "#models/quotation";
 import httpStatus from "#utils/httpStatus";
 import LedgerService from "#services/ledger";
 import PackingService from "#services/packing";
+import { session } from "#middlewares/session";
+import { sendEmail } from "#configs/nodeMailer";
 import ActivityLogService from "#services/activitylog";
 
 class QuotationService extends Service {
@@ -277,8 +279,26 @@ class QuotationService extends Service {
     };
   }
 
-  static async sendQuotation(id) {
+  static async sendQuotation(id, data) {
     const quotation = await this.Model.findDocById(id);
+    const pdf = session.get("files");
+
+    console.log(pdf);
+
+    // Email options
+    const mailOptions = {
+      from: '"Volvrit" <deepak.singh@volvrit.com>', // Sender's email
+      to: userData.email, // Receiver's email
+      subject: "Test Email with Nodemailer", // Email subject
+      text: "Hello, this is a test email sent using Nodemailer!", // Plain text body
+      attachments: [
+        {
+          filename: req.file.originalname, // Keep original filename
+          content: req.file.buffer, // File buffer
+        },
+      ],
+    };
+    //await sendEmail(mailOptions);
   }
 
   static async create(quotationData) {

@@ -32,6 +32,12 @@ export const create = asyncHandler(async (req, res, next) => {
   );
 });
 
+export const sendQuotaion = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  await QuotationService.sendQuotation(id, req.body);
+  sendResponse(httpStatus.OK, res, null, "Quotation sent successfully");
+});
+
 export const update = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const data = req.body;

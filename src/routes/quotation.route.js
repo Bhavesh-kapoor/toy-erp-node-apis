@@ -8,10 +8,12 @@ import {
   updateStatus,
   getLimitedFields,
   getBaseFields,
+  sendQuotaion,
 } from "#controllers/quotation";
 
 const router = express.Router();
 
+router.route("/send-quotation/:id").post(sendQuotaion);
 router.route("/update-status/:id").put(updateStatus);
 router.route("/public/base-fields").get(getBaseFields);
 router.route("/public").get(getLimitedFields);
