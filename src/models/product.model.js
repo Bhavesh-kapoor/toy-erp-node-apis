@@ -1,26 +1,11 @@
 import Brand from "#models/brand";
 import BaseSchema from "#models/base";
+import uploadFile from "#utils/uploadFile";
 import ProductUom from "#models/productUom";
 import mongoose, { Schema } from "mongoose";
-import uploadFile from "#utils/uploadFile";
 import ProductCategory from "#models/productCategory";
 
 export const productTypeArr = ["Finished", "Raw Material"];
-
-// FIX: Has to be addressed to function properly
-//const imagesSchema = new BaseSchema(
-//  {
-//    name: {
-//      type: String,
-//    },
-//    image: {
-//      type: String,
-//      file: true,
-//    },
-//  },
-//  { timestamps: false },
-//);
-//
 
 const productSchema = new BaseSchema(
   {
@@ -133,7 +118,5 @@ const productSchema = new BaseSchema(
 );
 
 productSchema.pre("save", uploadFile);
-
-//imagesSchema.pre("save", uploadFile);
 
 export default mongoose.model("Product", productSchema);

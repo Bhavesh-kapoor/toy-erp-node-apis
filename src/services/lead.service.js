@@ -81,13 +81,13 @@ class LeadService extends Service {
     delete leadData.statusUpdate;
 
     const existingLedger = await LedgerService.getSafe(null, {
-      email: leadData.email,
+      phone: leadData.phone,
     });
 
     if (existingLedger) {
       throw {
         status: false,
-        message: "A ledger entry is already present for this lead",
+        message: "Ledger with this phone number already exists",
         httpStatus: httpStatus.CONFLICT,
       };
     }

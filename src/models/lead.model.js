@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import BaseSchema from "#models/base";
-import User, { addressSchema } from "#models/user";
 import uploadFile from "#utils/uploadFile";
+import User, { addressSchema } from "#models/user";
 import AutoIncrementFactory from "mongoose-sequence";
 
 // Initialize AutoIncrement
@@ -31,7 +31,6 @@ const leadSchema = new BaseSchema({
   },
   email: {
     type: String,
-    required: true,
     unique: true,
   },
   gender: {

@@ -26,8 +26,7 @@ const invoiceSchema = new BaseSchema(
       required: true,
     },
     shipTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Ledger",
+      type: String,
       required: true,
     },
     remarks: {

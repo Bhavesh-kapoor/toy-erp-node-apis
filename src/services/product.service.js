@@ -57,6 +57,28 @@ class ProductService extends Service {
     return this.Model.findAll(filter, initialStage, extraStage);
   }
 
+  static async searchWithNameAndCode(search) {
+    search = search?.toString() ?? "";
+    const data = await this.Model.aggregate([
+      {
+        $match: {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { productCode: { $regex: search, $options: "i" } },
+          ],
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          productCode: 1,
+        },
+      },
+    ]);
+
+    return data;
+  }
+
   static async getWithoutPagination() {
     const pipeline = [
       {
