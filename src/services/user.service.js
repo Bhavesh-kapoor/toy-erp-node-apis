@@ -107,7 +107,9 @@ class UserService extends Service {
   }
 
   static async loginUser(userData) {
-    const { email, password, otp } = userData;
+    let { email, password, otp } = userData;
+
+    email = email?.toString();
 
     let existingUser = await this.Model.findDoc({ email });
 
