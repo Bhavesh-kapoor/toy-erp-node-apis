@@ -59,7 +59,8 @@ class ProductService extends Service {
 
   static async searchWithNameAndCode(search) {
     search = search?.toString() ?? "";
-    const data = await this.Model.aggregate([
+
+    const pipeline = [
       {
         $match: {
           $or: [
@@ -69,14 +70,94 @@ class ProductService extends Service {
         },
       },
       {
+        $lookup: {
+          from: "productcategories",
+          localField: "productCategory",
+          foreignField: "_id",
+          as: "productCategory",
+        },
+      },
+      {
+        $lookup: {
+          from: "brands",
+          localField: "brand",
+          foreignField: "_id",
+          as: "brandName",
+        },
+      },
+      {
+        $lookup: {
+          from: "productuoms",
+          localField: "uom",
+          foreignField: "_id",
+          as: "productUom",
+        },
+      },
+      {
         $project: {
+          productCategory: { $arrayElemAt: ["$productCategory.name", 0] },
+          brandName: { $arrayElemAt: ["$brandName.name", 0] },
+          uom: { $arrayElemAt: ["$productUom.shortName", 0] },
           name: 1,
           productCode: 1,
+          ourPrice: 1,
+          sku: 1,
+          status: 1,
+          isTaxed: 1,
+          mrp: 1,
+          _id: 1,
+          gst: 1,
+          quotationDate: 1,
+          barCode: 1,
+          updatedAt: 1,
+          updatedAt: 1,
+          createdAt: 1,
+        },
+      },
+    ];
+
+    const stockData = WarehouseService.getWithAggregate([
+      {
+        $project: {
+          name: 1,
+          stock: { $objectToArray: "$stock" },
+        },
+      },
+      {
+        $unwind: "$stock",
+      },
+      {
+        $group: {
+          _id: "$stock.k",
+          stock: { $sum: "$stock.v" },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          stockObject: {
+            $push: { k: "$_id", v: "$stock" },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0, // Remove `_id`
+          stock: { $arrayToObject: "$stockObject" }, // Convert array to object
         },
       },
     ]);
 
-    return data;
+    const productData = this.Model.aggregate(pipeline);
+    const [stocks, products] = await Promise.all([stockData, productData]);
+
+    const stockAmount = stocks[0]?.stock;
+
+    for (let i of products) {
+      const id = i._id;
+      i.stockInHand = stockAmount?.[id] ?? 0;
+    }
+    return products;
   }
 
   static async getWithoutPagination() {
