@@ -5,6 +5,7 @@ import httpStatus from "#utils/httpStatus";
 import QuotationService from "#services/quotation";
 import WarehouseService from "#services/warehouse";
 import UserService from "#services/user";
+import ProductService from "#services/product";
 
 class PackingService extends Service {
   static Model = Packing;
@@ -314,9 +315,10 @@ class PackingService extends Service {
     for (let ele in existingProducts) {
       const availableStock = stock.get(ele) ?? 0;
       if (availableStock < existingProducts[ele]) {
+        const product = await ProductService.getDocById(ele.product);
         throw {
           status: false,
-          message: `Stock not available for the product with id ${ele.product}`,
+          message: `Stock not available for the product code ${product.name}`,
           httpStatus: httpStatus.BAD_REQUEST,
         };
       }
