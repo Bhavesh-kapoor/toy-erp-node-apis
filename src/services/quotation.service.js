@@ -144,6 +144,15 @@ class QuotationService extends Service {
       },
       {
         $addFields: {
+          customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
+          leadName: {
+            $concat: [
+              { $arrayElemAt: ["$leadData.firstName", 0] },
+              " ",
+              { $arrayElemAt: ["$leadData.lastName", 0] },
+            ],
+          },
+
           products: {
             $cond: {
               if: { $isArray: "$products" },
