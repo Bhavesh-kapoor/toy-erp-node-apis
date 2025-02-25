@@ -117,74 +117,45 @@ class QuotationService extends Service {
           from: "products",
           localField: "products.product",
           foreignField: "_id",
-          pipeline: [
-            {
-              $lookup: {
-                from: "productuoms",
-                localField: "uom",
-                foreignField: "_id",
-                as: "uom",
-              },
-            },
-            {
-              $lookup: {
-                from: "productcategories",
-                localField: "productCategory",
-                foreignField: "_id",
-                as: "productCategoryData",
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                name: 1,
-                description: 1,
-                productCode: 1,
-                coverImage: 1,
-                uom: { $arrayElemAt: ["$uom.shortName", 0] },
-                hsn: { $arrayElemAt: ["$productCategoryData.hsnCode", 0] },
-                category: { $arrayElemAt: ["$productCategoryData.name", 0] },
-              },
-            },
-          ],
           as: "productDetails",
         },
       },
       {
         $addFields: {
           products: {
-            $map: {
-              input: "$products",
-              as: "product",
-              in: {
-                $mergeObjects: [
-                  "$$product",
-                  {
-                    $arrayElemAt: [
-                      "$productDetails",
+            $cond: {
+              if: { $isArray: "$products" },
+              then: {
+                $map: {
+                  input: "$products",
+                  as: "product",
+                  in: {
+                    $mergeObjects: [
+                      "$$product",
                       {
-                        $indexOfArray: [
-                          "$productDetails._id",
-                          "$$product.product",
+                        $arrayElemAt: [
+                          "$productDetails",
+                          {
+                            $indexOfArray: [
+                              {
+                                $map: {
+                                  input: "$productDetails",
+                                  as: "pd",
+                                  in: { $toString: "$$pd._id" },
+                                },
+                              },
+                              { $toString: "$$product.product" },
+                            ],
+                          },
                         ],
                       },
                     ],
                   },
-                ],
+                },
               },
+              else: [],
             },
           },
-          leadName: {
-            $concat: [
-              { $arrayElemAt: ["$leadData.firstName", 0] },
-              " ",
-              { $arrayElemAt: ["$leadData.lastName", 0] },
-            ],
-          },
-          preparedByName: { $arrayElemAt: ["$preparedByData.name", 0] },
-          preparedByEmail: { $arrayElemAt: ["$preparedByData.email", 0] },
-          customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
-          packed: { $arrayElemAt: ["$packingdata.packed", 0] },
         },
       },
       {
@@ -193,6 +164,8 @@ class QuotationService extends Service {
           preparedByData: 0,
           customerData: 0,
           leadData: 0,
+          packingData: 0,
+          invoiceData: 0,
         },
       },
     ]);
