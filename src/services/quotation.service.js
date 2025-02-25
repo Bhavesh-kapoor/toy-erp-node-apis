@@ -118,6 +118,28 @@ class QuotationService extends Service {
           localField: "products.product",
           foreignField: "_id",
           as: "productDetails",
+          pipeline: [
+            {
+              $lookup: {
+                from: "productuoms", // 👈 Ensure we fetch the correct UOM details
+                localField: "uom", // 👈 This is the ObjectId in products collection
+                foreignField: "_id",
+                as: "uomData",
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                description: 1,
+                productCode: 1,
+                coverImage: 1,
+                uom: { $arrayElemAt: ["$uomData.shortName", 0] }, // ✅ Extract short name
+                hsn: { $arrayElemAt: ["$productCategoryData.hsnCode", 0] },
+                category: { $arrayElemAt: ["$productCategoryData.name", 0] },
+              },
+            },
+          ],
         },
       },
       {
@@ -148,6 +170,9 @@ class QuotationService extends Service {
                             ],
                           },
                         ],
+                      },
+                      {
+                        uom: { $arrayElemAt: ["$productDetails.uom", 0] }, // ✅ Ensure UOM stays
                       },
                     ],
                   },
