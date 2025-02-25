@@ -233,21 +233,22 @@ class PackingService extends Service {
     let { products } = quotation;
     const { stock } = warehouse;
 
-    products.forEach((ele) => {
+    for (const ele of products) {
       const id = ele.product;
       const availableStock = stock.get(id);
 
       if (!availableStock || availableStock < newProductData[id]) {
+        const product = await ProductService.getDocById(ele.product);
         throw {
           status: false,
-          message: `Stock not available for product with id ${id}`,
+          message: `Stock not available for the product code ${product.name}`,
           httpStatus: httpStatus.BAD_REQUEST,
         };
       }
 
       ele.packedQuantity = newProductData[id];
       stock.set(id, stock.get(id) - ele.packedQuantity);
-    });
+    }
     packingData.customer = quotation.customer;
 
     const createdPacking = await this.Model.create(packingData);
