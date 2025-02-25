@@ -128,6 +128,14 @@ class QuotationService extends Service {
               },
             },
             {
+              $lookup: {
+                from: "productcategories",
+                localField: "productCategory",
+                foreignField: "_id",
+                as: "productCategoryData",
+              },
+            },
+            {
               $project: {
                 _id: 1,
                 name: 1,
