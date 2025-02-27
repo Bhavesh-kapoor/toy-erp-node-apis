@@ -74,7 +74,7 @@ class PackingService extends Service {
       {
         $lookup: {
           from: "products",
-          localField: "quotationData.products.product",
+          localField: "products.product",
           foreignField: "_id",
           pipeline: [
             {
@@ -117,7 +117,7 @@ class PackingService extends Service {
           customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
           products: {
             $map: {
-              input: "$quotationData.products",
+              input: "$products",
               as: "product",
               in: {
                 $mergeObjects: [
@@ -281,6 +281,7 @@ class PackingService extends Service {
     for (const key of updatedProductArr) {
       const id = key.product;
       key.quantity = newProductData[id];
+      packingData.netPackedQuantity += newProductData[id];
     }
 
     packingData.products = updatedProductArr;
