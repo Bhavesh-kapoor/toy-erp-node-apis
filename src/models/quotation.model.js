@@ -114,7 +114,7 @@ const quotationSchema = new BaseSchema({
     type: Boolean,
     default: true,
   },
-  paid: {
+  packed: {
     type: Boolean,
     default: false,
   },

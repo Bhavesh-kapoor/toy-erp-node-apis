@@ -51,7 +51,7 @@ const packingSchema = new BaseSchema({
     min: 1,
   },
   products: {
-    type: itemSchema,
+    type: [itemSchema],
   },
   packed: {
     type: Boolean,

@@ -405,10 +405,10 @@ class QuotationService extends Service {
       };
     }
 
-    if (quotation.paid) {
+    if (quotation.packed) {
       throw {
         status: false,
-        message: "Cannot update a completed sale",
+        message: "Cannot update a packed quotation",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
@@ -430,6 +430,23 @@ class QuotationService extends Service {
           };
       }
     }
+
+    const existingPackings = await PackingService.getWithAggregate([
+      {
+        $match: {
+          quotationId: new mongoose.Types.ObjectId(id),
+        },
+      },
+    ]);
+
+    if (existingPackings.length) {
+      throw {
+        status: false,
+        message: "Cannot update quotation with active packings",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
     quotation.update(updates);
     quotation.invoiceId = null;
     await quotation.save();

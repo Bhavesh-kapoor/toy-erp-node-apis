@@ -160,7 +160,7 @@ class PackingService extends Service {
       {
         $match: {
           status: "Approved",
-          paid: { $ne: true },
+          packed: { $ne: true },
           packingId: null,
         },
       },
@@ -212,43 +212,80 @@ class PackingService extends Service {
       };
     }
 
-    const warehouse = await WarehouseService.getDocById(warehouseId);
+    const warehouseData = WarehouseService.getDocById(warehouseId);
+    const existingPackingsData = PackingService.getWithAggregate([
+      {
+        $match: {
+          quotationId: new mongoose.Types.ObjectId(quotationId),
+        },
+      },
+    ]);
 
+    const [warehouse, existingPackings] = await Promise.all([
+      warehouseData,
+      existingPackingsData,
+    ]);
+
+    const maxAllowedQuantity = {};
+    const maxQuantity = {};
+    const currentPacked = {};
     let { products } = quotation;
+
+    for (const product of products) {
+      const id = product.product;
+      maxQuantity[id] = product.quantity;
+    }
+
+    for (const packing of existingPackings) {
+      const { products } = packing;
+      for (const product of products) {
+        currentPacked[product.product] =
+          (currentPacked[product.product] ?? 0) + product.quantity;
+      }
+    }
+
+    for (const product in maxQuantity) {
+      if (!currentPacked[product]) currentPacked[product] = 0;
+      maxAllowedQuantity[product] =
+        maxQuantity[product] - currentPacked[product];
+    }
+
     const { stock } = warehouse;
 
-    for (const ele of products) {
-      const id = ele.product;
-      const availableStock = stock.get(id);
-      const requiredStock = ele.quantity - ele.packedQuantity;
+    packingData.customer = quotation.customer;
 
-      //WARN: When the stock is already packed, fix this thing;
-      if (requiredStock == 0) {
-        continue;
-      }
-
-      if (newProductData[i] > requiredStock) {
+    for (const i in newProductData) {
+      if (newProductData[i] > maxAllowedQuantity[i]) {
+        const product = await ProductService.getDocById(i);
         throw {
           status: false,
-        };
-      }
-
-      if (!availableStock || availableStock < newProductData[id]) {
-        const product = await ProductService.getDocById(ele.product);
-        throw {
-          status: false,
-          message: `Stock not available for the product code ${product.name}`,
+          message: `You cannot pack more than allowed quantity for the product with the code ${product.productCode}`,
           httpStatus: httpStatus.BAD_REQUEST,
         };
       }
 
-      ele.packedQuantity = newProductData[id];
-      stock.set(id, stock.get(id) - ele.packedQuantity);
+      const availableStock = stock.get(i) ?? 0;
+      if (newProductData[i] > availableStock) {
+        const product = await ProductService.getDocById(i);
+        throw {
+          status: false,
+          message: `Insufficient stock for product with the code ${product.productCode}`,
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+      stock.set(i, availableStock - newProductData[i]);
     }
-    packingData.customer = quotation.customer;
+
+    const updatedProductArr = JSON.parse(JSON.stringify(products));
+
+    for (const key of updatedProductArr) {
+      const id = key.product;
+      key.quantity = newProductData[id];
+    }
+
+    packingData.products = updatedProductArr;
 
     const createdPacking = await this.Model.create(packingData);
-    quotation.packingId = createdPacking.id;
     await warehouse.save();
     await quotation.save();
     return createdPacking;
