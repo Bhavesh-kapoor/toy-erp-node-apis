@@ -7,12 +7,11 @@ class DashboardService {
   static async get(filters) {
     const calls = [
       this.getQuotationData(),
-      this.getExpenseData(),
       this.getBillingData(),
       this.getLedgerData(),
     ];
 
-    const [quotations, expenses, billings, ledgers] = await Promise.all(calls);
+    const [quotations, billings, ledgers] = await Promise.all(calls);
     return {
       totalDeals: quotations?.total,
       conversionRatio: (

@@ -84,6 +84,7 @@ class QuotationService extends Service {
             ],
           },
           quotationNo: 1,
+          approvedOn: 1,
           netAmount: 1,
           billNumber: { $arrayElemAt: ["$invoiceData.billNumber", 0] },
           invoiceGenerated: {
