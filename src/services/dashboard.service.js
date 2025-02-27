@@ -4,24 +4,53 @@ import InvoiceService from "#services/invoice";
 import QuotationService from "#services/quotation";
 
 class DashboardService {
-  static async get(filters) {}
+  static async get(filters) {
+    const calls = [
+      this.getQuotationData(),
+      this.getExpenseData(),
+      this.getBillingData(),
+      this.getLedgerData(),
+    ];
+
+    const [quotations, expenses, billings, ledgers] = await Promise.all(calls);
+    return {
+      totalDeals: quotations?.total,
+      conversionRatio: (
+        (quotations?.approved / quotations?.total) *
+        100
+      ).toFixed(2),
+      totalRevenue: billings?.total,
+      activeUsers: ledgers?.total,
+    };
+  }
 
   static async getQuotationData(filters) {
-    const quotationData = await QuotationService.getWithAggregate([
+    const approvedQuotation = QuotationService.getWithAggregate([
       {
         $match: {
           status: "Approved",
         },
       },
       {
-        $group: {
-          _id: null,
-          total: { $sum: "$netAmount" },
-        },
+        $count: "total",
       },
     ]);
 
-    return quotationData;
+    const totalQuotations = QuotationService.getWithAggregate([
+      {
+        $count: "total",
+      },
+    ]);
+
+    const [approved, total] = await Promise.all([
+      approvedQuotation,
+      totalQuotations,
+    ]);
+
+    return {
+      approved: approved[0]?.total,
+      total: total[0]?.total,
+    };
   }
 
   static async getExpenseData(filters) {
@@ -60,21 +89,21 @@ class DashboardService {
         },
       },
     ]);
-    return billingData;
+    return billingData[0];
   }
 
   static async getLedgerData(filters) {
     const ledgerData = await LedgerService.getWithAggregate([
       {
         $group: {
-          _id: "$_id",
-          total: {
-            $sum: "_id",
-          },
+          _id: "$_id", // Group by unique _id (each ledger)
         },
       },
+      {
+        $count: "total", // Count the number of unique _id entries
+      },
     ]);
-    return ledgerData;
+    return ledgerData[0];
   }
 }
 
