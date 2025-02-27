@@ -403,11 +403,10 @@ class PackingService extends Service {
 
     const { stock } = warehouse;
 
-    for (let product in packing.products) {
+    for (let product of packing.products) {
       const id = product.product;
       stock.set(id, stock.get(id) + product.quantity);
     }
-
     for (const i in newProductData) {
       if (newProductData[i] > maxAllowedQuantity[i]) {
         const product = await ProductService.getDocById(i);
@@ -435,10 +434,10 @@ class PackingService extends Service {
     for (const key of updatedProductArr) {
       const id = key.product;
       key.quantity = newProductData[id];
-      packingData.netPackedQuantity += newProductData[id];
+      updates.netPackedQuantity += newProductData[id];
     }
 
-    packingData.products = updatedProductArr;
+    updates.products = updatedProductArr;
 
     delete updates.customer;
     delete updates.quotationId;

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import User from "#models/user";
 import Ledger from "#models/ledger";
+import Invoice from "#models/invoice";
 import BaseSchema from "#models/base";
 import Warehouse from "#models/warehouse";
 import AutoIncrementFactory from "mongoose-sequence";
@@ -13,6 +14,10 @@ const packingSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: Warehouse,
     required: true,
+  },
+  invoiceId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Invoice,
   },
   packingNo: {
     type: Number,
