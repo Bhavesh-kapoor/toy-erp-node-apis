@@ -10,6 +10,11 @@ export const get = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getMaxQuantity = asyncHandler(async (req, res, next) => {
+  const data = await PackingService.getMaxQuantity(req.query);
+  sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
+});
+
 export const getLimitedFields = asyncHandler(async (req, res, next) => {
   const filter = req.query;
   const data = await PackingService.getLimitedFields(filter);

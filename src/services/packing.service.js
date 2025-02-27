@@ -201,6 +201,48 @@ class PackingService extends Service {
     return data;
   }
 
+  static async getMaxQuantity(filters) {
+    const { quotationId, packingId = null } = filters;
+    const quotationData = QuotationService.getDocById(quotationId);
+    const existingPackingsData = this.Model.aggregate([
+      {
+        $match: {
+          ...(packingId ? { _id: new mongoose.Types.ObjectId(packingId) } : {}),
+          quotationId: new mongoose.Types.ObjectId(quotationId),
+        },
+      },
+    ]);
+    const [quotation, existingPackings] = await Promise.all([
+      quotationData,
+      existingPackingsData,
+    ]);
+    const maxAllowedQuantity = {};
+    const maxQuantity = {};
+    const currentPacked = {};
+    let { products } = quotation;
+
+    for (const product of products) {
+      const id = product.product;
+      maxQuantity[id] = product.quantity;
+    }
+
+    for (const packing of existingPackings) {
+      const { products } = packing;
+      for (const product of products) {
+        currentPacked[product.product] =
+          (currentPacked[product.product] ?? 0) + product.quantity;
+      }
+    }
+
+    for (const product in maxQuantity) {
+      if (!currentPacked[product]) currentPacked[product] = 0;
+      maxAllowedQuantity[product] =
+        maxQuantity[product] - currentPacked[product];
+    }
+
+    return maxAllowedQuantity;
+  }
+
   static async create(packingData) {
     const { quotationId, warehouseId, products: newProductData } = packingData;
     const quotation = await QuotationService.getDocById(quotationId);
@@ -293,7 +335,7 @@ class PackingService extends Service {
   }
 
   static async update(id, updates) {
-    const existingProducts = updates.products;
+    const newProductData = updates.products;
 
     const packing = await this.Model.findDocById(id);
 
@@ -313,8 +355,10 @@ class PackingService extends Service {
       };
     }
 
-    const { warehouseId } = updates;
-    if (warehouseId && warehouseId !== packing.warehouseId.toString()) {
+    const { warehouseId, quotationId } = packing;
+    const { warehouseId: newWarehouseId } = updates;
+
+    if (newWarehouseId && newWarehouseId !== warehouseId.toString()) {
       throw {
         status: false,
         message: "Cannot change warehouse of the packing",
@@ -323,46 +367,78 @@ class PackingService extends Service {
     }
 
     const dbCalls = [
-      WarehouseService.getDocById(packing.warehouseId),
-      QuotationService.getDocById(packing.quotationId),
+      WarehouseService.getDocById(warehouseId),
+      QuotationService.getDocById(quotationId),
+      this.Model.find({
+        _id: { $ne: id },
+        quotationId,
+      }),
     ];
 
-    const [warehouse, quotation] = await Promise.all(dbCalls);
-    const { products } = quotation;
+    const [warehouse, quotation, existingPackings] = await Promise.all(dbCalls);
 
-    if (Object.keys(existingProducts).length !== products.length) {
-      throw {
-        status: false,
-        message: "Invalid update operation",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
+    const maxAllowedQuantity = {};
+    const maxQuantity = {};
+    const currentPacked = {};
+    let { products } = quotation;
+
+    for (const product of products) {
+      const id = product.product;
+      maxQuantity[id] = product.quantity;
+    }
+
+    for (const packing of existingPackings) {
+      const { products } = packing;
+      for (const product of products) {
+        currentPacked[product.product] =
+          (currentPacked[product.product] ?? 0) + product.quantity;
+      }
+    }
+
+    for (const product in maxQuantity) {
+      if (!currentPacked[product]) currentPacked[product] = 0;
+      maxAllowedQuantity[product] =
+        maxQuantity[product] - currentPacked[product];
     }
 
     const { stock } = warehouse;
 
-    for (let ele of products) {
-      stock.set(
-        ele.product,
-        (stock.get(ele.product) ?? 0) + ele.packedQuantity,
-      );
+    for (let product in packing.products) {
+      const id = product.product;
+      stock.set(id, stock.get(id) + product.quantity);
     }
 
-    for (let ele in existingProducts) {
-      const availableStock = stock.get(ele) ?? 0;
-      if (availableStock < existingProducts[ele]) {
-        const product = await ProductService.getDocById(ele.product);
+    for (const i in newProductData) {
+      if (newProductData[i] > maxAllowedQuantity[i]) {
+        const product = await ProductService.getDocById(i);
         throw {
           status: false,
-          message: `Stock not available for the product code ${product.name}`,
+          message: `You cannot pack more than allowed quantity for the product with the code ${product.productCode}`,
           httpStatus: httpStatus.BAD_REQUEST,
         };
       }
-      stock.set(ele, availableStock - existingProducts[ele]);
+
+      let availableStock = stock.get(i) ?? 0;
+      if (newProductData[i] > availableStock) {
+        const product = await ProductService.getDocById(i);
+        throw {
+          status: false,
+          message: `Insufficient stock for product with the code ${product.productCode}`,
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+      stock.set(i, availableStock - newProductData[i]);
     }
 
-    for (let ele of products) {
-      ele.packedQuantity = existingProducts[ele.product];
+    const updatedProductArr = JSON.parse(JSON.stringify(products));
+
+    for (const key of updatedProductArr) {
+      const id = key.product;
+      key.quantity = newProductData[id];
+      packingData.netPackedQuantity += newProductData[id];
     }
+
+    packingData.products = updatedProductArr;
 
     delete updates.customer;
     delete updates.quotationId;
@@ -374,7 +450,6 @@ class PackingService extends Service {
     await packing.save();
     await warehouse.save();
     await quotation.save();
-
     return packing;
   }
 
