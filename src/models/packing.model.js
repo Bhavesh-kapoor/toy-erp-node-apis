@@ -35,10 +35,6 @@ const packingSchema = new BaseSchema({
   enquiryDate: {
     type: Date,
   },
-  nagPacking: {
-    type: Number,
-    min: 0,
-  },
   remarks: {
     type: String,
   },
@@ -49,10 +45,6 @@ const packingSchema = new BaseSchema({
   },
   transport: {
     type: String,
-  },
-  totalQuantity: {
-    type: Number,
-    min: 1,
   },
   netPackedQuantity: {
     type: Number,
@@ -67,6 +59,8 @@ const packingSchema = new BaseSchema({
     required: true,
   },
 });
+
+packingSchema.index({ quotationId: 1 });
 
 packingSchema.plugin(AutoIncrement, {
   inc_field: "packingNo",

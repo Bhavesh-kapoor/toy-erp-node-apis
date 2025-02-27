@@ -4,6 +4,8 @@ import InvoiceService from "#services/invoice";
 import QuotationService from "#services/quotation";
 
 class DashboardService {
+  static async get(filters) {}
+
   static async getQuotationData(filters) {
     const quotationData = await QuotationService.getWithAggregate([
       {

@@ -534,6 +534,7 @@ class QuotationService extends Service {
     quotation.status = status;
 
     if (status === "Approved") {
+      quotation.approvedOn = new Date();
       quotation.latestData = quotation.products;
       quotation.lastData = quotation.latestData;
     }

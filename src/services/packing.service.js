@@ -212,22 +212,6 @@ class PackingService extends Service {
       };
     }
 
-    if (quotation.paid) {
-      throw {
-        status: false,
-        message: "Cannot create packing for completed sale",
-        httpStatus: httpStatus.CONFLICT,
-      };
-    }
-
-    if (quotation.packingId) {
-      throw {
-        status: false,
-        message: "There is already an active packing for this quotation",
-        httpStatus: httpStatus.CONFLICT,
-      };
-    }
-
     const warehouse = await WarehouseService.getDocById(warehouseId);
 
     let { products } = quotation;
@@ -236,6 +220,18 @@ class PackingService extends Service {
     for (const ele of products) {
       const id = ele.product;
       const availableStock = stock.get(id);
+      const requiredStock = ele.quantity - ele.packedQuantity;
+
+      //WARN: When the stock is already packed, fix this thing;
+      if (requiredStock == 0) {
+        continue;
+      }
+
+      if (newProductData[i] > requiredStock) {
+        throw {
+          status: false,
+        };
+      }
 
       if (!availableStock || availableStock < newProductData[id]) {
         const product = await ProductService.getDocById(ele.product);

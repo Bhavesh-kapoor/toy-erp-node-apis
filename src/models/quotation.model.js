@@ -4,7 +4,6 @@ import Lead from "#models/lead";
 import Ledger from "#models/ledger";
 import Product from "#models/product";
 import BaseSchema from "#models/base";
-import Invoice from "#models/invoice";
 import AutoIncrementFactory from "mongoose-sequence";
 
 const AutoIncrement = AutoIncrementFactory(mongoose);
@@ -119,33 +118,17 @@ const quotationSchema = new BaseSchema({
     type: Boolean,
     default: false,
   },
-
-  // Products
   products: {
     type: [itemSchema],
     default: [],
   },
-
-  // Payment terms
   paymentTerms: {
     type: String,
     trim: true,
   },
-
   quotationTerms: {
     type: [String],
   },
-
-  invoiceId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: Invoice,
-  },
-  invoiceList: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: Invoice,
-  },
-
-  // Totals
   totalQuantity: {
     type: Number,
     min: 0,
@@ -224,14 +207,8 @@ const quotationSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Packing",
   },
-  packingList: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "Packing",
-  },
-  mailed: {
-    type: Boolean,
-    default: false,
-    required: true,
+  approvedOn: {
+    type: Date,
   },
 });
 
