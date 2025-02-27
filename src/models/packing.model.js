@@ -1,11 +1,10 @@
+import mongoose from "mongoose";
 import User from "#models/user";
 import Ledger from "#models/ledger";
-import Invoice from "#models/invoice";
 import BaseSchema from "#models/base";
-import Quotation from "#models/quotation";
 import Warehouse from "#models/warehouse";
-import mongoose from "mongoose";
 import AutoIncrementFactory from "mongoose-sequence";
+import Quotation, { itemSchema } from "#models/quotation";
 
 const AutoIncrement = AutoIncrementFactory(mongoose);
 
@@ -58,6 +57,9 @@ const packingSchema = new BaseSchema({
   netPackedQuantity: {
     type: Number,
     min: 1,
+  },
+  products: {
+    type: itemSchema,
   },
   packed: {
     type: Boolean,

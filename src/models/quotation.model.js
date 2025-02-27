@@ -140,11 +140,9 @@ const quotationSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: Invoice,
   },
-
-  // Transport details
-  transport: {
-    type: String,
-    min: 1,
+  invoiceList: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: Invoice,
   },
 
   // Totals
@@ -224,6 +222,10 @@ const quotationSchema = new BaseSchema({
   },
   packingId: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: "Packing",
+  },
+  packingList: {
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Packing",
   },
   mailed: {

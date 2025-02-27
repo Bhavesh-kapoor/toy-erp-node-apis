@@ -64,6 +64,12 @@ const invoiceSchema = new BaseSchema(
       ref: "Quotation",
       required: true,
     },
+    invoiceAmount: {
+      type: Number,
+      min: 0,
+      required: true,
+      default: 2000,
+    },
   },
   { timestamps: true },
 );
