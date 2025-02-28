@@ -107,7 +107,7 @@ class PaymentService extends Service {
   }
 
   static validate(paymentData) {
-    const { ledgerId, invoiceId, purchaseReturnId } = paymentData;
+    const { ledgerId, invoiceReturnId, purchaseId } = paymentData;
 
     if (!ledgerId) {
       throw {
@@ -117,7 +117,7 @@ class PaymentService extends Service {
       };
     }
 
-    if (!invoiceId && !purchaseReturnId) {
+    if (!invoiceReturnId && !purchaseId) {
       throw {
         status: false,
         message: "Cannot create payment without invoice or purchaseReturn id",
@@ -125,15 +125,12 @@ class PaymentService extends Service {
       };
     }
 
-    if (invoiceId && purchaseReturnId) {
+    if (invoiceReturnId && purchaseId) {
       throw {
         status: false,
         message: "Cannot create payment for both invoice and purchaseReturn",
         httpStatus: httpStatus.BAD_REQUEST,
       };
-    }
-
-    if (invoiceId) {
     }
   }
 }
