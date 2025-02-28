@@ -114,6 +114,7 @@ class InvoiceService extends Service {
       {
         $addFields: {
           packingNo: { $arrayElemAt: ["$packing.packingNo", 0] },
+          packing: { $arrayElemAt: ["$packing", 0] },
         },
       },
     ]);
