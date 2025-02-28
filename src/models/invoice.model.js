@@ -64,6 +64,11 @@ const invoiceSchema = new BaseSchema(
       ref: "Quotation",
       required: true,
     },
+    packingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Packing",
+      required: true,
+    },
     invoiceAmount: {
       type: Number,
       min: 0,
