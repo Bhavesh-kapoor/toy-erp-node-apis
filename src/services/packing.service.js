@@ -519,6 +519,29 @@ class PackingService extends Service {
     await quotation.save();
     await packing.save();
   }
+
+  static async deleteDoc(id) {
+    const packing = await this.Model.findDocById(id);
+    const warehouse = await WarehouseService.getDocById(packing.warehouseId);
+
+    const { stock } = warehouse;
+    const { products } = packing;
+
+    if (packing.packed) {
+      throw {
+        status: false,
+        message: "Cannot delete packed packing",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    for (const key of products) {
+      const id = key.product;
+      stock[id] += key.quantity;
+    }
+    await warehouse.save();
+    await packing.deleteOne();
+  }
 }
 
 export default PackingService;
