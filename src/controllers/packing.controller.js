@@ -52,6 +52,6 @@ export const updatePackedStatus = asyncHandler(async (req, res, next) => {
 
 export const deleteData = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  await PackingService.deleteData(id);
+  await PackingService.deleteDoc(id);
   sendResponse(httpStatus.NO_CONTENT, res, null, "Record deleted successfully");
 });
