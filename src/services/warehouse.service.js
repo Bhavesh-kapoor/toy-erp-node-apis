@@ -70,11 +70,6 @@ class WarehouseService extends Service {
     const initialStage = [];
     const extraStage = [
       {
-        $sort: {
-          name: 1,
-        },
-      },
-      {
         $project: {
           name: 1,
           sku: 1,
