@@ -1,10 +1,10 @@
-import httpStatus from "#utils/httpStatus";
-import Product from "#models/product";
 import Service from "#services/base";
+import Product from "#models/product";
 import BrandService from "#services/brand";
-import ProductCategoryService from "#services/productCategory";
-import ProductUomService from "#services/productUom";
+import httpStatus from "#utils/httpStatus";
 import WarehouseService from "#services/warehouse";
+import ProductUomService from "#services/productUom";
+import ProductCategoryService from "#services/productCategory";
 
 class ProductService extends Service {
   static Model = Product;

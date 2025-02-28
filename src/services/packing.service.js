@@ -438,7 +438,7 @@ class PackingService extends Service {
       key.quantity = newProductData[id];
       updates.netPackedQuantity += newProductData[id];
     }
-    return updatedProductArr;
+
     updates.products = updatedProductArr;
 
     delete updates.customer;
@@ -447,7 +447,6 @@ class PackingService extends Service {
     delete updates.products;
 
     packing.update(updates);
-
     await packing.save();
     await warehouse.save();
     await quotation.save();
