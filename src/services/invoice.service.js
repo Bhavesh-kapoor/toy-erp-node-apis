@@ -136,6 +136,11 @@ class InvoiceService extends Service {
           invoiceId: null,
         },
       },
+      {
+        $project: {
+          packingNo: 1,
+        },
+      },
     ]);
 
     const [users, packings, ledgers] = await Promise.all([
