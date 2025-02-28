@@ -70,6 +70,29 @@ const invoiceSchema = new BaseSchema(
       required: true,
       default: 2000,
     },
+    installationCharges: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
+    packagingCharges: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
+    packagingTaxPercentage: {
+      type: Number,
+      default: 18,
+      required: true,
+      validate: {
+        validator: (value) => [12, 18].includes(value),
+        message: "Invalid packaging tax percentage. Allowed values: 12, 18.",
+      },
+    },
+    transportationCharges: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );

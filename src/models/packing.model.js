@@ -18,6 +18,7 @@ const packingSchema = new BaseSchema({
   invoiceId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: Invoice,
+    unique: true,
   },
   packingNo: {
     type: Number,

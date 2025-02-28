@@ -4,8 +4,9 @@ import Invoice from "#models/invoice";
 import UserService from "#services/user";
 import httpStatus from "#utils/httpStatus";
 import LedgerService from "#services/ledger";
-import QuotationService from "#services/quotation";
+import PackingService from "#services/packing";
 import PaymentService from "#services/payment";
+import QuotationService from "#services/quotation";
 
 class InvoiceService extends Service {
   static Model = Invoice;
@@ -128,38 +129,18 @@ class InvoiceService extends Service {
         },
       },
     ]);
-    const quotationData = QuotationService.getWithAggregate([
+    const packingData = PackingService.getWithAggregate([
       {
         $match: {
-          status: "Approved",
+          packed: true,
           invoiceId: null,
-          packingId: { $ne: null },
-        },
-      },
-      {
-        $lookup: {
-          from: "packings",
-          localField: "packingId",
-          foreignField: "_id",
-          as: "packingData",
-        },
-      },
-      {
-        $project: {
-          name: "$quotationNo",
-          packingStatus: { $arrayElemAt: ["$packingData.packed", 0] },
-        },
-      },
-      {
-        $match: {
-          packingStatus: true,
         },
       },
     ]);
 
     const [users, quotations, ledgers] = await Promise.all([
       userData,
-      quotationData,
+      packingData,
       ledgerData,
     ]);
     return {

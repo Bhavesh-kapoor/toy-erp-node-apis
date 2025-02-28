@@ -22,7 +22,7 @@ export const itemSchema = new BaseSchema(
     quantity: {
       type: Number,
       required: true,
-      min: 1,
+      min: 0,
     },
     listPrice: {
       type: Number,
@@ -167,29 +167,6 @@ const quotationSchema = new BaseSchema({
   gstAmount: {
     type: Number,
     min: 0,
-    default: 0,
-  },
-  installationCharges: {
-    type: Number,
-    default: 0,
-    required: true,
-  },
-  packagingCharges: {
-    type: Number,
-    default: 0,
-    required: true,
-  },
-  packagingTaxPercentage: {
-    type: Number,
-    default: 18,
-    required: true,
-    validate: {
-      validator: (value) => [12, 18].includes(value),
-      message: "Invalid packaging tax percentage. Allowed values: 12, 18.",
-    },
-  },
-  transportationCharges: {
-    type: Number,
     default: 0,
   },
   netAmount: {
