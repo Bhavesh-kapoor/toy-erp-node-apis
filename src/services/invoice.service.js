@@ -61,47 +61,78 @@ class InvoiceService extends Service {
       return invoiceData;
     }
 
-    const invoiceData = await this.Model.aggregate([
-      { $match: { _id: new mongoose.Types.ObjectId(id) } },
-      ...initialStage,
+    //const invoiceData = await this.Model.aggregate([
+    //  { $match: { _id: new mongoose.Types.ObjectId(id) } },
+    //  ...initialStage,
+    //  {
+    //    $project: {
+    //      _id: 1,
+    //      billNumber: 1,
+    //      billDate: 1,
+    //      invoiceTo: 1,
+    //      referenceNo: 1,
+    //      shipTo: 1,
+    //      preparedBy: 1,
+    //      quotationNo: { $arrayElemAt: ["$quotationDetails.quotationNo", 0] },
+    //      quotationId: 1,
+    //      netAmount: { $arrayElemAt: ["$quotationDetails.netAmount", 0] },
+    //      remarks: 1,
+    //      vehicleDetails: 1,
+    //      driverName: 1,
+    //      driverPhone: 1,
+    //      dispatchMode: 1,
+    //      placeOfSupply: 1,
+    //      transportThrough: 1,
+    //      grOrLrNumber: 1,
+    //    },
+    //  },
+    //]);
+    //
+    //if (!invoiceData.length) {
+    //  throw {
+    //    status: false,
+    //    message: "Invoice not found",
+    //    httpStatus: httpStatus.NOT_FOUND,
+    //  };
+    //}
+    //
+
+    const invoice = await this.Model.aggregate([
       {
-        $project: {
-          _id: 1,
-          billNumber: 1,
-          billDate: 1,
-          invoiceTo: 1,
-          referenceNo: 1,
-          shipTo: 1,
-          preparedBy: 1,
-          quotationNo: { $arrayElemAt: ["$quotationDetails.quotationNo", 0] },
-          quotationId: 1,
-          netAmount: { $arrayElemAt: ["$quotationDetails.netAmount", 0] },
-          remarks: 1,
-          vehicleDetails: 1,
-          driverName: 1,
-          driverPhone: 1,
-          dispatchMode: 1,
-          placeOfSupply: 1,
-          transportThrough: 1,
-          grOrLrNumber: 1,
+        $match: {
+          _id: new mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "packings",
+          localField: "packingId",
+          foreignField: "_id",
+          as: "packing",
+        },
+      },
+      {
+        $addFields: {
+          packingNo: { $arrayElemAt: ["$packing.packingNo", 0] },
         },
       },
     ]);
 
-    if (!invoiceData.length) {
+    if (!invoice.length) {
       throw {
         status: false,
-        message: "Invoice not found",
+        message: "Invoice doesn't exist",
         httpStatus: httpStatus.NOT_FOUND,
       };
     }
+    return invoice[0];
 
-    const invoice = invoiceData[0];
-    const quotation = await QuotationService.get(invoice.quotationId);
-
-    invoice.quotation = quotation;
-
-    return invoice;
+    //const invoice = invoiceData[0];
+    //const quotation = await QuotationService.get(invoice.quotationId);
+    //
+    //invoice.quotation = quotation;
+    //
+    //return invoice;
   }
 
   static async getBaseFields() {
