@@ -204,14 +204,18 @@ class PackingService extends Service {
   static async getMaxQuantity(filters) {
     const { quotationId, packingId = null } = filters;
     const quotationData = QuotationService.getDocById(quotationId);
-    const existingPackingsData = this.Model.aggregate([
+    const existingPackingPipeline = [
       {
         $match: {
-          ...(packingId ? { _id: new mongoose.Types.ObjectId(packingId) } : {}),
+          ...(packingId
+            ? { _id: { $ne: new mongoose.Types.ObjectId(packingId) } }
+            : {}),
           quotationId: new mongoose.Types.ObjectId(quotationId),
         },
       },
-    ]);
+    ];
+    console.log(existingPackingPipeline);
+    const existingPackingsData = this.Model.aggregate(existingPackingPipeline);
     const [quotation, existingPackings] = await Promise.all([
       quotationData,
       existingPackingsData,
