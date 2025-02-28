@@ -112,9 +112,65 @@ class InvoiceService extends Service {
         },
       },
       {
+        $lookup: {
+          from: "products",
+          localField: "products.product",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $lookup: {
+                from: "productuoms",
+                localField: "uom",
+                foreignField: "_id",
+                as: "uom",
+              },
+            },
+            { $unwind: { path: "$uom", preserveNullAndEmptyArrays: true } },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                description: 1,
+                productCode: 1,
+                uom: "$uom.shortName",
+              },
+            },
+          ],
+          as: "productDetails",
+        },
+      },
+      {
         $addFields: {
           packingNo: { $arrayElemAt: ["$packing.packingNo", 0] },
           packing: { $arrayElemAt: ["$packing", 0] },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "packing.products.product",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $lookup: {
+                from: "productuoms",
+                localField: "uom",
+                foreignField: "_id",
+                as: "uom",
+              },
+            },
+            { $unwind: { path: "$uom", preserveNullAndEmptyArrays: true } },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                description: 1,
+                productCode: 1,
+                uom: "$uom.shortName",
+              },
+            },
+          ],
+          as: "productDetails",
         },
       },
     ]);
@@ -126,7 +182,23 @@ class InvoiceService extends Service {
         httpStatus: httpStatus.NOT_FOUND,
       };
     }
-    return invoice[0];
+
+    const output = invoice[0];
+
+    const { packing, productDetails } = output;
+
+    for (let i of packing.products) {
+      for (let j of productDetails) {
+        if (j._id.toString() === i.product.toString()) {
+          i.name = j.name;
+          i.productCode = j.productCode;
+          i.uom = j.uom;
+          break;
+        }
+      }
+    }
+    delete output.productDetails;
+    return output;
 
     //const invoice = invoiceData[0];
     //const quotation = await QuotationService.get(invoice.quotationId);
