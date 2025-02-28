@@ -535,6 +535,14 @@ class PackingService extends Service {
       };
     }
 
+    if (packing.invoiceId) {
+      throw {
+        status: false,
+        message: "Cannot delete packing with active billing",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
     for (const key of products) {
       const id = key.product.toString();
       stock.set(id, stock.get(id) + key.quantity);

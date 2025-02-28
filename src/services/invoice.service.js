@@ -138,7 +138,7 @@ class InvoiceService extends Service {
       },
       {
         $project: {
-          packingNo: 1,
+          name: "$packingNo",
         },
       },
     ]);
@@ -156,30 +156,31 @@ class InvoiceService extends Service {
   }
 
   static async create(invoiceData) {
+    const { packingId } = invoiceData;
+    const packing = await PackingService.getDocById(packingId);
     const { quotationId } = invoiceData;
     const quotation = await QuotationService.getDocById(quotationId);
-    if (quotation.invoiceId) {
+    if (packing.invoiceId) {
       throw {
         status: false,
-        message: "Another bill for this quotation already exists",
+        message: "Another bill for this packing already exists",
         httpStatus: httpStatus.CONFLICT,
       };
     }
 
-    if (quotation.status !== "Approved") {
+    if (!packing.packed) {
       throw {
         status: false,
-        message: `Cannot create invoice for ${quotation.status} quotation`,
+        message: `Cannot create invoice for unpacked packing`,
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
 
     invoiceData.invoiceTo = quotation.customer;
-    invoiceData.shipTo = quotation.customer;
 
     const invoice = await this.Model.create(invoiceData);
-    quotation.invoiceId = invoice._id;
-    await quotation.save();
+    packing.invoiceId = invoice._id;
+    await packing.save();
     return invoice;
   }
 
