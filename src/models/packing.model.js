@@ -54,7 +54,7 @@ const packingSchema = new BaseSchema({
   },
   netPackedQuantity: {
     type: Number,
-    min: 1,
+    min: 0,
   },
   products: {
     type: [itemSchema],
