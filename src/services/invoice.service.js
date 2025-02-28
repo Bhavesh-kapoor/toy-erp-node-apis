@@ -177,6 +177,7 @@ class InvoiceService extends Service {
     }
 
     invoiceData.invoiceTo = quotation.customer;
+    invoice.quotationId = quotationId;
 
     const invoice = await this.Model.create(invoiceData);
     packing.invoiceId = invoice._id;
