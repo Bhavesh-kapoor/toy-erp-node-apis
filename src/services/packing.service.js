@@ -504,6 +504,7 @@ class PackingService extends Service {
 
     const quotation = await QuotationService.getDocById(packing.quotationId);
     const { products } = quotation;
+    const { products: packedProducts } = packing;
 
     //for (let i of products) {
     //  if (i.quantity < i.packedQuantity) {
@@ -513,8 +514,14 @@ class PackingService extends Service {
     //      httpStatus: httpStatus.BAD_REQUEST,
     //    };
     //  }
-    //}
     //
+    //
+    const finalProducts = packedProducts.filter((ele) => {
+      return ele.quantity;
+    });
+
+    packing.products = finalProducts;
+
     packing.packed = true;
     await quotation.save();
     await packing.save();
