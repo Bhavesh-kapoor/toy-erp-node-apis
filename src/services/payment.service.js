@@ -35,7 +35,7 @@ class PaymentService extends Service {
           paymentDate: 1,
           ledgerName: { $arrayElemAt: ["$ledgerData.companyName", 0] },
           employeeName: { $arrayElemAt: ["$employeeData.name", 0] },
-          netAmount: 1,
+          amount: 1,
           paymentType: 1,
           paymentMethod: 1,
           paymentStatus: 1,
