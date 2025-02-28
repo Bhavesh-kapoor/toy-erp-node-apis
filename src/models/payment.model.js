@@ -81,7 +81,6 @@ const paymentSchema = new BaseSchema({
   },
   remarks: {
     type: String,
-    required: true,
     trim: true,
   },
   document: {

@@ -3,6 +3,7 @@ import Payment from "#models/payment";
 import UserService from "#services/user";
 import httpStatus from "#utils/httpStatus";
 import LedgerService from "#services/ledger";
+import PurchaseService from "#services/purchase";
 import QuotationService from "#services/quotation";
 
 class PaymentService extends Service {
@@ -59,20 +60,24 @@ class PaymentService extends Service {
       },
     ]);
 
-    const employeeData = UserService.getWithAggregate([
+    const purchaseData = PurchaseService.getWithAggregate([
+      {
+        $match: {
+          stockAdded: true,
+        },
+      },
       {
         $project: {
-          name: 1,
-          email: 1,
+          name: "$purchaseNo",
         },
       },
     ]);
 
-    const [ledgers, employees] = await Promise.all([ledgerData, employeeData]);
+    const [ledgers, purchases] = await Promise.all([ledgerData, purchaseData]);
 
     return {
       ledgers,
-      employees,
+      purchases,
     };
   }
 

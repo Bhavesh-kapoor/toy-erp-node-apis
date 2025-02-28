@@ -5,6 +5,7 @@ import LedgerService from "#services/ledger";
 import WarehouseService from "#services/warehouse";
 import UserService from "#services/user";
 import httpStatus from "#utils/httpStatus";
+import PaymentService from "#services/payment";
 
 class PurchaseService extends Service {
   static Model = Purchase;
@@ -164,6 +165,21 @@ class PurchaseService extends Service {
 
   static async update(id, updates) {
     const purchase = await this.Model.findDocById(id);
+    const existingPayment = await PaymentService.getWithAggregate([
+      {
+        $match: {
+          purchaseId: new mongoose.Types.ObjectId(id),
+        },
+      },
+    ]);
+
+    if (existingPayment.length) {
+      throw {
+        status: false,
+        message: "Cannot update purchase which has an entry in payment",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
 
     if (
       updates.warehouseId &&
