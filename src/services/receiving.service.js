@@ -26,7 +26,7 @@ class ReceivingService extends Service {
           receivingNo: 1,
           receivingDate: 1,
           ledgerName: { $arrayElemAt: ["$ledgerData.companyName", 0] },
-          netAmount: 1,
+          amount: 1,
           receivingType: 1,
           receivingMethod: 1,
           receivingStatus: 1,
