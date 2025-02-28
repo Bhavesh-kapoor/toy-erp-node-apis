@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Service from "#services/base";
-import Receiving from "#models/payment";
+import Receiving from "#models/receiving";
 import UserService from "#services/user";
 import httpStatus from "#utils/httpStatus";
 import LedgerService from "#services/ledger";
@@ -114,7 +114,7 @@ class ReceivingService extends Service {
       };
     }
     const quotation = await QuotationService.getDoc({
-      invoiceId: paymentData.invoiceId,
+      invoiceId: receivingData.invoiceId,
     });
     quotation.amountPaid += receivingData.amount;
     quotation.amountPending = quotation.netAmount - quotation.amountPaid;
@@ -137,20 +137,20 @@ class ReceivingService extends Service {
       ledgerId,
       invoiceId,
       purchaseReturnId,
-      paymentType,
+      receivingType,
       purchaseId,
       invoiceReturnId,
     } = receivingData;
 
-    if (!paymentType) {
+    if (!receivingType) {
       throw {
         status: false,
-        message: "Payment type is required",
+        message: "Receiving type is required",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
 
-    if (paymentType === "Invoice") {
+    if (receivingType === "Invoice") {
       if (!invoiceId) {
         throw {
           status: false,
@@ -165,7 +165,7 @@ class ReceivingService extends Service {
           httpStatus: httpStatus.BAD_REQUEST,
         };
       }
-    } else if (paymentType === "Purchase Return") {
+    } else if (receivingType === "Purchase Return") {
       if (!purchaseReturnId) {
         throw {
           status: false,
