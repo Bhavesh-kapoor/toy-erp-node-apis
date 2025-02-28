@@ -23,14 +23,6 @@ class InvoiceService extends Service {
       },
       {
         $lookup: {
-          from: "ledgers",
-          localField: "shipTo",
-          foreignField: "_id",
-          as: "shipToDetails",
-        },
-      },
-      {
-        $lookup: {
           from: "users",
           localField: "preparedBy",
           foreignField: "_id",
@@ -57,7 +49,6 @@ class InvoiceService extends Service {
           referenceNo: 1,
           shipTo: 1,
           invoiceTo: { $arrayElemAt: ["$invoiceToDetails.companyName", 0] },
-          shipTo: { $arrayElemAt: ["$shipToDetails.companyName", 0] },
           preparedBy: { $arrayElemAt: ["$preparedByDetails.name", 0] },
           quotationNo: { $arrayElemAt: ["$quotationDetails.quotationNo", 0] },
           netAmount: { $arrayElemAt: ["$quotationDetails.netAmount", 0] },
