@@ -1,6 +1,7 @@
-import Warehouse from "#models/warehouse";
-import Service from "#services/base";
 import mongoose from "mongoose";
+import Service from "#services/base";
+import Product from "#models/product";
+import Warehouse from "#models/warehouse";
 import ProductService from "#services/product";
 
 class WarehouseService extends Service {
@@ -65,8 +66,14 @@ class WarehouseService extends Service {
     return await this.Model.aggregate(pipeline);
   }
 
-  static async getStockWithWarehouseId(id) {
-    const productData = ProductService.getWithAggregate([
+  static async getStockWithWarehouseId(id, filter) {
+    const initialStage = [];
+    const extraStage = [
+      {
+        $sort: {
+          name: 1,
+        },
+      },
       {
         $project: {
           name: 1,
@@ -75,7 +82,9 @@ class WarehouseService extends Service {
           productCode: 1,
         },
       },
-    ]);
+    ];
+
+    const productData = Product.findAll(filter, initialStage, extraStage);
 
     const warehouseData = this.Model.findDocById(id);
     const [warehouse, product] = await Promise.all([
@@ -85,13 +94,11 @@ class WarehouseService extends Service {
 
     const { stock } = warehouse;
 
-    product.forEach((ele) => {
+    product.result.forEach((ele) => {
       ele.stockInHand = stock.get(ele._id) ?? 0;
     });
 
-    return {
-      product,
-    };
+    return product;
   }
 
   static async getStockWithPagination(id) {

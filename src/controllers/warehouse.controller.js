@@ -12,13 +12,13 @@ export const get = asyncHandler(async (req, res, next) => {
 
 export const getStockByWarehouse = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const data = await WarehouseService.getStockWithWarehouseId(id);
+  const data = await WarehouseService.getStockWithWarehouseId(id, req.query);
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
-export const getStockWithPagination = asyncHandler(async (req,res,next) => {
-
-})
+export const getStockWithPagination = asyncHandler(
+  async (req, res, next) => {},
+);
 
 export const create = asyncHandler(async (req, res, next) => {
   const data = req.body;

@@ -10,6 +10,6 @@ import {
 const router = express.Router();
 
 router.route("/public/:id").get(getStockByWarehouse);
-router.route("/get-stock")
+router.route("/get-stock");
 router.route("/:id?").get(get).post(create).put(update).delete(deleteData);
 export default router;

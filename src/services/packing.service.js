@@ -438,7 +438,7 @@ class PackingService extends Service {
       key.quantity = newProductData[id];
       updates.netPackedQuantity += newProductData[id];
     }
-
+    return updatedProductArr;
     updates.products = updatedProductArr;
 
     delete updates.customer;

@@ -141,7 +141,6 @@ class BaseSchema extends Schema {
       }
 
       extraStages?.length ? pipeline.push(...extraStages) : null;
-
       // Count total documents for pagination metadata
       const countPipeline = [...pipeline];
       countPipeline.splice(-2); // Remove $skip and $limit stages
