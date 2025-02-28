@@ -138,14 +138,14 @@ class InvoiceService extends Service {
       },
     ]);
 
-    const [users, quotations, ledgers] = await Promise.all([
+    const [users, packings, ledgers] = await Promise.all([
       userData,
       packingData,
       ledgerData,
     ]);
     return {
       users,
-      quotations,
+      packings,
       ledgers,
     };
   }
