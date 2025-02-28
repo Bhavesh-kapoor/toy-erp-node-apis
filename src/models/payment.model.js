@@ -15,11 +15,6 @@ const PaymentStatus = {
   COMPLETED: "Completed",
 };
 
-const PaymentDirection = {
-  PAID: "Paid",
-  RECEIVED: "Received",
-};
-
 const PaymentMethod = {
   CASH: "Cash",
   DEBIT_CARD: "Debit Card",
@@ -54,10 +49,6 @@ const paymentSchema = new BaseSchema({
     type: mongoose.Schema.Types.ObjectId,
     ref: Ledger,
   },
-  quotationId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: Quotation,
-  },
   invoiceId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: Invoice,
@@ -82,11 +73,6 @@ const paymentSchema = new BaseSchema({
     enum: Object.values(PaymentMethod),
     required: true,
   },
-  paymentDirection: {
-    type: String,
-    enum: Object.values(PaymentDirection),
-    required: true,
-  },
   paymentStatus: {
     type: String,
     enum: Object.values(PaymentStatus),
@@ -97,6 +83,10 @@ const paymentSchema = new BaseSchema({
     type: String,
     required: true,
     trim: true,
+  },
+  document: {
+    type: String,
+    file: true,
   },
 });
 
