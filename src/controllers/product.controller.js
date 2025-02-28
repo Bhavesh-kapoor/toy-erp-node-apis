@@ -16,6 +16,12 @@ export const searchProduct = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getProductStock = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const data = await ProductService.getStock(id);
+  sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
+});
+
 export const getLimitedFields = asyncHandler(async (req, res, next) => {
   const data = await ProductService.getWithoutPagination();
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");

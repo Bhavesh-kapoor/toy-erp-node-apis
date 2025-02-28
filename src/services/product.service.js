@@ -57,6 +57,34 @@ class ProductService extends Service {
     return this.Model.findAll(filter, initialStage, extraStage);
   }
 
+  static async getStock(id) {
+    const data = await this.Model.findDocById(id);
+    const warehouse = await WarehouseService.getWithAggregate([
+      { $project: { stock: 1, name: 1 } },
+    ]);
+
+    const output = warehouse.map((ele) => {
+      const { stock } = ele;
+      const data = {
+        name: ele.name,
+        quantity: stock[id] ?? 0,
+      };
+      return data;
+    });
+
+    const fakePagination = {
+      result: output,
+      pagination: {
+        totalPages: 1,
+        totalItems: output.length,
+        currentpage: 1,
+        itemsPerPage: output.length,
+      },
+    };
+
+    return fakePagination;
+  }
+
   static async searchWithNameAndCode(search) {
     search = search?.toString() ?? "";
 
