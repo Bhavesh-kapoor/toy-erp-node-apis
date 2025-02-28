@@ -101,25 +101,7 @@ class ReceivingService extends Service {
 
   static async create(receivingData) {
     this.validate(receivingData);
-    const existingReceiving = await this.Model.findDoc(
-      { invoiceId: receivingData.invoiceId, status: "Pending" },
-      true,
-    );
-
-    if (existingReceiving) {
-      throw {
-        status: false,
-        message: "Please approve the existing receiving first",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-    const quotation = await QuotationService.getDoc({
-      invoiceId: receivingData.invoiceId,
-    });
-    quotation.amountPaid += receivingData.amount;
-    quotation.amountPending = quotation.netAmount - quotation.amountPaid;
     const receiving = await this.Model.create(receivingData);
-    await quotation.save();
     return receiving;
   }
 
@@ -128,7 +110,7 @@ class ReceivingService extends Service {
     this.validate(updates);
 
     receiving.update(updates);
-    awaitreceiving.save();
+    await receiving.save();
     return receiving;
   }
 
