@@ -66,6 +66,7 @@ class ProductService extends Service {
     const output = warehouse.map((ele) => {
       const { stock } = ele;
       const data = {
+        _id: ele._id,
         name: ele.name,
         quantity: stock[id] ?? 0,
       };
