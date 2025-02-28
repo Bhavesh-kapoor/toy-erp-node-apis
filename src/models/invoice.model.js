@@ -98,6 +98,10 @@ const invoiceSchema = new BaseSchema(
       type: Number,
       default: 0,
     },
+    paid: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

@@ -12,24 +12,11 @@ class ReceivingService extends Service {
   static async get(id, filter) {
     const initialStage = [
       {
-        $match: {
-          paymentType: { $in: ["Invoice, Purchase Return"] },
-        },
-      },
-      {
         $lookup: {
           from: "ledgers",
           localField: "ledgerId",
           foreignField: "_id",
           as: "ledgerData",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "employee",
-          foreignField: "_id",
-          as: "employeeData",
         },
       },
     ];
@@ -39,12 +26,10 @@ class ReceivingService extends Service {
           receivingNo: 1,
           receivingDate: 1,
           ledgerName: { $arrayElemAt: ["$ledgerData.companyName", 0] },
-          employeeName: { $arrayElemAt: ["$employeeData.name", 0] },
           netAmount: 1,
           receivingType: 1,
           receivingMethod: 1,
           receivingStatus: 1,
-          receivingDirection: 1,
         },
       },
     ];
@@ -57,46 +42,46 @@ class ReceivingService extends Service {
   }
 
   static async getBaseFields(type) {
-    if (type === "Invoice") {
-      const ledger = await LedgerService.getWithAggregate([
-        {
-          $match: { ledgerType: { $in: ["Customer", "Both"] } },
+    //if (type === "Invoice") {
+    const ledger = await LedgerService.getWithAggregate([
+      {
+        $match: { ledgerType: { $in: ["Customer", "Both"] } },
+      },
+      {
+        $project: {
+          name: "$companyName",
         },
-        {
-          $project: {
-            name: "$companyName",
-          },
+      },
+    ]);
+    const invoice = await InvoiceService.getWithAggregate([
+      {
+        $match: {
+          paid: { $ne: true },
         },
-      ]);
-      const invoice = await InvoiceService.getWithAggregate([
-        {
-          $match: {
-            amountPending: { $gt: 0 },
-          },
+      },
+      {
+        $project: {
+          name: "$billNumber",
         },
-        {
-          $project: {
-            name: "$billNumber",
-          },
-        },
-      ]);
+      },
+    ]);
 
-      return {
-        ledger,
-        invoice,
-      };
-    } else {
-      const ledger = await LedgerService.getWithAggregate([
-        {
-          $match: { ledgerType: { $in: ["Both", "Supplier"] } },
-        },
-        {
-          $project: {
-            name: "$companyName",
-          },
-        },
-      ]);
-    }
+    return {
+      ledger,
+      invoice,
+    };
+    //} else {
+    //  const ledger = await LedgerService.getWithAggregate([
+    //    {
+    //      $match: { ledgerType: { $in: ["Both", "Supplier"] } },
+    //    },
+    //    {
+    //      $project: {
+    //        name: "$companyName",
+    //      },
+    //    },
+    //  ]);
+    //}
 
     return {
       ledger,
