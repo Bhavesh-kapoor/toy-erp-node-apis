@@ -204,7 +204,7 @@ class PackingService extends Service {
   static async getMaxQuantity(filters) {
     const { quotationId, packingId = null } = filters;
     const quotationData = QuotationService.getDocById(quotationId);
-    const existingPackingPipeline = [
+    const existingPackingsData = this.Model.aggregate([
       {
         $match: {
           ...(packingId
@@ -213,9 +213,7 @@ class PackingService extends Service {
           quotationId: new mongoose.Types.ObjectId(quotationId),
         },
       },
-    ];
-    console.log(existingPackingPipeline);
-    const existingPackingsData = this.Model.aggregate(existingPackingPipeline);
+    ]);
     const [quotation, existingPackings] = await Promise.all([
       quotationData,
       existingPackingsData,
