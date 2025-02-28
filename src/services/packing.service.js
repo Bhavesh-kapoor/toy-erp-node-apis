@@ -320,10 +320,20 @@ class PackingService extends Service {
 
     const updatedProductArr = JSON.parse(JSON.stringify(products));
 
+    let totalPacked = 0;
     for (const key of updatedProductArr) {
       const id = key.product;
       key.quantity = newProductData[id];
+      totalPacked += key.quantity;
       packingData.netPackedQuantity += newProductData[id];
+    }
+
+    if (totalPacked < 1) {
+      throw {
+        status: false,
+        message: "Please add atleast one product",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
     }
 
     packingData.products = updatedProductArr;
@@ -439,6 +449,7 @@ class PackingService extends Service {
 
     const updatedProductArr = JSON.parse(JSON.stringify(products));
 
+    let totalPacked = 0;
     for (const key of updatedProductArr) {
       const id = key.product;
       if (!(id in maxQuantity)) {
@@ -449,9 +460,17 @@ class PackingService extends Service {
         };
       }
       key.quantity = newProductData[id];
+      totalPacked += key.quantity;
       updates.netPackedQuantity += newProductData[id];
     }
 
+    if (totalPacked < 1) {
+      throw {
+        status: false,
+        message: "Please add atleast one product",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
     updates.products = updatedProductArr;
 
     delete updates.customer;
@@ -486,16 +505,16 @@ class PackingService extends Service {
     const quotation = await QuotationService.getDocById(packing.quotationId);
     const { products } = quotation;
 
-    for (let i of products) {
-      if (i.quantity !== i.packedQuantity) {
-        throw {
-          status: false,
-          message: "Invalid stock values",
-          httpStatus: httpStatus.BAD_REQUEST,
-        };
-      }
-    }
-
+    //for (let i of products) {
+    //  if (i.quantity < i.packedQuantity) {
+    //    throw {
+    //      status: false,
+    //      message: "Invalid stock values",
+    //      httpStatus: httpStatus.BAD_REQUEST,
+    //    };
+    //  }
+    //}
+    //
     packing.packed = true;
     await quotation.save();
     await packing.save();
