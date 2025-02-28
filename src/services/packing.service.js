@@ -50,11 +50,9 @@ class PackingService extends Service {
           packingNo: 1,
           quotationNo: "$quotationData.quotationNo",
           customer: { $arrayElemAt: ["$customerData.companyName", 0] },
-          netAmount: "$quotationData.netAmount",
           packedBy: { $arrayElemAt: ["$packedByData.name", 0] },
           packingDate: 1,
           enquiryDate: 1,
-          nagPacking: 1,
           totalQuantity: 1,
           netPackedQuantity: 1,
           invoiceId: 1,
@@ -329,7 +327,6 @@ class PackingService extends Service {
     }
 
     packingData.products = updatedProductArr;
-
     const createdPacking = await this.Model.create(packingData);
     await warehouse.save();
     await quotation.save();
@@ -407,8 +404,17 @@ class PackingService extends Service {
 
     for (let product of packing.products) {
       const id = product.product;
+      if (!(id in maxQuantity)) {
+        throw {
+          status: false,
+          message: "Invalid update operation",
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
+
       stock.set(id, stock.get(id) + product.quantity);
     }
+
     for (const i in newProductData) {
       if (newProductData[i] > maxAllowedQuantity[i]) {
         const product = await ProductService.getDocById(i);
@@ -435,6 +441,13 @@ class PackingService extends Service {
 
     for (const key of updatedProductArr) {
       const id = key.product;
+      if (!(id in maxQuantity)) {
+        throw {
+          status: false,
+          message: "Invalid update operation",
+          httpStatus: httpStatus.BAD_REQUEST,
+        };
+      }
       key.quantity = newProductData[id];
       updates.netPackedQuantity += newProductData[id];
     }
@@ -444,7 +457,6 @@ class PackingService extends Service {
     delete updates.customer;
     delete updates.quotationId;
     delete updates.packingNo;
-    delete updates.products;
 
     packing.update(updates);
     await packing.save();
