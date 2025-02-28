@@ -536,9 +536,10 @@ class PackingService extends Service {
     }
 
     for (const key of products) {
-      const id = key.product;
-      stock[id] += key.quantity;
+      const id = key.product.toString();
+      stock.set(id, stock.get(id) + key.quantity);
     }
+
     await warehouse.save();
     await packing.deleteOne();
   }
