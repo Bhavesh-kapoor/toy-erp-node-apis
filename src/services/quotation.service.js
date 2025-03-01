@@ -296,24 +296,24 @@ class QuotationService extends Service {
   }
 
   static async sendQuotation(id, data) {
-    const quotation = await this.Model.findDocById(id);
-    const pdf = session.get("files");
-
-    console.log(pdf);
-
-    // Email options
-    const mailOptions = {
-      from: '"Volvrit" <deepak.singh@volvrit.com>', // Sender's email
-      to: userData.email, // Receiver's email
-      subject: "Test Email with Nodemailer", // Email subject
-      text: "Hello, this is a test email sent using Nodemailer!", // Plain text body
-      attachments: [
-        {
-          filename: req.file.originalname, // Keep original filename
-          content: req.file.buffer, // File buffer
-        },
-      ],
-    };
+    //const quotation = await this.Model.findDocById(id);
+    //const pdf = session.get("files");
+    //
+    //console.log(pdf);
+    //
+    //// Email options
+    //const mailOptions = {
+    //  from: '"Volvrit" <deepak.singh@volvrit.com>', // Sender's email
+    //  to: userData.email, // Receiver's email
+    //  subject: "Test Email with Nodemailer", // Email subject
+    //  text: "Hello, this is a test email sent using Nodemailer!", // Plain text body
+    //  attachments: [
+    //    {
+    //      filename: req.file.originalname, // Keep original filename
+    //      content: req.file.buffer, // File buffer
+    //    },
+    //  ],
+    //};
     //await sendEmail(mailOptions);
   }
 

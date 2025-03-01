@@ -272,6 +272,7 @@ class PackingService extends Service {
     const maxQuantity = {};
     const currentPacked = {};
     let { products } = quotation;
+    let totalProducts = 0;
 
     for (const product of products) {
       const id = product.product;
@@ -290,8 +291,9 @@ class PackingService extends Service {
       if (!currentPacked[product]) currentPacked[product] = 0;
       maxAllowedQuantity[product] =
         maxQuantity[product] - currentPacked[product];
-    }
 
+      totalProducts += maxAllowedQuantity[product];
+    }
     const { stock } = warehouse;
 
     packingData.customer = quotation.customer;
@@ -335,8 +337,18 @@ class PackingService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
-	
-	if(rema)
+
+    if (totalPacked > totalProducts) {
+      throw {
+        status: false,
+        message: "Invalid quantity",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (totalProducts === totalPacked) {
+      quotation.packed = true;
+    }
 
     packingData.products = updatedProductArr;
     const createdPacking = await this.Model.create(packingData);
@@ -393,6 +405,8 @@ class PackingService extends Service {
     const currentPacked = {};
     let { products } = quotation;
 
+    let totalProducts = 0;
+
     for (const product of products) {
       const id = product.product;
       maxQuantity[id] = product.quantity;
@@ -410,6 +424,8 @@ class PackingService extends Service {
       if (!currentPacked[product]) currentPacked[product] = 0;
       maxAllowedQuantity[product] =
         maxQuantity[product] - currentPacked[product];
+
+      totalProducts += maxAllowedQuantity[product];
     }
 
     const { stock } = warehouse;
@@ -473,6 +489,19 @@ class PackingService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+
+    if (totalPacked > totalProducts) {
+      throw {
+        status: false,
+        message: "Invalid quantity",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (totalProducts === totalPacked) {
+      quotation.packed = true;
+    }
+
     updates.products = updatedProductArr;
 
     delete updates.customer;
@@ -538,7 +567,15 @@ class PackingService extends Service {
 
   static async deleteDoc(id) {
     const packing = await this.Model.findDocById(id);
-    const warehouse = await WarehouseService.getDocById(packing.warehouseId);
+    const quotationData = QuotationService.getDocById(packing.quotationId);
+    const warehouseData = await WarehouseService.getDocById(
+      packing.warehouseId,
+    );
+
+    const [quotation, warehouse] = await Promise.all([
+      quotationData,
+      warehouseData,
+    ]);
 
     const { stock } = warehouse;
     const { products } = packing;
@@ -559,11 +596,15 @@ class PackingService extends Service {
       };
     }
 
+    let totalPacked = 0;
     for (const key of products) {
       const id = key.product.toString();
+      totalPacked += key.quantity;
       stock.set(id, stock.get(id) + key.quantity);
     }
+    if (totalPacked) quotation.packed = false;
 
+    await quotation.save();
     await warehouse.save();
     await packing.deleteOne();
   }
