@@ -60,11 +60,7 @@ class Service {
    */
   static async deleteDoc(id) {
     const deletedDoc = await this.Model.findDocById(id);
-
-    // TODO: Implement proper delete after performing checks
-
-    deletedDoc.deletedAt = new Date();
-    await deletedDoc.save();
+    await deletedDoc.deleteOne();
     return deletedDoc;
   }
 }

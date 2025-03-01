@@ -568,6 +568,27 @@ class QuotationService extends Service {
     });
     return quotation;
   }
+
+  static async deleteDoc(id) {
+    const quotation = await this.Model.findDocById(id);
+
+    const existingPacking = await PackingService.getWithAggregate([
+      {
+        $match: {
+          quotationId: new mongoose.Types.ObjectId(id),
+        },
+      },
+    ]);
+    if (existingPacking.length) {
+      throw {
+        status: false,
+        message:
+          "An active packing is present for this quotation, please remove that first",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+    await quotation.deleteOne();
+  }
 }
 
 export default QuotationService;
