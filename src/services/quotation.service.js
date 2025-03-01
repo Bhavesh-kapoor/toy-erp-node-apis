@@ -450,6 +450,8 @@ class QuotationService extends Service {
 
     quotation.update(updates);
     quotation.invoiceId = null;
+    delete quotation.approvedOn;
+
     await quotation.save();
     await ActivityLogService.create({
       quotationId: id,
@@ -532,6 +534,8 @@ class QuotationService extends Service {
       quotation.approvedOn = new Date();
       quotation.latestData = quotation.products;
       quotation.lastData = quotation.latestData;
+    } else {
+      quotation.approvedOn = null;
     }
 
     await quotation.save();

@@ -6,6 +6,7 @@ import httpStatus from "#utils/httpStatus";
 import LedgerService from "#services/ledger";
 import PackingService from "#services/packing";
 import PaymentService from "#services/payment";
+import ReceivingService from "#services/receiving";
 import QuotationService from "#services/quotation";
 
 class InvoiceService extends Service {
@@ -289,7 +290,9 @@ class InvoiceService extends Service {
   }
 
   static async deleteDoc(id) {
-    const payments = await PaymentService.getWithAggregate([
+    const invoice = await this.Model.findDocById(id);
+
+    const receivings = await ReceivingService.getWithAggregate([
       {
         $match: {
           invoiceId: new mongoose.Types.ObjectId(id),
@@ -297,13 +300,14 @@ class InvoiceService extends Service {
       },
     ]);
 
-    if (payments.length) {
+    if (receivings.length) {
       throw {
         status: false,
-        message: "Please delete the payment related to this invoice",
+        message: "Please delete the receivings related to this invoice",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+    await invoice.deleteOne();
   }
 }
 

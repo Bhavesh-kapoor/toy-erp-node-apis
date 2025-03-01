@@ -24,31 +24,23 @@ class DashboardService {
   }
 
   static async getQuotationData(filters) {
-    const approvedQuotation = QuotationService.getWithAggregate([
+    const result = await QuotationService.getWithAggregate([
       {
-        $match: {
-          status: "Approved",
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          approved: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "Approved"] }, 1, 0],
+            },
+          },
         },
       },
-      {
-        $count: "total",
-      },
-    ]);
-
-    const totalQuotations = QuotationService.getWithAggregate([
-      {
-        $count: "total",
-      },
-    ]);
-
-    const [approved, total] = await Promise.all([
-      approvedQuotation,
-      totalQuotations,
     ]);
 
     return {
-      approved: approved[0]?.total,
-      total: total[0]?.total,
+      approved: result[0]?.approved || 0,
+      total: result[0]?.total || 0,
     };
   }
 

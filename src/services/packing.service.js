@@ -335,6 +335,8 @@ class PackingService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+	
+	if(rema)
 
     packingData.products = updatedProductArr;
     const createdPacking = await this.Model.create(packingData);
@@ -487,23 +489,30 @@ class PackingService extends Service {
   static async updatePackedStatus(id, packingData) {
     const packing = await this.Model.findDocById(id);
 
-    const { packed } = packing;
     const { packed: newStatus } = packingData;
 
+    const { packed } = packing;
+
     if (packed === newStatus) {
-      return;
+      return null;
+    }
+
+    if (packing.invoiceId) {
+      throw {
+        status: false,
+        message: "Cannot update a packing with invoiceId",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
     }
 
     if (packed === true) {
       throw {
         status: false,
-        message: "cannot update a packed package",
+        message: "Unable to update packed packaging, please delete this one",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
 
-    const quotation = await QuotationService.getDocById(packing.quotationId);
-    const { products } = quotation;
     const { products: packedProducts } = packing;
 
     //for (let i of products) {
@@ -516,6 +525,7 @@ class PackingService extends Service {
     //  }
     //
     //
+
     const finalProducts = packedProducts.filter((ele) => {
       return ele.quantity;
     });
@@ -523,7 +533,6 @@ class PackingService extends Service {
     packing.products = finalProducts;
 
     packing.packed = true;
-    await quotation.save();
     await packing.save();
   }
 
@@ -534,18 +543,18 @@ class PackingService extends Service {
     const { stock } = warehouse;
     const { products } = packing;
 
-    if (packing.packed) {
-      throw {
-        status: false,
-        message: "Cannot delete packed packing",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
     if (packing.invoiceId) {
       throw {
         status: false,
         message: "Cannot delete packing with active billing",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
+
+    if (packing.packed) {
+      throw {
+        status: false,
+        message: "Cannot delete packed packing, please mark it as unpacked",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
