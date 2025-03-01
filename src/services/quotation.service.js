@@ -469,30 +469,6 @@ class QuotationService extends Service {
       return;
     }
 
-    if (quotation.paid) {
-      throw {
-        status: false,
-        message: "Cannot update a completed sale",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
-    if (quotation.invoiceId) {
-      throw {
-        status: false,
-        message: "Cannot update a quotation with active billing",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
-    if (quotation.packingId) {
-      throw {
-        status: false,
-        message: "Quotation already has an active packing",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
     switch (existingStatus) {
       case "Cancelled":
         throw {
@@ -571,6 +547,13 @@ class QuotationService extends Service {
 
   static async deleteDoc(id) {
     const quotation = await this.Model.findDocById(id);
+    if (quotation.status === "Approved") {
+      throw {
+        status: false,
+        message: "Cannot delete approved quotation",
+        httpStatus: httpStatus.BAD_REQUEST,
+      };
+    }
 
     const existingPacking = await PackingService.getWithAggregate([
       {
