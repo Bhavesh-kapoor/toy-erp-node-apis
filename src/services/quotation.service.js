@@ -480,14 +480,15 @@ class QuotationService extends Service {
         const existingPacking = await PackingService.getWithAggregate([
           {
             $match: {
-              quotationId: id,
+              quotationId: new mongoose.Types.ObjectId(id),
             },
           },
         ]);
         if (existingPacking.length) {
           throw {
             status: false,
-            message: "Please delete the existing packing for this quotation",
+            message:
+              "Quotation already has an active packing, please remove that first",
             httpStatus: httpStatus.BAD_REQUEST,
           };
         }
