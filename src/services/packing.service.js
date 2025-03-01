@@ -348,6 +348,8 @@ class PackingService extends Service {
 
     if (totalProducts === totalPacked) {
       quotation.packed = true;
+    } else {
+      quotation.packed = false;
     }
 
     packingData.products = updatedProductArr;
@@ -500,6 +502,8 @@ class PackingService extends Service {
 
     if (totalProducts === totalPacked) {
       quotation.packed = true;
+    } else {
+      quotation.packed = false;
     }
 
     updates.products = updatedProductArr;
@@ -584,14 +588,6 @@ class PackingService extends Service {
       throw {
         status: false,
         message: "Cannot delete packing with active billing",
-        httpStatus: httpStatus.BAD_REQUEST,
-      };
-    }
-
-    if (packing.packed) {
-      throw {
-        status: false,
-        message: "Cannot delete packed packing, please mark it as unpacked",
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }

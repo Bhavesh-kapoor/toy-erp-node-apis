@@ -307,6 +307,11 @@ class InvoiceService extends Service {
         httpStatus: httpStatus.BAD_REQUEST,
       };
     }
+
+    //TODO: Purchase Return will be added here;
+    const packing = await PackingService.getDocById(invoice.packingId);
+    packing.invoiceId = null;
+    await packing.save();
     await invoice.deleteOne();
   }
 }
