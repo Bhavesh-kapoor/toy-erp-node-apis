@@ -113,6 +113,11 @@ const productSchema = new BaseSchema(
       min: 0,
       default: 0,
     },
+    minStock: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
   },
   { timestamps: true },
 );
