@@ -79,7 +79,7 @@ class WarehouseService extends Service {
       },
     ];
 
-    const productData = Product.findAll(filter, initialStage, extraStage);
+    const productData = Product.aggregate(extraStage);
 
     const warehouseData = this.Model.findDocById(id);
     const [warehouse, product] = await Promise.all([
