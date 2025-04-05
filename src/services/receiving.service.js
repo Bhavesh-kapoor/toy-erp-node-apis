@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 import Service from "#services/base";
 import Receiving from "#models/receiving";
 import UserService from "#services/user";
@@ -39,6 +39,44 @@ class ReceivingService extends Service {
     }
 
     return await this.Model.findDocById(id);
+  }
+
+  static async getTotalByLedgerId(id) {
+    const now = new Date();
+
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const startOfWeek = new Date(startOfDay);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Sunday
+
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+    const timeRanges = {
+      today: startOfDay,
+      thisWeek: startOfWeek,
+      thisMonth: startOfMonth,
+      thisYear: startOfYear,
+      total: null,
+    };
+
+    const queries = Object.entries(timeRanges).map(async ([key, startDate]) => {
+      const match = {
+        ledgerId: new mongoose.Types.ObjectId(id),
+        ...(startDate && { receivingDate: { $gte: startDate } }),
+      };
+
+      const result = await ReceivingService.Model.aggregate([
+        { $match: match },
+        { $group: { _id: null, total: { $sum: `$amount` } } },
+      ]);
+
+      return [key, result[0]?.total || 0];
+    });
+    const entries = await Promise.all(queries);
+    return Object.fromEntries(entries);
   }
 
   static async getBaseFields(type) {
