@@ -93,7 +93,9 @@ class WarehouseService extends Service {
       ele.stockInHand = stock.get(ele._id) ?? 0;
     });
 
-    return product;
+    const output = product.filter((ele) => ele.stockInHand);
+
+    return output;
   }
 
   static async getStockWithPagination(id) {
