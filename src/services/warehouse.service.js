@@ -89,7 +89,7 @@ class WarehouseService extends Service {
 
     const { stock } = warehouse;
 
-    product.result.forEach((ele) => {
+    product.forEach((ele) => {
       ele.stockInHand = stock.get(ele._id) ?? 0;
     });
 
