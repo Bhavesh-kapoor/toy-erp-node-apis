@@ -96,6 +96,13 @@ class QuotationService extends Service {
           },
           status: 1,
           _id: 1,
+          age: {
+            $dateDiff: {
+              startDate: "$quotationDate",
+              endDate: "$$NOW",
+              unit: "day",
+            },
+          },
         },
       },
     ];
@@ -209,6 +216,13 @@ class QuotationService extends Service {
           leadData: 0,
           packingData: 0,
           invoiceData: 0,
+          age: {
+            $dateDiff: {
+              startDate: "$quotationDate",
+              endDate: "$$NOW",
+              unit: "day",
+            },
+          },
         },
       },
     ]);

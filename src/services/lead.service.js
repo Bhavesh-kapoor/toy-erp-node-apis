@@ -43,6 +43,13 @@ class LeadService extends Service {
           _id: 1,
           createdAt: 1,
           updatedAt: 1,
+          age: {
+            $dateDiff: {
+              startDate: "$createdAt",
+              endDate: "$$NOW",
+              unit: "day",
+            },
+          },
         },
       },
     ];
@@ -67,6 +74,13 @@ class LeadService extends Service {
           pinCode: "$address.pinCode",
           country: "$address.country",
           landmark: "$address.landmark",
+          age: {
+            $dateDiff: {
+              startDate: "$createdAt",
+              endDate: "$$NOW",
+              unit: "day",
+            },
+          },
         },
       },
       {
