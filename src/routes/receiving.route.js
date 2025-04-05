@@ -5,10 +5,12 @@ import {
   update,
   deleteData,
   getBaseFields,
+  getTotalByLedgerId,
 } from "#controllers/receiving";
 
 const router = express.Router();
 
+router.route("/total/:id").get(getTotalByLedgerId);
 router.route("/public/base-fields").get(getBaseFields);
 router.route("/:id?").get(get).post(create).put(update).delete(deleteData);
 

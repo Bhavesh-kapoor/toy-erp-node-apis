@@ -21,6 +21,12 @@ export const getLimitedFields = asyncHandler(async (req, res, next) => {
   sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
 });
 
+export const getTotalByLedgerId = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const data = await ReceivingService.getTotalByLedgerId(id);
+  sendResponse(httpStatus.OK, res, data, "Record fetched successfully");
+});
+
 export const create = asyncHandler(async (req, res, next) => {
   const data = req.body;
   const createdData = await ReceivingService.create(data);
