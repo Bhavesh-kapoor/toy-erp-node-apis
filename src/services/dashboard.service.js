@@ -70,19 +70,47 @@ class DashboardService {
       totalExpenses: expenses?.total ?? 0,
     });
 
+    const calculateChange = (current, previous) => {
+      if (previous === 0 && current !== 0) return "+100.00";
+      if (previous === 0 && current === 0) return "0.00";
+      const change = ((current - previous) / previous) * 100;
+      return `${change >= 0 ? "+" : ""}${change.toFixed(2)}`;
+    };
+
+    const current = formatResult(
+      currentQuotations,
+      currentBillings,
+      currentLedgers,
+      currentExpenses,
+    );
+    const previous = formatResult(
+      previousQuotations,
+      previousBillings,
+      previousLedgers,
+      previousExpenses,
+    );
+
+    const difference = {
+      totalDeals: calculateChange(current.totalDeals, previous.totalDeals),
+      conversionRatio: calculateChange(
+        parseFloat(current.conversionRatio),
+        parseFloat(previous.conversionRatio),
+      ),
+      totalRevenue: calculateChange(
+        current.totalRevenue,
+        previous.totalRevenue,
+      ),
+      activeUsers: calculateChange(current.activeUsers, previous.activeUsers),
+      totalExpenses: calculateChange(
+        current.totalExpenses,
+        previous.totalExpenses,
+      ),
+    };
+
     return {
-      currentPeriod: formatResult(
-        currentQuotations,
-        currentBillings,
-        currentLedgers,
-        currentExpenses,
-      ),
-      previousPeriod: formatResult(
-        previousQuotations,
-        previousBillings,
-        previousLedgers,
-        previousExpenses,
-      ),
+      currentPeriod: current,
+      previousPeriod: previous,
+      difference,
     };
   }
 
@@ -193,4 +221,5 @@ class DashboardService {
     return result[0] ?? { total: 0 };
   }
 }
+
 export default DashboardService;
