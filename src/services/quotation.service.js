@@ -160,6 +160,13 @@ class QuotationService extends Service {
       },
       {
         $addFields: {
+          age: {
+            $dateDiff: {
+              startDate: "$quotationDate",
+              endDate: "$$NOW",
+              unit: "day",
+            },
+          },
           customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
           leadName: {
             $concat: [
@@ -204,23 +211,6 @@ class QuotationService extends Service {
                 },
               },
               else: [],
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          productDetails: 0,
-          preparedByData: 0,
-          customerData: 0,
-          leadData: 0,
-          packingData: 0,
-          invoiceData: 0,
-          age: {
-            $dateDiff: {
-              startDate: "$quotationDate",
-              endDate: "$$NOW",
-              unit: "day",
             },
           },
         },
