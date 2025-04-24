@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import Product from "#models/product";
+import State from "#models/state";
 import BaseSchema from "#models/base";
-import { addressSchema } from "#models/user";
+import City from "#models/city";
 
 // Define the Warehouse schema
 const warehouseSchema = new BaseSchema({
@@ -9,7 +9,36 @@ const warehouseSchema = new BaseSchema({
     type: String,
     required: true,
   },
-  address: addressSchema,
+  line1: {
+    type: String,
+    trim: true,
+  },
+  street: {
+    type: String,
+    trim: true,
+  },
+  city: {
+    type: BaseSchema.Types.ObjectId,
+    trim: true,
+    ref: City,
+  },
+  state: {
+    type: BaseSchema.Types.ObjectId,
+    trim: true,
+    ref: State,
+  },
+  pinCode: {
+    type: String,
+    trim: true,
+  },
+  country: {
+    type: String,
+    trim: true,
+  },
+  landmark: {
+    type: String,
+    trim: true,
+  },
   stock: {
     type: Map,
     of: {

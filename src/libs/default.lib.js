@@ -2,19 +2,6 @@ import mongoose from "mongoose";
 import State from "#models/state";
 import City from "#models/city";
 
-async function manageWarehouses(Model) {
-  const existing = await Model.find();
-  if (existing.length !== 2) {
-    for (let i = 0; i < 2; i++) {
-      const warehouseData = {
-        name: `Warehouse ${i}`,
-        stock: new Map(),
-      };
-      await Model.create(warehouseData);
-    }
-  }
-}
-
 const region = {
   "Andaman and Nicobar Islands": ["Port Blair"],
   Haryana: [
@@ -1729,9 +1716,6 @@ export async function defaultOperations() {
   const db = mongoose.connection;
 
   const { Warehouse, Role, City, State } = db.models;
-
-  // Set Up Warehouses
-  await manageWarehouses(Warehouse);
 
   // await manageRegion(region);
 

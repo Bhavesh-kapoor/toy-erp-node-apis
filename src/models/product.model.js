@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import Brand from "#models/brand";
 import BaseSchema from "#models/base";
 import uploadFile from "#utils/uploadFile";
@@ -100,6 +101,7 @@ const productSchema = new BaseSchema(
     sku: {
       type: String,
       unique: true,
+      required: true,
     },
     coverImage: {
       type: String,
@@ -122,6 +124,15 @@ const productSchema = new BaseSchema(
   { timestamps: true },
 );
 
+productSchema.pre("validate", function (next) {
+  this.sku = this.sku ?? "SKU-" + Math.random() * 13;
+  const hash = crypto.createHash("sha256").update(this.sku).digest("hex");
+  const barCode = BigInt("0x" + hash)
+    .toString()
+    .replace(/\D/g, "");
+  this.barCode = barCode.slice(0, 12).padEnd(12, "0");
+  next();
+});
 productSchema.pre("save", uploadFile);
 
 export default mongoose.model("Product", productSchema);

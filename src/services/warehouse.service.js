@@ -8,13 +8,30 @@ class WarehouseService extends Service {
   static Model = Warehouse;
 
   static async get(id, filter) {
-    const initialStage = [];
+    const initialStage = [
+      {
+        $lookup: {
+          from: "cities",
+          as: "cityData",
+          localField: "city",
+          foreignField: "_id",
+        },
+      },
+      {
+        $lookup: {
+          from: "states",
+          as: "stateData",
+          localField: "state",
+          foreignField: "_id",
+        },
+      },
+    ];
     const extraStage = [
       {
         $project: {
           name: 1,
-          state: "$address.state",
-          city: "$address.city",
+          state: { $arrayElemAt: ["$stateData.name", 0] },
+          city: { $arrayElemAt: ["$cityData.name", 0] },
           createdAt: 1,
           updatedAt: 1,
         },
@@ -24,31 +41,7 @@ class WarehouseService extends Service {
       return this.Model.findAll(filter, initialStage, extraStage);
     }
 
-    const pipeline = [
-      {
-        $match: {
-          _id: new mongoose.Types.ObjectId(id),
-        },
-      },
-      {
-        $project: {
-          name: 1,
-          state: "$address.state",
-          city: "$address.city",
-          line1: "$address.line1",
-          landmark: "$address.landmark",
-          pinCode: "$address.pinCode",
-          country: "$address.country",
-          street: "$address.street",
-          stock: 1,
-          createdAt: 1,
-          updatedAt: 1,
-        },
-      },
-    ];
-
-    const warehouseData = await this.Model.aggregate(pipeline);
-    return warehouseData[0];
+    return await super.get(id);
   }
 
   static async getLimitedFields(filters = {}) {
