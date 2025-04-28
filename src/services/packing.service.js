@@ -352,6 +352,8 @@ class PackingService extends Service {
       quotation.packed = false;
     }
 
+    packingData.netPackedQuantity = totalPacked;
+
     packingData.products = updatedProductArr;
     const createdPacking = await this.Model.create(packingData);
     await warehouse.save();
@@ -511,6 +513,8 @@ class PackingService extends Service {
     delete updates.customer;
     delete updates.quotationId;
     delete updates.packingNo;
+
+    packing.netPackedQuantity = totalPacked;
 
     packing.update(updates);
     await packing.save();

@@ -270,6 +270,7 @@ class QuotationService extends Service {
       {
         $project: {
           name: "$companyName",
+          email: 1,
         },
       },
     ]);
@@ -279,6 +280,7 @@ class QuotationService extends Service {
         $project: {
           name: {
             $concat: ["$firstName", " ", "$lastName"],
+            email: 1,
           },
         },
       },
