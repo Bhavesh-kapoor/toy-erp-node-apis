@@ -108,6 +108,7 @@ class PackingService extends Service {
       {
         $addFields: {
           quotationNo: "$quotationData.quotationNo",
+          netPackedQuantity: 1,
           quotationId: "$quotationData._id",
           customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
           packedByName: { $arrayElemAt: ["$packedByData.name", 0] },
