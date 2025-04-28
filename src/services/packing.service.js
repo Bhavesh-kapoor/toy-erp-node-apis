@@ -108,7 +108,6 @@ class PackingService extends Service {
       {
         $addFields: {
           quotationNo: "$quotationData.quotationNo",
-          netPackedQuantity: 1,
           quotationId: "$quotationData._id",
           customerName: { $arrayElemAt: ["$customerData.companyName", 0] },
           packedByName: { $arrayElemAt: ["$packedByData.name", 0] },
@@ -515,9 +514,9 @@ class PackingService extends Service {
     delete updates.quotationId;
     delete updates.packingNo;
 
+    packing.update(updates);
     packing.netPackedQuantity = totalPacked;
 
-    packing.update(updates);
     await packing.save();
     await warehouse.save();
     await quotation.save();
